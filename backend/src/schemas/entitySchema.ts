@@ -6,7 +6,7 @@ export const EntitySchema = z.object({
   name: z.string(),
   entityType: z.string(),
   summary: z.string(),
-  traits: z.record(z.any()),
+  traits: z.record(z.string(), z.any()),
   relationships: z.array(z.any()),
   sources: z.array(z.any())
 });

@@ -14,7 +14,9 @@ export class EntityController {
 
     try {
 
-      const { slug } = req.params;
+      const slug = String(
+        req.params.slug
+      );
 
       const entity =
         await this.entityService.getBySlug(
@@ -22,6 +24,7 @@ export class EntityController {
         );
 
       if (!entity) {
+
         return res.status(404).json({
           success: false,
           message: "Entity not found"
@@ -33,13 +36,12 @@ export class EntityController {
         data: entity
       });
 
-    } catch (error) {
+    } catch {
 
       return res.status(500).json({
         success: false,
         message: "Internal server error"
       });
-
     }
   };
 
@@ -63,7 +65,6 @@ export class EntityController {
       return res.status(500).json({
         success: false
       });
-
     }
   };
 }

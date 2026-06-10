@@ -28,7 +28,7 @@ export enum SourceType {
   AUDIO = "audio",
   VIDEO = "video",
 
-  OTHER = "other"
+  OTHER = "other",
   INSCRIPTION = "inscription",
   
   ORAL_HISTORY = "oral_history",

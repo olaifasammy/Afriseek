@@ -1,5 +1,5 @@
 import { AfriseekEntity } from "../../types/entity";
-import { Relationship } from "../../types/entity";
+import { Relationship } from "../../types/relationship";
 
 export interface TraversalResult {
   entityId: string;
