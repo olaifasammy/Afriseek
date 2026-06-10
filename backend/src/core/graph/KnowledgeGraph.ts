@@ -1,4 +1,5 @@
-import { AfriseekEntity } from "../../types/entity";
+import { AfriseekEntity }
+from "../../types/entity";
 
 export interface KnowledgeGraph {
 
@@ -11,6 +12,10 @@ export interface KnowledgeGraph {
   ): Promise<AfriseekEntity[]>;
 
   getNeighbors(
+    entityId: string
+  ): Promise<AfriseekEntity[]>;
+
+  getIncomingNeighbors(
     entityId: string
   ): Promise<AfriseekEntity[]>;
 
