@@ -1,0 +1,267 @@
+==============================
+FILE: backend/src/types/entity.ts
+==============================
+import { EntityType } from "./enums/EntityType";
+import { RelationshipType } from "./enums/RelationshipType";
+
+export interface Relationship {
+  type: RelationshipType;
+  targetId: string;
+  weight?: number;
+  description?: string;
+}
+
+export interface Source {
+  title: string;
+  author?: string;
+  publisher?: string;
+  year?: number;
+  url?: string;
+  accessDate?: string;
+}
+
+export interface Alias {
+  name: string;
+  language?: string;
+  type?: string;
+}
+
+export interface EntityMetadata {
+  createdAt: string;
+  updatedAt: string;
+  verified: boolean;
+  featured?: boolean;
+  popularityScore?: number;
+}
+
+export interface AfriseekEntity {
+  id: string;
+  slug: string;
+  name: string;
+
+  entityType: EntityType;
+
+  summary: string;
+
+  aliases?: Alias[];
+
+  endonyms?: string[];
+
+  exonyms?: string[];
+
+  traits: Record<string, any>;
+
+  relationships: Relationship[];
+
+  sources: Source[];
+
+  metadata: EntityMetadata;
+}
+
+==============================
+FILE: backend/src/types/traits.ts
+==============================
+export enum TraitType {
+
+  OVERVIEW = "overview",
+
+  HISTORY = "history",
+
+  TIMELINE = "timeline",
+
+  BIOGRAPHY = "biography",
+
+  GOVERNANCE = "governance",
+
+  GEOGRAPHY = "geography",
+
+  DEMOGRAPHICS = "demographics",
+
+  ECONOMY = "economy",
+
+  CULTURE = "culture",
+
+  LANGUAGE = "language",
+
+  RELIGION = "religion",
+
+  EDUCATION = "education",
+
+  HEALTHCARE = "healthcare",
+
+  INFRASTRUCTURE = "infrastructure",
+
+  ENVIRONMENT = "environment",
+
+  ARTS = "arts",
+
+  MUSIC = "music",
+
+  ARCHITECTURE = "architecture",
+
+  SCIENCE = "science",
+
+  TECHNOLOGY = "technology"
+}
+
+==============================
+FILE: backend/src/types/enums/EntityType.ts
+==============================
+export enum EntityType {
+
+  CONTINENT = "continent",
+  REGION = "region",
+  COUNTRY = "country",
+  TERRITORY = "territory",
+  STATE = "state",
+  PROVINCE = "province",
+  DISTRICT = "district",
+  LOCAL_GOVERNMENT = "local_government",
+  CITY = "city",
+  TOWN = "town",
+  VILLAGE = "village",
+
+  PERSON = "person",
+  ETHNIC_GROUP = "ethnic_group",
+  CLAN = "clan",
+  DYNASTY = "dynasty",
+  ROYAL_HOUSE = "royal_house",
+  DIASPORA_COMMUNITY = "diaspora_community",
+
+  EMPIRE = "empire",
+  KINGDOM = "kingdom",
+  REPUBLIC = "republic",
+  GOVERNMENT = "government",
+  TRADITIONAL_INSTITUTION = "traditional_institution",
+  POLITICAL_PARTY = "political_party",
+  MILITARY_UNIT = "military_unit",
+
+  LANGUAGE = "language",
+  LANGUAGE_FAMILY = "language_family",
+  RELIGION = "religion",
+  BELIEF_SYSTEM = "belief_system",
+  FESTIVAL = "festival",
+  CEREMONY = "ceremony",
+  CUSTOM = "custom",
+  RITUAL = "ritual",
+
+  ARTWORK = "artwork",
+  ART_STYLE = "art_style",
+  SCULPTURE = "sculpture",
+  PAINTING = "painting",
+  MASK = "mask",
+  TEXTILE = "textile",
+  CLOTHING = "clothing",
+  MUSICAL_INSTRUMENT = "musical_instrument",
+  MUSIC_GENRE = "music_genre",
+  DANCE = "dance",
+  FILM = "film",
+  LITERARY_WORK = "literary_work",
+  ORAL_TRADITION = "oral_tradition",
+
+  BOOK = "book",
+  MANUSCRIPT = "manuscript",
+  DOCUMENT = "document",
+  TREATY = "treaty",
+  CONSTITUTION = "constitution",
+  LEGAL_CODE = "legal_code",
+
+  LANDMARK = "landmark",
+  MONUMENT = "monument",
+  ARCHAEOLOGICAL_SITE = "archaeological_site",
+  SACRED_SITE = "sacred_site",
+  MUSEUM = "museum",
+  LIBRARY = "library",
+  UNIVERSITY = "university",
+  SCHOOL = "school",
+  HOSPITAL = "hospital",
+
+  RIVER = "river",
+  LAKE = "lake",
+  MOUNTAIN = "mountain",
+  FOREST = "forest",
+  DESERT = "desert",
+  ISLAND = "island",
+  ECOZONE = "ecozone",
+  CLIMATE_ZONE = "climate_zone",
+  FLORA = "flora",
+  FAUNA = "fauna",
+  NATURAL_RESOURCE = "natural_resource",
+
+  CURRENCY = "currency",
+  COMMODITY = "commodity",
+  COMPANY = "company",
+  MARKET = "market",
+  INDUSTRY = "industry",
+  TRADE_ROUTE = "trade_route",
+
+  HISTORICAL_EVENT = "historical_event",
+  BATTLE = "battle",
+  WAR = "war",
+  MIGRATION = "migration",
+  CORONATION = "coronation",
+  REVOLUTION = "revolution",
+  ELECTION = "election",
+  PANDEMIC = "pandemic",
+
+  TECHNOLOGY = "technology",
+  INVENTION = "invention",
+  RESEARCH_CENTER = "research_center"
+}
+
+==============================
+FILE: backend/src/types/enums/RelationshipType.ts
+==============================
+export enum RelationshipType {
+
+  LOCATED_IN = "located_in",
+  CONTAINS = "contains",
+  NEIGHBOR_OF = "neighbor_of",
+
+  PART_OF = "part_of",
+
+  CAPITAL_OF = "capital_of",
+
+  BORN_IN = "born_in",
+  DIED_IN = "died_in",
+
+  RULED = "ruled",
+  RULED_BY = "ruled_by",
+
+  FOUNDED = "founded",
+  FOUNDED_BY = "founded_by",
+
+  MEMBER_OF = "member_of",
+
+  SPEAKS = "speaks",
+  PRACTICES = "practices",
+
+  CREATED = "created",
+  CREATED_BY = "created_by",
+
+  INFLUENCED = "influenced",
+  INFLUENCED_BY = "influenced_by",
+
+  SUCCEEDED = "succeeded",
+  PRECEDED = "preceded",
+
+  PARTICIPATED_IN = "participated_in",
+
+  OCCURRED_IN = "occurred_in",
+
+  FLOWS_THROUGH = "flows_through",
+
+  TRADES_WITH = "trades_with",
+
+  PRODUCES = "produces",
+
+  IMPORTS = "imports",
+
+  EXPORTS = "exports",
+
+  MENTIONED_IN = "mentioned_in",
+
+  REFERENCES = "references",
+
+  RELATED_TO = "related_to"
+}

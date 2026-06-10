@@ -1,4 +1,5 @@
 import { EntityType } from "./enums/EntityType";
+import { EntityImportance } from "./importance";
 
 import { Trait } from "./trait";
 
@@ -39,6 +40,8 @@ export interface AfriseekEntity {
   name: string;
 
   entityType: EntityType;
+
+  importance?: EntityImportance;
 
   summary: string;
 
