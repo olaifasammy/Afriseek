@@ -6,15 +6,15 @@ class ImportanceEngine {
     score(importance) {
         switch (importance) {
             case importance_1.EntityImportance.GLOBAL:
-                return 100;
+                return 300;
             case importance_1.EntityImportance.CONTINENTAL:
-                return 80;
-            case importance_1.EntityImportance.REGIONAL:
-                return 60;
+                return 200;
             case importance_1.EntityImportance.NATIONAL:
-                return 40;
+                return 120;
+            case importance_1.EntityImportance.REGIONAL:
+                return 80;
             case importance_1.EntityImportance.LOCAL:
-                return 20;
+                return 40;
             default:
                 return 10;
         }

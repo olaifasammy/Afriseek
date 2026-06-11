@@ -1,21 +1,18 @@
 {
   "name": "afriseek-backend",
-
   "version": "0.1.0",
-
   "private": true,
-
   "scripts": {
     "build": "tsc",
     "dev": "tsx src/index.ts",
     "start": "node dist/index.js"
   },
-
   "dependencies": {
+    "@supabase/supabase-js": "^2.108.1",
+    "dotenv": "^17.4.2",
     "express": "^5.1.0",
     "zod": "^4.4.3"
   },
-
   "devDependencies": {
     "@types/express": "^5.0.3",
     "@types/node": "^24.6.0",

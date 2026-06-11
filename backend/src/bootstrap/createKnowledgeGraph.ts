@@ -1,33 +1,13 @@
-import { AfriseekEntity }
-from "../types/entity";
+import { RepositoryKnowledgeGraph }
+from "../core/graph/implementations/RepositoryKnowledgeGraph";
 
-import { entities }
-from "../data/entities";
-
-import { InMemoryKnowledgeGraph }
-from "../core/graph/implementations/InMemoryKnowledgeGraph";
+import { createEntityRepository }
+from "./createEntityRepository";
 
 export function
 createKnowledgeGraph() {
 
-  const map =
-    new Map<
-      string,
-      AfriseekEntity
-    >();
-
-  for (
-    const entity
-    of entities
-  ) {
-
-    map.set(
-      entity.id,
-      entity
-    );
-  }
-
-  return new InMemoryKnowledgeGraph(
-    map
+  return new RepositoryKnowledgeGraph(
+    createEntityRepository()
   );
 }

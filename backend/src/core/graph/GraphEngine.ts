@@ -1,6 +1,9 @@
 import { KnowledgeGraph } from "./KnowledgeGraph";
+import { DiscoveryEngine } from "../intelligence/DiscoveryEngine";
 
 export class GraphEngine {
+
+  private discovery = new DiscoveryEngine();
 
   constructor(
     private graph: KnowledgeGraph
@@ -15,6 +18,13 @@ export class GraphEngine {
   }
 
   async deepDive(entityId: string, depth = 2) {
-    return this.graph.getRelated(entityId, depth);
+
+    const root = await this.graph.getEntity(entityId);
+
+    if (!root) return [];
+
+    const related = await this.graph.getRelated(entityId, depth);
+
+    return this.discovery.discover(root, related);
   }
 }

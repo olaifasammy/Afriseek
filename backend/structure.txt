@@ -1,0 +1,99 @@
+src
+├── bootstrap
+│   └── createKnowledgeGraph.ts
+├── controllers
+│   ├── EntityController.ts
+│   └── SearchController.ts
+├── core
+│   ├── graph
+│   │   ├── GraphEngine.ts
+│   │   ├── GraphRepository.ts
+│   │   ├── GraphService.ts
+│   │   ├── GraphTraversal.ts
+│   │   ├── KnowledgeGraph.ts
+│   │   ├── contracts
+│   │   │   ├── DiscoveryResult.ts
+│   │   │   ├── GraphConnection.ts
+│   │   │   └── GraphSearchResult.ts
+│   │   ├── implementations
+│   │   │   ├── InMemoryKnowledgeGraph.ts
+│   │   │   └── RepositoryKnowledgeGraph.ts
+│   │   └── models
+│   │       └── ReverseRelationshipIndex.ts
+│   ├── intelligence
+│   │   ├── DiscoveryEngine.ts
+│   │   ├── EntityResolver.ts
+│   │   ├── ExplanationEngine.ts
+│   │   ├── ImportanceEngine.ts
+│   │   ├── RelationshipScorer.ts
+│   │   ├── RelevanceEngine.ts
+│   │   ├── contracts
+│   │   │   ├── DiscoveryCandidate.ts
+│   │   │   └── DiscoveryResult.ts
+│   │   └── types
+│   │       └── DiscoveryResult.ts
+│   ├── search
+│   │   ├── QueryProcessor.ts
+│   │   ├── ResultRanker.ts
+│   │   ├── SearchEngine.ts
+│   │   └── contracts
+│   │       ├── SearchContext.ts
+│   │       ├── SearchQuery.ts
+│   │       └── SearchResponse.ts
+│   └── semantic
+│       ├── SemanticMatcher.ts
+│       ├── SemanticRule.ts
+│       ├── SemanticRules.ts
+│       └── SemanticScorer.ts
+├── data
+│   ├── entities.ts
+│   └── seeds
+│       ├── africa.ts
+│       ├── index.ts
+│       └── libya.ts
+├── index.ts
+├── ontology
+│   ├── EntityDefinitions.ts
+│   ├── OntologyRegistry.ts
+│   ├── RelationshipDefinitions.ts
+│   └── TraitDefinitions.ts
+├── repositories
+│   ├── EntityRepository.ts
+│   ├── FactRepository.ts
+│   ├── SearchRepository.ts
+│   ├── SeedEntityRepository.ts
+│   ├── SourceRepository.ts
+│   ├── SupabaseEntityRepository.ts
+│   └── implementations
+│       └── InMemoryEntityRepository.ts
+├── routes
+│   ├── entityRoutes.ts
+│   └── searchRoutes.ts
+├── schemas
+│   ├── entitySchema.ts
+│   └── factSchema.ts
+├── services
+│   ├── DiscoveryService.ts
+│   ├── EntityService.ts
+│   └── SearchService.ts
+├── tests
+│   ├── discoveryTest.ts
+│   ├── graphTest.ts
+│   └── libyaTest.ts
+├── types
+│   ├── entity.ts
+│   ├── enums
+│   │   ├── EntityType.ts
+│   │   └── RelationshipType.ts
+│   ├── fact.ts
+│   ├── graph.ts
+│   ├── importance.ts
+│   ├── relationship.ts
+│   ├── search.ts
+│   ├── source.ts
+│   ├── trait.ts
+│   └── traits.ts
+└── utils
+    └── EntityPrinter.ts
+
+26 directories, 71 files

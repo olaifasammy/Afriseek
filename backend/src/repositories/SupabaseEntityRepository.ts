@@ -1,8 +1,12 @@
 import { EntityRepository } from "./EntityRepository";
 import { AfriseekEntity } from "../types/entity";
+import { getSupabase } from "../config/supabase";
 
 export class SupabaseEntityRepository
   implements EntityRepository {
+
+  private supabase =
+    getSupabase();
 
   async findById(
     id: string

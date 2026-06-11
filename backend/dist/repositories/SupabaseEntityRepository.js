@@ -1,7 +1,9 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.SupabaseEntityRepository = void 0;
+const supabase_1 = require("../config/supabase");
 class SupabaseEntityRepository {
+    supabase = (0, supabase_1.getSupabase)();
     async findById(id) {
         throw new Error("Not implemented");
     }

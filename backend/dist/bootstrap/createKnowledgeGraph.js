@@ -1,12 +1,8 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.createKnowledgeGraph = createKnowledgeGraph;
-const entities_1 = require("../data/entities");
-const InMemoryKnowledgeGraph_1 = require("../core/graph/implementations/InMemoryKnowledgeGraph");
+const RepositoryKnowledgeGraph_1 = require("../core/graph/implementations/RepositoryKnowledgeGraph");
+const createEntityRepository_1 = require("./createEntityRepository");
 function createKnowledgeGraph() {
-    const map = new Map();
-    for (const entity of entities_1.entities) {
-        map.set(entity.id, entity);
-    }
-    return new InMemoryKnowledgeGraph_1.InMemoryKnowledgeGraph(map);
+    return new RepositoryKnowledgeGraph_1.RepositoryKnowledgeGraph((0, createEntityRepository_1.createEntityRepository)());
 }
