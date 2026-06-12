@@ -1,26 +1,18 @@
-import { AfriseekEntity }
-from "../../types/entity";
+import { AfriseekEntity } from "../../types/entity";
 
 export interface KnowledgeGraph {
 
-  getEntity(
-    id: string
-  ): Promise<AfriseekEntity | null>;
+  getEntity(id: string): Promise<AfriseekEntity | null>;
 
-  search(
-    query: string
-  ): Promise<AfriseekEntity[]>;
+  search(query: string): Promise<AfriseekEntity[]>;
 
-  getNeighbors(
-    entityId: string
-  ): Promise<AfriseekEntity[]>;
+  getNeighbors(entityId: string): Promise<AfriseekEntity[]>;
 
-  getIncomingNeighbors(
-    entityId: string
-  ): Promise<AfriseekEntity[]>;
+  getIncomingNeighbors(entityId: string): Promise<AfriseekEntity[]>;
 
   getRelated(
     entityId: string,
-    depth?: number
+    depth?: number,
+    relationshipTypes?: string[]
   ): Promise<AfriseekEntity[]>;
 }

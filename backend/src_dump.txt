@@ -1,0 +1,3000 @@
+==================================================
+FILE: src/bootstrap/createEntityRepository.ts
+==================================================
+import { EntityRepository }
+from "../repositories/EntityRepository";
+
+import { SeedEntityRepository }
+from "../repositories/SeedEntityRepository";
+
+import { SupabaseEntityRepository }
+from "../repositories/SupabaseEntityRepository";
+
+export function
+createEntityRepository():
+EntityRepository {
+
+  if (
+    process.env.USE_SUPABASE ===
+    "true"
+  ) {
+
+    return new SupabaseEntityRepository();
+  }
+
+  return new SeedEntityRepository();
+}
+
+
+
+==================================================
+FILE: src/bootstrap/createKnowledgeGraph.ts
+==================================================
+import { RepositoryKnowledgeGraph }
+from "../core/graph/implementations/RepositoryKnowledgeGraph";
+
+import { createEntityRepository }
+from "./createEntityRepository";
+
+export function
+createKnowledgeGraph() {
+
+  return new RepositoryKnowledgeGraph(
+    createEntityRepository()
+  );
+}
+
+
+
+==================================================
+FILE: src/config/supabase.ts
+==================================================
+import { createClient }
+from "@supabase/supabase-js";
+
+import dotenv
+from "dotenv";
+
+dotenv.config();
+
+export function
+getSupabase() {
+
+  const url =
+    process.env.SUPABASE_URL;
+
+  const key =
+    process.env.SUPABASE_ANON_KEY;
+
+  if (!url || !key) {
+
+    throw new Error(
+      "Supabase configuration missing"
+    );
+  }
+
+  return createClient(
+    url,
+    key
+  );
+}
+
+
+
+==================================================
+FILE: src/controllers/EntityController.ts
+==================================================
+import { Request, Response } from "express";
+import { EntityService } from "../services/EntityService";
+
+export class EntityController {
+
+  constructor(
+    private entityService: EntityService
+  ) {}
+
+  getEntityBySlug = async (
+    req: Request,
+    res: Response
+  ) => {
+
+    try {
+
+      const slug = String(
+        req.params.slug
+      );
+
+      const entity =
+        await this.entityService.getBySlug(
+          slug
+        );
+
+      if (!entity) {
+
+        return res.status(404).json({
+          success: false,
+          message: "Entity not found"
+        });
+      }
+
+      return res.json({
+        success: true,
+        data: entity
+      });
+
+    } catch {
+
+      return res.status(500).json({
+        success: false,
+        message: "Internal server error"
+      });
+    }
+  };
+
+  getAllEntities = async (
+    req: Request,
+    res: Response
+  ) => {
+
+    try {
+
+      const entities =
+        await this.entityService.getAll();
+
+      return res.json({
+        success: true,
+        data: entities
+      });
+
+    } catch {
+
+      return res.status(500).json({
+        success: false
+      });
+    }
+  };
+}
+
+
+
+==================================================
+FILE: src/controllers/GraphController.ts
+==================================================
+import { Request, Response } from "express";
+import { GraphEngine } from "../core/graph/GraphEngine";
+import { EntityService } from "../services/EntityService";
+import { GraphResponse } from "../types/api/GraphResponse";
+
+export class GraphController {
+
+  constructor(
+    private graphEngine: GraphEngine,
+    private entityService: EntityService
+  ) {}
+
+  getGraph = async (
+    req: Request,
+    res: Response
+  ) => {
+
+    try {
+
+      const slug =
+        String(req.params.slug);
+
+      const entity =
+        await this.entityService.getBySlug(
+          slug
+        );
+
+      if (!entity) {
+
+        return res.status(404).json({
+          success: false,
+          message: "Entity not found"
+        });
+      }
+
+      const related =
+        await this.graphEngine.deepDive(
+          entity.id,
+          2
+        );
+
+      const response: GraphResponse = {
+
+        entity: {
+          id: entity.id,
+          name: entity.name,
+          type: entity.entityType
+        },
+
+        related: related
+          .filter(
+            item =>
+              item.entity.id !== entity.id
+          )
+          .map(item => ({
+            name: item.entity.name,
+            type: item.entity.entityType,
+            score: item.score,
+            reasoning:
+              item.explanation?.breakdown ?? []
+          }))
+      };
+
+      return res.json({
+        success: true,
+        data: response
+      });
+
+    } catch {
+
+      return res.status(500).json({
+        success: false,
+        message: "Internal server error"
+      });
+    }
+  };
+
+  getPath = async (
+    req: Request,
+    res: Response
+  ) => {
+
+    try {
+
+      const from =
+        String(req.query.from ?? "");
+
+      const to =
+        String(req.query.to ?? "");
+
+      const start =
+        await this.entityService.getBySlug(
+          from
+        );
+
+      const end =
+        await this.entityService.getBySlug(
+          to
+        );
+
+      if (!start || !end) {
+
+        return res.status(404).json({
+          success: false,
+          message: "Entity not found"
+        });
+      }
+
+      const path =
+        await this.graphEngine.findPath(
+          start.id,
+          end.id
+        );
+
+      return res.json({
+        success: true,
+        data: path
+      });
+
+    } catch {
+
+      return res.status(500).json({
+        success: false,
+        message: "Internal server error"
+      });
+    }
+  };
+
+  getRecommendations = async (
+    req: Request,
+    res: Response
+  ) => {
+
+    try {
+
+      const slug =
+        String(req.params.slug);
+
+      const entity =
+        await this.entityService.getBySlug(
+          slug
+        );
+
+      if (!entity) {
+
+        return res.status(404).json({
+          success: false,
+          message: "Entity not found"
+        });
+      }
+
+      const recommendations =
+        await this.graphEngine.recommend(
+          entity.id,
+          10
+        );
+
+      return res.json({
+        success: true,
+        data: recommendations
+      });
+
+    } catch {
+
+      return res.status(500).json({
+        success: false,
+        message: "Internal server error"
+      });
+    }
+  };
+}
+
+
+
+==================================================
+FILE: src/core/graph/GraphEngine.ts
+==================================================
+import { KnowledgeGraph } from "./KnowledgeGraph";
+import { DiscoveryEngine } from "../intelligence/DiscoveryEngine";
+import { GraphPathFinder } from "./GraphPathFinder";
+import { GraphRecommendationEngine } from "../recommendation/GraphRecommendationEngine";
+import { AfriseekEntity } from "../../types/entity";
+
+export class GraphEngine {
+
+  private discovery = new DiscoveryEngine();
+
+  private pathFinder: GraphPathFinder;
+
+  private recommender: GraphRecommendationEngine;
+
+  constructor(private graph: KnowledgeGraph) {
+    this.pathFinder = new GraphPathFinder(graph);
+    this.recommender = new GraphRecommendationEngine(graph);
+  }
+
+  async search(query: string) {
+    return this.graph.search(query);
+  }
+
+  async explore(entityId: string) {
+    return this.graph.getNeighbors(entityId);
+  }
+
+  async exploreIncoming(entityId: string) {
+    return this.graph.getIncomingNeighbors(entityId);
+  }
+
+  async getEntity(entityId: string) {
+    return this.graph.getEntity(entityId);
+  }
+
+  async deepDive(
+    entityId: string,
+    depth: number = 2,
+    relationshipTypes?: string[]
+  ) {
+    const root = await this.graph.getEntity(entityId);
+
+    if (!root) {
+      return [];
+    }
+
+    const related = await this.graph.getRelated(
+      entityId,
+      depth,
+      relationshipTypes
+    );
+
+    return this.discovery.discover(root, related);
+  }
+
+  async recommend(entityId: string, limit: number = 10) {
+    return this.recommender.recommend(entityId, limit);
+  }
+
+  /**
+   * Layer expansion (used for “Afriseek rabbit-hole navigation”)
+   * Future upgrade point: locality-aware ordering (Akure → Ondo → Nigeria → Africa)
+   */
+  async expandPath(
+    entityId: string,
+    steps: number = 3
+  ): Promise<AfriseekEntity[][]> {
+
+    const root = await this.graph.getEntity(entityId);
+
+    if (!root) return [];
+
+    const result: AfriseekEntity[][] = [];
+
+    let frontier: AfriseekEntity[] = [root];
+    const visited = new Set<string>([root.id]);
+
+    for (let i = 0; i < steps; i++) {
+
+      const nextLayer: AfriseekEntity[] = [];
+
+      for (const node of frontier) {
+
+        const neighbors = await this.graph.getNeighbors(node.id);
+
+        for (const neighbor of neighbors) {
+
+          if (visited.has(neighbor.id)) continue;
+
+          visited.add(neighbor.id);
+          nextLayer.push(neighbor);
+        }
+      }
+
+      if (nextLayer.length === 0) break;
+
+      result.push(nextLayer);
+      frontier = nextLayer;
+    }
+
+    return result;
+  }
+
+  async findPath(startId: string, endId: string) {
+    return this.pathFinder.findPath(startId, endId);
+  }
+}
+
+
+==================================================
+FILE: src/core/graph/GraphIndex.ts
+==================================================
+import { AfriseekEntity } from "../../types/entity";
+
+export class GraphIndex {
+
+  private byId =
+    new Map<string, AfriseekEntity>();
+
+  private incoming =
+    new Map<string, AfriseekEntity[]>();
+
+  constructor(
+    entities: AfriseekEntity[]
+  ) {
+
+    for (const entity of entities) {
+
+      this.byId.set(
+        entity.id,
+        entity
+      );
+
+      for (
+        const relationship
+        of entity.relationships
+      ) {
+
+        const bucket =
+          this.incoming.get(
+            relationship.targetId
+          ) ?? [];
+
+        bucket.push(entity);
+
+        this.incoming.set(
+          relationship.targetId,
+          bucket
+        );
+      }
+    }
+  }
+
+  getEntity(
+    id: string
+  ) {
+
+    return (
+      this.byId.get(id)
+      ?? null
+    );
+  }
+
+  getIncoming(
+    id: string
+  ) {
+
+    return (
+      this.incoming.get(id)
+      ?? []
+    );
+  }
+}
+
+
+
+==================================================
+FILE: src/core/graph/GraphNormalizer.ts
+==================================================
+import { AfriseekEntity } from "../../types/entity";
+import { Relationship } from "../../types/relationship";
+import { inverseRelationships } from "../ontology/inverseRelationships";
+
+export class GraphNormalizer {
+
+  normalize(
+    entities: AfriseekEntity[]
+  ): AfriseekEntity[] {
+
+    const map =
+      new Map(
+        entities.map(
+          entity => [entity.id, entity]
+        )
+      );
+
+    for (const entity of entities) {
+
+      for (const relationship of entity.relationships) {
+
+        const inverseType =
+          inverseRelationships[
+            relationship.type
+          ];
+
+        if (!inverseType) {
+          continue;
+        }
+
+        const target =
+          map.get(
+            relationship.targetId
+          );
+
+        if (!target) {
+          continue;
+        }
+
+        const exists =
+          target.relationships.some(
+            r =>
+              r.targetId === entity.id &&
+              r.type === inverseType
+          );
+
+        if (exists) {
+          continue;
+        }
+
+        const inverse: Relationship = {
+          type: inverseType,
+          targetId: entity.id,
+          strength: relationship.strength,
+          weight: relationship.weight,
+          description: relationship.description
+        };
+
+        target.relationships.push(
+          inverse
+        );
+      }
+    }
+
+    return entities;
+  }
+}
+
+
+
+==================================================
+FILE: src/core/graph/GraphPathFinder.ts
+==================================================
+import { KnowledgeGraph } from "./KnowledgeGraph";
+
+export class GraphPathFinder {
+
+  constructor(
+    private graph: KnowledgeGraph
+  ) {}
+
+  async findPath(
+    startId: string,
+    endId: string
+  ): Promise<string[]> {
+
+    if (startId === endId) {
+      return [startId];
+    }
+
+    const visited =
+      new Set<string>();
+
+    const queue: string[][] = [
+      [startId]
+    ];
+
+    while (queue.length) {
+
+      const path =
+        queue.shift()!;
+
+      const current =
+        path[path.length - 1];
+
+      if (
+        visited.has(current)
+      ) {
+        continue;
+      }
+
+      visited.add(current);
+
+      const neighbors =
+        await this.graph.getNeighbors(
+          current
+        );
+
+      for (
+        const neighbor
+        of neighbors
+      ) {
+
+        const nextPath = [
+          ...path,
+          neighbor.id
+        ];
+
+        if (
+          neighbor.id === endId
+        ) {
+          return nextPath;
+        }
+
+        queue.push(
+          nextPath
+        );
+      }
+    }
+
+    return [];
+  }
+}
+
+
+
+==================================================
+FILE: src/core/graph/KnowledgeGraph.ts
+==================================================
+import { AfriseekEntity } from "../../types/entity";
+
+export interface KnowledgeGraph {
+
+  getEntity(id: string): Promise<AfriseekEntity | null>;
+
+  search(query: string): Promise<AfriseekEntity[]>;
+
+  getNeighbors(entityId: string): Promise<AfriseekEntity[]>;
+
+  getIncomingNeighbors(entityId: string): Promise<AfriseekEntity[]>;
+
+  getRelated(
+    entityId: string,
+    depth?: number,
+    relationshipTypes?: string[]
+  ): Promise<AfriseekEntity[]>;
+}
+
+
+==================================================
+FILE: src/core/graph/contracts/GraphPath.ts
+==================================================
+export interface GraphPath {
+  nodes: string[];
+  score: number;
+}
+
+
+
+==================================================
+FILE: src/core/graph/implementations/RepositoryKnowledgeGraph.ts
+==================================================
+import { KnowledgeGraph } from "../KnowledgeGraph";
+import { AfriseekEntity } from "../../../types/entity";
+import { EntityRepository } from "../../../repositories/EntityRepository";
+import { GraphIndex } from "../GraphIndex";
+import { GeoContextEngine } from "../../intelligence/GeoContextEngine";
+import { CulturalGraphBiasEngine } from "../../intelligence/CulturalGraphBiasEngine";
+
+export class RepositoryKnowledgeGraph implements KnowledgeGraph {
+  private index?: GraphIndex;
+
+  // FIX: Dependency Injection pattern applied here
+  constructor(
+    private readonly repository: EntityRepository,
+    private readonly geo: GeoContextEngine,
+    private readonly cultural: CulturalGraphBiasEngine
+  ) {}
+
+  /**
+   * Lazily loads the entire graph schema into an in-memory index structure.
+   */
+  private async getIndex(): Promise<GraphIndex> {
+    if (!this.index) {
+      const entities = await this.repository.findAll();
+      this.index = new GraphIndex(entities);
+    }
+    return this.index;
+  }
+
+  async getEntity(id: string): Promise<AfriseekEntity | null> {
+    const index = await this.getIndex();
+    return index.getEntity(id);
+  }
+
+  /**
+   * Performs text-matching against database entities.
+   * FIX: If available, delegates to indexed database-level search to avoid OOM errors.
+   */
+  async search(query: string): Promise<AfriseekEntity[]> {
+    const normalized = query.toLowerCase();
+    
+    // Fallback pattern: Prefer database indices over massive array scans
+    if (typeof this.repository.searchByName === 'function') {
+      return this.repository.searchByName(normalized);
+    }
+
+    const entities = await this.repository.findAll();
+    return entities.filter(entity =>
+      entity.name.toLowerCase().includes(normalized)
+    );
+  }
+
+  async getNeighbors(entityId: string): Promise<AfriseekEntity[]> {
+    const entity = await this.getEntity(entityId);
+    if (!entity) return [];
+
+    const index = await this.getIndex();
+
+    const neighbors = entity.relationships
+      .map(r => index.getEntity(r.targetId))
+      .filter((e): e is AfriseekEntity => e !== null);
+
+    // Contextual Ordering
+    return this.cultural.sortNeighbors(entity, neighbors);
+  }
+
+  async getIncomingNeighbors(entityId: string): Promise<AfriseekEntity[]> {
+    const index = await this.getIndex();
+    return index.getIncoming(entityId);
+  }
+
+  /**
+   * Traverses the graph up to a designated depth threshold, 
+   * applying cultural gating rules and sorting results via localized weights.
+   */
+  async getRelated(
+    entityId: string,
+    depth: number = 2,
+    relationshipTypes?: string[]
+  ): Promise<AfriseekEntity[]> {
+    const index = await this.getIndex();
+    const root = index.getEntity(entityId);
+    if (!root) return [];
+
+    const visited = new Set<string>();
+    const results: AfriseekEntity[] = [];
+
+    const traverse = (id: string, currentDepth: number) => {
+      if (currentDepth > depth) return;
+      if (visited.has(id)) return;
+
+      const entity = index.getEntity(id);
+      if (!entity) return;
+
+      // FIX: Deduping occurs here instantaneously at O(1)
+      visited.add(id);
+      results.push(entity);
+
+      // Outbound Traversal Block
+      for (const relationship of entity.relationships) {
+        if (
+          relationshipTypes?.length &&
+          !relationshipTypes.includes(relationship.type)
+        ) {
+          continue;
+        }
+
+        const target = index.getEntity(relationship.targetId);
+        if (!target) continue;
+
+        // Domain-Driven Gating
+        if (!this.cultural.allowTraversal(entity, target)) {
+          continue;
+        }
+
+        traverse(relationship.targetId, currentDepth + 1);
+      }
+
+      // Inbound Traversal Block
+      const incoming = index.getIncoming(id);
+      for (const incomingEntity of incoming) {
+        if (!this.cultural.allowTraversal(entity, incomingEntity)) {
+          continue;
+        }
+
+        traverse(incomingEntity.id, currentDepth + 1);
+      }
+    };
+
+    // Begin recursion
+    traverse(entityId, 0);
+
+    // Intelligence Layer: Dynamic Heuristic Sorting
+    return results
+      .filter(e => e.id !== entityId)
+      .sort((a, b) => {
+        const scoreA = this.geo.scoreLocalBias(root, a) + this.cultural.score(a);
+        const scoreB = this.geo.scoreLocalBias(root, b) + this.cultural.score(b);
+        return scoreB - scoreA;
+      });
+  }
+}
+
+
+
+==================================================
+FILE: src/core/intelligence/CulturalGraphBiasEngine.ts
+==================================================
+import { AfriseekEntity } from "../../types/entity";
+import { EntityType } from "../../types/enums/EntityType";
+
+export class CulturalGraphBiasEngine {
+
+  private localityWeight: Record<string, number> = {
+    village: 100,
+    town: 110,
+    city: 120,
+    district: 130,
+    local_government: 140,
+    state: 160,
+    province: 160,
+    country: 180,
+    continent: 200
+  };
+
+  private culturalWeight: Record<string, number> = {
+    tribe: 180,
+    ethnic_group: 180,
+    language: 170,
+    religion: 160,
+    dynasty: 150,
+    kingdom: 160,
+    empire: 140,
+    cultural: 150
+  };
+
+  score(entity: AfriseekEntity): number {
+
+    const type = entity.entityType as string;
+
+    let score = 10;
+
+    if (this.localityWeight[type]) {
+      score += this.localityWeight[type];
+    }
+
+    if (this.culturalWeight[type]) {
+      score += this.culturalWeight[type];
+    }
+
+    score += entity.relationships.length * 2;
+    score += entity.facts.length * 1;
+
+    if (entity.metadata?.featured) {
+      score += 50;
+    }
+
+    return score;
+  }
+
+  sortNeighbors(
+    root: AfriseekEntity,
+    neighbors: AfriseekEntity[]
+  ): AfriseekEntity[] {
+
+    return neighbors.sort((a, b) => {
+      return this.score(b) - this.score(a);
+    });
+  }
+
+  allowTraversal(
+    from: AfriseekEntity,
+    to: AfriseekEntity
+  ): boolean {
+
+    const fromScore = this.score(from);
+    const toScore = this.score(to);
+
+    if (toScore > fromScore + 120) {
+      return false;
+    }
+
+    return true;
+  }
+}
+
+
+
+==================================================
+FILE: src/core/intelligence/DiscoveryEngine.ts
+==================================================
+import { AfriseekEntity } from "../../types/entity";
+import { EntityImportance } from "../../types/importance";
+import {
+  Relationship,
+  RelationshipStrength
+} from "../../types/relationship";
+import { RelationshipType } from "../../types/enums/RelationshipType";
+
+interface DiscoveryResult {
+  entity: AfriseekEntity;
+  score: number;
+  explanation: {
+    breakdown: string[];
+  };
+}
+
+export class DiscoveryEngine {
+
+  private scoreImportance(
+    importance?: EntityImportance
+  ): number {
+
+    switch (importance) {
+      case EntityImportance.GLOBAL:
+        return 300;
+      case EntityImportance.CONTINENTAL:
+        return 200;
+      case EntityImportance.NATIONAL:
+        return 120;
+      case EntityImportance.REGIONAL:
+        return 80;
+      case EntityImportance.LOCAL:
+        return 40;
+      default:
+        return 10;
+    }
+  }
+
+  // =========================
+  // UPDATED RELATIONSHIP SCORING (IMPORTANT FIX)
+  // =========================
+  private scoreRelationship(
+    relationship: Relationship
+  ): number {
+
+    const base =
+      relationship.strength === RelationshipStrength.CORE ? 120 :
+      relationship.strength === RelationshipStrength.STRONG ? 80 :
+      relationship.strength === RelationshipStrength.MODERATE ? 40 :
+      relationship.strength === RelationshipStrength.WEAK ? 20 :
+      10;
+
+    // NEW: Geographic + cultural boost
+    const contextualBoost =
+      relationship.type === RelationshipType.LOCATED_IN ? 70 :
+      relationship.type === RelationshipType.PART_OF ? 60 :
+      relationship.type === RelationshipType.BELONGS_TO_ETHNIC_GROUP ? 50 :
+      relationship.type === RelationshipType.ASSOCIATED_WITH ? 20 :
+      0;
+
+    return (base + contextualBoost) * (relationship.weight ?? 1);
+  }
+
+  private scoreRelevance(
+    entity: AfriseekEntity
+  ): number {
+
+    let score = 0;
+
+    score += entity.relationships.length * 3;
+    score += entity.facts.length * 2;
+
+    if (entity.metadata.featured) {
+      score += 25;
+    }
+
+    return score;
+  }
+
+  // =========================
+  // STRONGER LOCALITY BIAS (CORE FIX)
+  // =========================
+  private scoreLocality(
+    root: AfriseekEntity,
+    entity: AfriseekEntity
+  ): number {
+
+    let score = 0;
+
+    const rootTargets =
+      new Set(root.relationships.map(r => r.targetId));
+
+    for (const relationship of entity.relationships) {
+
+      // direct connection boost (same cluster)
+      if (rootTargets.has(relationship.targetId)) {
+        score += 200;
+      }
+
+      // geographic chain reinforcement
+      if (
+        relationship.type === RelationshipType.LOCATED_IN ||
+        relationship.type === RelationshipType.PART_OF
+      ) {
+        score += 100;
+      }
+    }
+
+    return score;
+  }
+
+  // =========================
+  // CULTURAL BOOST (NEW BUT SAFE)
+  // =========================
+  private scoreCultural(entity: AfriseekEntity): number {
+
+    let score = 0;
+
+    for (const r of entity.relationships) {
+      if (
+        r.type === RelationshipType.BELONGS_TO_ETHNIC_GROUP ||
+        r.type === RelationshipType.PRACTICES ||
+        r.type === RelationshipType.WORSHIPS
+      ) {
+        score += 40;
+      }
+    }
+
+    return score;
+  }
+
+  private explain(entity: AfriseekEntity, score: number) {
+
+    return {
+      entityId: entity.id,
+      score,
+      breakdown: [
+        `Importance: ${entity.importance ?? "unknown"}`,
+        `Relationships: ${entity.relationships.length}`,
+        `Facts: ${entity.facts.length}`
+      ]
+    };
+  }
+
+  discover(
+    root: AfriseekEntity,
+    candidates: AfriseekEntity[]
+  ): DiscoveryResult[] {
+
+    return candidates
+      .filter(e => e.id !== root.id)
+      .map(entity => {
+
+        let score = 0;
+
+        score += this.scoreImportance(entity.importance);
+        score += this.scoreRelevance(entity);
+        score += this.scoreLocality(root, entity);
+        score += this.scoreCultural(entity);
+
+        for (const rel of entity.relationships) {
+          score += this.scoreRelationship(rel);
+        }
+
+        return {
+          entity,
+          score,
+          explanation: this.explain(entity, score)
+        };
+      })
+      .sort((a, b) => b.score - a.score);
+  }
+}
+
+
+==================================================
+FILE: src/core/intelligence/GeoContextEngine.ts
+==================================================
+
+import { AfriseekEntity } from "../../types/entity";
+import { EntityType } from "../../types/enums/EntityType";
+import { RelationshipType } from "../../types/enums/RelationshipType";
+
+/**
+ * GeoContextEngine
+ * Enforces locality-first discovery:
+ * Akure → Ondo → Nigeria → West Africa → Africa
+ * NOT random jumps across the graph
+ */
+export class GeoContextEngine {
+
+  private geoPriority: Record<string, number> = {
+    // highest locality priority
+    city: 100,
+    town: 95,
+    village: 90,
+    district: 85,
+    local_government: 80,
+    state: 70,
+    province: 70,
+    region: 60,
+    country: 50,
+    continent: 40,
+
+    // cultural clustering (very important for Afriseek)
+    ethnic_group: 65,
+    tribe: 65,
+    language: 60,
+    religion: 55,
+
+    // historical structures
+    kingdom: 68,
+    empire: 66,
+    dynasty: 64,
+    historical_event: 50,
+
+    // default
+    default: 10
+  };
+
+  /**
+   * Extract geo relevance score
+   */
+  getGeoScore(entity: AfriseekEntity): number {
+    return this.geoPriority[entity.entityType] ?? this.geoPriority.default;
+  }
+
+  /**
+   * Checks if entity is geographically closer to root
+   */
+  isGeoLocal(root: AfriseekEntity, candidate: AfriseekEntity): boolean {
+
+    const rootGeo = this.getGeoScore(root);
+    const candidateGeo = this.getGeoScore(candidate);
+
+    // same or closer level = allowed
+    return candidateGeo >= (rootGeo - 15);
+  }
+
+  /**
+   * Strong locality bias scoring
+   */
+  scoreLocalBias(
+    root: AfriseekEntity,
+    candidate: AfriseekEntity
+  ): number {
+
+    let score = 0;
+
+    // same entity type family boosts locality
+    if (this.isSameGeoFamily(root, candidate)) {
+      score += 120;
+    }
+
+    // direct relationship boosts locality heavily
+    const directMatch = root.relationships.some(
+      r => r.targetId === candidate.id
+    );
+
+    if (directMatch) {
+      score += 200;
+    }
+
+    // shared neighbors = contextual closeness
+    const rootTargets = new Set(
+      root.relationships.map(r => r.targetId)
+    );
+
+    const shared = candidate.relationships.filter(
+      r => rootTargets.has(r.targetId)
+    );
+
+    score += shared.length * 40;
+
+    // enforce geographic hierarchy bias
+    score += this.getGeoScore(candidate);
+
+    return score;
+  }
+
+  /**
+   * Prevents jumps like Akure → Nigeria → random continent skipping
+   */
+  isSameGeoFamily(
+    a: AfriseekEntity,
+    b: AfriseekEntity
+  ): boolean {
+
+    const geoFamily = new Set([
+      EntityType.CITY,
+      EntityType.TOWN,
+      EntityType.VILLAGE,
+      EntityType.DISTRICT,
+      EntityType.LOCAL_GOVERNMENT,
+      EntityType.STATE,
+      EntityType.PROVINCE,
+      EntityType.COUNTRY,
+      EntityType.CONTINENT
+    ]);
+
+    if (!geoFamily.has(a.entityType) || !geoFamily.has(b.entityType)) {
+      return false;
+    }
+
+    return true;
+  }
+
+  /**
+   * Sort candidates so locality ALWAYS comes first
+   */
+  sortByGeoPriority(
+    root: AfriseekEntity,
+    candidates: AfriseekEntity[]
+  ): AfriseekEntity[] {
+
+    return candidates.sort((a, b) => {
+
+      const scoreA =
+        this.scoreLocalBias(root, a);
+
+      const scoreB =
+        this.scoreLocalBias(root, b);
+
+      return scoreB - scoreA;
+    });
+  }
+
+  /**
+   * Hard filter for unwanted long jumps (configurable safety net)
+   */
+  filterOutDistantJumps(
+    root: AfriseekEntity,
+    candidates: AfriseekEntity[]
+  ): AfriseekEntity[] {
+
+    return candidates.filter(c => {
+
+      const geoA = this.getGeoScore(root);
+      const geoB = this.getGeoScore(c);
+
+      // allow upward or same-level expansion only
+      return geoB >= geoA - 25;
+    });
+  }
+}
+
+
+
+
+==================================================
+FILE: src/core/intelligence/NarrativeEngine.ts
+==================================================
+import { AfriseekEntity } from "../../types/entity";
+
+export interface NarrativeSection {
+  title: string;
+  content: string;
+  entities: string[];
+}
+
+export interface NarrativeResult {
+  root: string;
+  title: string;
+  summary: string;
+  sections: NarrativeSection[];
+}
+
+export class NarrativeEngine {
+
+  /**
+   * Converts graph output into readable knowledge narrative
+   */
+  generate(
+    root: AfriseekEntity,
+    related: AfriseekEntity[]
+  ): NarrativeResult {
+
+    const title = `Understanding ${root.name}`;
+
+    const summary =
+      `${root.name} is a ${root.entityType} with deep cultural, historical, and geographic connections across Africa, especially through its local and regional context.`;
+
+    const sections: NarrativeSection[] = [];
+
+    // 1. Geographic Context
+    const geoEntities = related.filter(e =>
+      ["city", "state", "country", "region"].includes(
+        e.entityType
+      )
+    );
+
+    if (geoEntities.length) {
+      sections.push({
+        title: "Geographic Context",
+        content:
+          `${root.name} is geographically connected to ${geoEntities
+            .slice(0, 5)
+            .map(e => e.name)
+            .join(", ")} forming part of its regional structure.`,
+        entities: geoEntities.map(e => e.id)
+      });
+    }
+
+    // 2. Cultural Context
+    const culturalEntities = related.filter(e =>
+      ["tribe", "ethnic_group", "language", "religion", "culture"].includes(
+        e.entityType
+      )
+    );
+
+    if (culturalEntities.length) {
+      sections.push({
+        title: "Cultural Identity",
+        content:
+          `${root.name} is culturally linked with ${culturalEntities
+            .slice(0, 5)
+            .map(e => e.name)
+            .join(", ")} which shape its identity and traditions.`,
+        entities: culturalEntities.map(e => e.id)
+      });
+    }
+
+    // 3. Historical Context
+    const historicalEntities = related.filter(e =>
+      ["kingdom", "empire", "historical_event", "dynasty"].includes(
+        e.entityType
+      )
+    );
+
+    if (historicalEntities.length) {
+      sections.push({
+        title: "Historical Background",
+        content:
+          `${root.name} has historical connections with ${historicalEntities
+            .slice(0, 5)
+            .map(e => e.name)
+            .join(", ")} reflecting its evolution over time.`,
+        entities: historicalEntities.map(e => e.id)
+      });
+    }
+
+    // 4. Modern Connections
+    const modernEntities = related.filter(e =>
+      ["company", "infrastructure", "airport", "government"].includes(
+        e.entityType
+      )
+    );
+
+    if (modernEntities.length) {
+      sections.push({
+        title: "Modern Relevance",
+        content:
+          `${root.name} connects to modern structures such as ${modernEntities
+            .slice(0, 5)
+            .map(e => e.name)
+            .join(", ")} showing its present-day importance.`,
+        entities: modernEntities.map(e => e.id)
+      });
+    }
+
+    return {
+      root: root.id,
+      title,
+      summary,
+      sections
+    };
+  }
+}
+
+
+
+==================================================
+FILE: src/core/ontology/inverseRelationships.ts
+==================================================
+import { RelationshipType } from "../../types/enums/RelationshipType";
+
+export const inverseRelationships:
+Partial<Record<RelationshipType, RelationshipType>> = {
+
+  [RelationshipType.LOCATED_IN]:
+    RelationshipType.CONTAINS,
+
+  [RelationshipType.CONTAINS]:
+    RelationshipType.LOCATED_IN,
+
+  [RelationshipType.HAS_CAPITAL]:
+    RelationshipType.CAPITAL_OF,
+
+  [RelationshipType.CAPITAL_OF]:
+    RelationshipType.HAS_CAPITAL,
+
+  [RelationshipType.FOUNDED_BY]:
+    RelationshipType.FOUNDED,
+
+  [RelationshipType.FOUNDED]:
+    RelationshipType.FOUNDED_BY,
+
+  [RelationshipType.CREATED_BY]:
+    RelationshipType.CREATED,
+
+  [RelationshipType.CREATED]:
+    RelationshipType.CREATED_BY,
+
+  [RelationshipType.RULED_BY]:
+    RelationshipType.RULED,
+
+  [RelationshipType.RULED]:
+    RelationshipType.RULED_BY,
+
+  [RelationshipType.SPEAKS]:
+    RelationshipType.SPOKEN_BY,
+
+  [RelationshipType.SPOKEN_BY]:
+    RelationshipType.SPEAKS,
+
+  [RelationshipType.PRACTICES]:
+    RelationshipType.PRACTICED_BY,
+
+  [RelationshipType.PRACTICED_BY]:
+    RelationshipType.PRACTICES,
+
+  [RelationshipType.INFLUENCED]:
+    RelationshipType.INFLUENCED_BY,
+
+  [RelationshipType.INFLUENCED_BY]:
+    RelationshipType.INFLUENCED
+};
+
+
+
+==================================================
+FILE: src/core/recommendation/GraphRecommendationEngine.ts
+==================================================
+import { AfriseekEntity } from "../../types/entity";
+import { KnowledgeGraph } from "../graph/KnowledgeGraph";
+
+export interface RecommendationResult {
+  entity: AfriseekEntity;
+  score: number;
+  reasons: string[];
+}
+
+export class GraphRecommendationEngine {
+
+  constructor(
+    private graph: KnowledgeGraph
+  ) {}
+
+  async recommend(
+    entityId: string,
+    limit: number = 10
+  ): Promise<RecommendationResult[]> {
+
+    const root =
+      await this.graph.getEntity(
+        entityId
+      );
+
+    if (!root) {
+      return [];
+    }
+
+    const related =
+      await this.graph.getRelated(
+        entityId,
+        3
+      );
+
+    return related
+
+      .filter(
+        entity =>
+          entity.id !== root.id
+      )
+
+      .map(entity => {
+
+        let score = 0;
+
+        const reasons: string[] = [];
+
+        const rootTargets =
+          root.relationships.map(
+            r => r.targetId
+          );
+
+        const entityTargets =
+          entity.relationships.map(
+            r => r.targetId
+          );
+
+        const sharedTargets =
+          entityTargets.filter(
+            id =>
+              rootTargets.includes(id)
+          );
+
+        if (
+          entity.entityType ===
+          root.entityType
+        ) {
+
+          score += 30;
+
+          reasons.push(
+            "Same entity type"
+          );
+        }
+
+        if (
+          sharedTargets.length
+        ) {
+
+          score +=
+            sharedTargets.length * 100;
+
+          reasons.push(
+            `${sharedTargets.length} shared parent`
+          );
+        }
+
+        const directlyConnected =
+
+          root.relationships.some(
+            r =>
+              r.targetId === entity.id
+          )
+
+          ||
+
+          entity.relationships.some(
+            r =>
+              r.targetId === root.id
+          );
+
+        if (
+          directlyConnected
+        ) {
+
+          score += 500;
+
+          reasons.push(
+            "Direct connection"
+          );
+        }
+
+        score +=
+          entity.relationships.length;
+
+        return {
+          entity,
+          score,
+          reasons
+        };
+      })
+
+      .sort(
+        (a, b) =>
+          b.score - a.score
+      )
+
+      .slice(
+        0,
+        limit
+      );
+  }
+}
+
+
+
+==================================================
+FILE: src/data/entities.ts
+==================================================
+export { entities }
+from "./seeds";
+
+
+
+==================================================
+FILE: src/data/seeds/africa.ts
+==================================================
+import { AfriseekEntity } from "../../types/entity";
+import { EntityType } from "../../types/enums/EntityType";
+import { EntityImportance } from "../../types/importance";
+import { RelationshipStrength } from "../../types/relationship";
+import { RelationshipType } from "../../types/enums/RelationshipType";
+
+const now = new Date().toISOString();
+
+export const africaEntities: AfriseekEntity[] = [
+  {
+    id: "africa",
+    slug: "africa",
+    name: "Africa",
+    entityType: EntityType.CONTINENT,
+    importance: EntityImportance.GLOBAL,
+    summary: "Second largest continent.",
+    traits: [],
+    facts: [],
+    relationships: [],
+    sources: [],
+    metadata: {
+      createdAt: now,
+      updatedAt: now,
+      verified: true
+    }
+  },
+  {
+    id: "nigeria",
+    slug: "nigeria",
+    name: "Nigeria",
+    entityType: EntityType.COUNTRY,
+    importance: EntityImportance.NATIONAL,
+    summary: "Country in West Africa.",
+    traits: [],
+    facts: [],
+    relationships: [
+      {
+        type: RelationshipType.LOCATED_IN,
+        targetId: "africa",
+        strength: RelationshipStrength.CORE
+      }
+    ],
+    sources: [],
+    metadata: {
+      createdAt: now,
+      updatedAt: now,
+      verified: true
+    }
+  },
+  {
+    id: "yoruba",
+    slug: "yoruba",
+    name: "Yoruba",
+    entityType: EntityType.ETHNIC_GROUP,
+    importance: EntityImportance.REGIONAL,
+    summary: "Major ethnic group in West Africa.",
+    traits: [],
+    facts: [],
+    relationships: [
+      {
+        type: RelationshipType.LOCATED_IN,
+        targetId: "nigeria",
+        strength: RelationshipStrength.CORE
+      }
+    ],
+    sources: [],
+    metadata: {
+      createdAt: now,
+      updatedAt: now,
+      verified: true
+    }
+  }
+];
+
+
+
+==================================================
+FILE: src/data/seeds/index.ts
+==================================================
+import { africaEntities } from "./africa";
+import { libyaEntities } from "./libya";
+
+export const entities = [
+  ...africaEntities,
+  ...libyaEntities
+];
+
+
+
+==================================================
+FILE: src/data/seeds/libya.ts
+==================================================
+import { AfriseekEntity } from "../../types/entity";
+import { EntityType } from "../../types/enums/EntityType";
+import { EntityImportance } from "../../types/importance";
+import { RelationshipType } from "../../types/enums/RelationshipType";
+import { RelationshipStrength } from "../../types/relationship";
+
+const now = new Date().toISOString();
+
+export const libyaEntities: AfriseekEntity[] = [
+
+  {
+    id: "libya",
+    slug: "libya",
+    name: "Libya",
+    entityType: EntityType.COUNTRY,
+    importance: EntityImportance.NATIONAL,
+    summary: "Country in North Africa.",
+    traits: [],
+    facts: [],
+    relationships: [
+      {
+        type: RelationshipType.LOCATED_IN,
+        targetId: "africa",
+        strength: RelationshipStrength.CORE
+      }
+    ],
+    sources: [],
+    metadata: {
+      createdAt: now,
+      updatedAt: now,
+      verified: true
+    }
+  },
+
+  {
+    id: "misrata",
+    slug: "misrata",
+    name: "Misrata",
+    entityType: EntityType.CITY,
+    importance: EntityImportance.REGIONAL,
+    summary: "Major city and port in Libya.",
+    traits: [],
+    facts: [],
+    relationships: [
+      {
+        type: RelationshipType.LOCATED_IN,
+        targetId: "libya",
+        strength: RelationshipStrength.CORE
+      }
+    ],
+    sources: [],
+    metadata: {
+      createdAt: now,
+      updatedAt: now,
+      verified: true
+    }
+  },
+
+  {
+    id: "tripoli",
+    slug: "tripoli",
+    name: "Tripoli",
+    entityType: EntityType.CITY,
+    importance: EntityImportance.REGIONAL,
+    summary: "Capital city of Libya.",
+    traits: [],
+    facts: [],
+    relationships: [
+      {
+        type: RelationshipType.LOCATED_IN,
+        targetId: "libya",
+        strength: RelationshipStrength.CORE
+      }
+    ],
+    sources: [],
+    metadata: {
+      createdAt: now,
+      updatedAt: now,
+      verified: true
+    }
+  },
+
+  {
+    id: "amazigh",
+    slug: "amazigh",
+    name: "Amazigh",
+    entityType: EntityType.ETHNIC_GROUP,
+    importance: EntityImportance.REGIONAL,
+    summary: "Indigenous peoples of North Africa.",
+    traits: [],
+    facts: [],
+    relationships: [
+      {
+        type: RelationshipType.LOCATED_IN,
+        targetId: "libya",
+        strength: RelationshipStrength.STRONG
+      }
+    ],
+    sources: [],
+    metadata: {
+      createdAt: now,
+      updatedAt: now,
+      verified: true
+    }
+  }
+
+];
+
+
+
+==================================================
+FILE: src/index.ts
+==================================================
+import express from "express";
+
+import entityRoutes
+from "./routes/entityRoutes";
+
+import graphRoutes
+from "./routes/graphRoutes";
+
+const app = express();
+
+app.use(
+  express.json()
+);
+
+app.get(
+  "/health",
+  (_req, res) => {
+
+    res.json({
+      status: "ok"
+    });
+  }
+);
+
+app.use(
+  "/api/entities",
+  entityRoutes
+);
+
+app.use(
+  "/api/graph",
+  graphRoutes
+);
+
+const PORT = 3000;
+
+app.listen(
+  PORT,
+  () => {
+
+    console.log(
+      `Afriseek API running on port ${PORT}`
+    );
+  }
+);
+
+
+
+==================================================
+FILE: src/repositories/EntityRepository.ts
+==================================================
+import { AfriseekEntity } from "../types/entity";
+
+export interface EntityRepository {
+
+  findById(
+    id: string
+  ): Promise<AfriseekEntity | null>;
+
+  findBySlug(
+    slug: string
+  ): Promise<AfriseekEntity | null>;
+
+  findAll(): Promise<AfriseekEntity[]>;
+
+  create(
+    entity: AfriseekEntity
+  ): Promise<void>;
+
+  update(
+    entity: AfriseekEntity
+  ): Promise<void>;
+
+  delete(
+    id: string
+  ): Promise<void>;
+}
+
+
+
+==================================================
+FILE: src/repositories/SeedEntityRepository.ts
+==================================================
+import { EntityRepository } from "./EntityRepository";
+import { AfriseekEntity } from "../types/entity";
+import { entities } from "../data/entities";
+import { GraphNormalizer } from "../core/graph/GraphNormalizer";
+
+export class SeedEntityRepository
+implements EntityRepository {
+
+  private normalized =
+    new GraphNormalizer()
+      .normalize(
+        structuredClone(
+          entities
+        )
+      );
+
+  async findById(
+    id: string
+  ): Promise<AfriseekEntity | null> {
+
+    return (
+      this.normalized.find(
+        entity => entity.id === id
+      ) ?? null
+    );
+  }
+
+  async findBySlug(
+    slug: string
+  ): Promise<AfriseekEntity | null> {
+
+    return (
+      this.normalized.find(
+        entity => entity.slug === slug
+      ) ?? null
+    );
+  }
+
+  async findAll(): Promise<AfriseekEntity[]> {
+    return this.normalized;
+  }
+
+  async create(
+    entity: AfriseekEntity
+  ): Promise<void> {}
+
+  async update(
+    entity: AfriseekEntity
+  ): Promise<void> {}
+
+  async delete(
+    id: string
+  ): Promise<void> {}
+}
+
+
+
+==================================================
+FILE: src/repositories/SupabaseEntityRepository.ts
+==================================================
+import { EntityRepository } from "./EntityRepository";
+import { AfriseekEntity } from "../types/entity";
+import { getSupabase } from "../config/supabase";
+
+export class SupabaseEntityRepository
+  implements EntityRepository {
+
+  private supabase =
+    getSupabase();
+
+  async findById(
+    id: string
+  ): Promise<AfriseekEntity | null> {
+
+    const { data, error } =
+      await this.supabase
+        .from("entities")
+        .select("*")
+        .eq("id", id)
+        .single();
+
+    if (error || !data) {
+      return null;
+    }
+
+    return data as AfriseekEntity;
+  }
+
+  async findBySlug(
+    slug: string
+  ): Promise<AfriseekEntity | null> {
+
+    const { data, error } =
+      await this.supabase
+        .from("entities")
+        .select("*")
+        .eq("slug", slug)
+        .single();
+
+    if (error || !data) {
+      return null;
+    }
+
+    return data as AfriseekEntity;
+  }
+
+  async findAll(): Promise<AfriseekEntity[]> {
+
+    const { data, error } =
+      await this.supabase
+        .from("entities")
+        .select("*");
+
+    if (error || !data) {
+      return [];
+    }
+
+    return data as AfriseekEntity[];
+  }
+
+  async create(
+    entity: AfriseekEntity
+  ): Promise<void> {
+
+    const { error } =
+      await this.supabase
+        .from("entities")
+        .insert(entity);
+
+    if (error) {
+      throw error;
+    }
+  }
+
+  async update(
+    entity: AfriseekEntity
+  ): Promise<void> {
+
+    const { error } =
+      await this.supabase
+        .from("entities")
+        .update(entity)
+        .eq("id", entity.id);
+
+    if (error) {
+      throw error;
+    }
+  }
+
+  async delete(
+    id: string
+  ): Promise<void> {
+
+    const { error } =
+      await this.supabase
+        .from("entities")
+        .delete()
+        .eq("id", id);
+
+    if (error) {
+      throw error;
+    }
+  }
+}
+
+
+
+==================================================
+FILE: src/routes/entityRoutes.ts
+==================================================
+import { Router } from "express";
+
+import { EntityController }
+from "../controllers/EntityController";
+
+import { EntityService }
+from "../services/EntityService";
+
+import { createEntityRepository }
+from "../bootstrap/createEntityRepository";
+
+const router = Router();
+
+const controller =
+  new EntityController(
+    new EntityService(
+      createEntityRepository()
+    )
+  );
+
+router.get(
+  "/",
+  controller.getAllEntities
+);
+
+router.get(
+  "/:slug",
+  controller.getEntityBySlug
+);
+
+export default router;
+
+
+
+==================================================
+FILE: src/routes/graphRoutes.ts
+==================================================
+import { createEntityRepository } from "../bootstrap/createEntityRepository";
+import { Router } from "express";
+
+import { GraphController } from "../controllers/GraphController";
+import { GraphEngine } from "../core/graph/GraphEngine";
+import { createKnowledgeGraph } from "../bootstrap/createKnowledgeGraph";
+import { EntityService } from "../services/EntityService";
+
+const router = Router();
+
+const repository =
+  createEntityRepository();
+
+const entityService =
+  new EntityService(
+    repository
+  );
+
+const graph =
+  createKnowledgeGraph();
+
+const engine =
+  new GraphEngine(
+    graph
+  );
+
+const controller =
+  new GraphController(
+    engine,
+    entityService
+  );
+
+router.get(
+  "/path",
+  controller.getPath
+);
+
+router.get(
+  "/recommend/:slug",
+  controller.getRecommendations
+);
+
+router.get(
+  "/:slug",
+  controller.getGraph
+);
+
+export default router;
+
+
+
+==================================================
+FILE: src/services/EntityService.ts
+==================================================
+import { AfriseekEntity } from "../types/entity";
+import { EntityRepository } from "../repositories/EntityRepository";
+
+export class EntityService {
+
+  constructor(
+    private repository: EntityRepository
+  ) {}
+
+  async getById(
+    id: string
+  ): Promise<AfriseekEntity | null> {
+
+    return this.repository.findById(id);
+  }
+
+  async getBySlug(
+    slug: string
+  ): Promise<AfriseekEntity | null> {
+
+    return this.repository.findBySlug(slug);
+  }
+
+  async getAll(): Promise<AfriseekEntity[]> {
+
+    return this.repository.findAll();
+  }
+
+  async create(
+    entity: AfriseekEntity
+  ): Promise<void> {
+
+    await this.repository.create(entity);
+  }
+
+  async update(
+    entity: AfriseekEntity
+  ): Promise<void> {
+
+    await this.repository.update(entity);
+  }
+
+  async delete(
+    id: string
+  ): Promise<void> {
+
+    await this.repository.delete(id);
+  }
+}
+
+
+
+==================================================
+FILE: src/types/api/ExpansionResponse.ts
+==================================================
+export interface ExpansionLayer {
+  depth: number;
+  entities: {
+    id: string;
+    name: string;
+    type: string;
+  }[];
+}
+
+export interface ExpansionResponse {
+  root: string;
+  layers: ExpansionLayer[];
+}
+
+
+
+==================================================
+FILE: src/types/api/GraphResponse.ts
+==================================================
+export interface GraphRelatedItem {
+  name: string;
+  type: string;
+  score: number;
+  reasoning: string[];
+}
+
+export interface GraphResponse {
+  entity: {
+    id: string;
+    name: string;
+    type: string;
+  };
+
+  related: GraphRelatedItem[];
+}
+
+
+
+==================================================
+FILE: src/types/api/RecommendationResponse.ts
+==================================================
+export interface RecommendationItem {
+  id: string;
+  slug: string;
+  name: string;
+  type: string;
+  score: number;
+  reasons: string[];
+}
+
+export interface RecommendationResponse {
+  entity: {
+    id: string;
+    name: string;
+    type: string;
+  };
+
+  recommendations:
+    RecommendationItem[];
+}
+
+
+
+==================================================
+FILE: src/types/entity.ts
+==================================================
+import { EntityType } from "./enums/EntityType";
+import { EntityImportance } from "./importance";
+
+import { Trait } from "./trait";
+
+import { Fact } from "./fact";
+
+import { Source } from "./source";
+
+import { Relationship } from "./relationship";
+
+export interface Alias {
+
+  name: string;
+
+  language?: string;
+
+  type?: string;
+}
+
+export interface EntityMetadata {
+
+  createdAt: string;
+
+  updatedAt: string;
+
+  verified: boolean;
+
+  featured?: boolean;
+
+  popularityScore?: number;
+}
+
+export interface AfriseekEntity {
+
+  id: string;
+
+  slug: string;
+
+  name: string;
+
+  entityType: EntityType;
+
+  importance?: EntityImportance;
+
+  summary: string;
+
+  aliases?: Alias[];
+
+  endonyms?: string[];
+
+  exonyms?: string[];
+
+  traits: Trait[];
+
+  facts: Fact[];
+
+  relationships: Relationship[];
+
+  sources: Source[];
+
+  metadata: EntityMetadata;
+}
+
+
+
+==================================================
+FILE: src/types/enums/EntityType.ts
+==================================================
+export enum EntityType {
+
+  // Geography
+  CONTINENT = "continent",
+  REGION = "region",
+  COUNTRY = "country",
+  TERRITORY = "territory",
+  STATE = "state",
+  PROVINCE = "province",
+  DISTRICT = "district",
+  LOCAL_GOVERNMENT = "local_government",
+  CITY = "city",
+  TOWN = "town",
+  VILLAGE = "village",
+
+  // Peoples & Identity
+  PERSON = "person",
+  ETHNIC_GROUP = "ethnic_group",
+  TRIBE = "tribe",
+  CLAN = "clan",
+  DYNASTY = "dynasty",
+  ROYAL_HOUSE = "royal_house",
+  CIVILIZATION = "civilization",
+  CULTURE = "culture",
+  DIASPORA_COMMUNITY = "diaspora_community",
+
+  // Governance
+  EMPIRE = "empire",
+  KINGDOM = "kingdom",
+  REPUBLIC = "republic",
+  GOVERNMENT = "government",
+  POLITICAL_PARTY = "political_party",
+  MINISTRY = "ministry",
+  TRADITIONAL_INSTITUTION = "traditional_institution",
+  MILITARY_UNIT = "military_unit",
+
+  // Language & Belief
+  LANGUAGE = "language",
+  LANGUAGE_FAMILY = "language_family",
+  RELIGION = "religion",
+  BELIEF_SYSTEM = "belief_system",
+  DEITY = "deity",
+  SPIRIT = "spirit",
+  MYTHOLOGY = "mythology",
+
+  // Culture
+  FESTIVAL = "festival",
+  CEREMONY = "ceremony",
+  CUSTOM = "custom",
+  RITUAL = "ritual",
+  PROVERB = "proverb",
+  LEGEND = "legend",
+  FOLKTALE = "folktale",
+  ORAL_TRADITION = "oral_tradition",
+
+  // Arts
+  ARTWORK = "artwork",
+  ART_STYLE = "art_style",
+  PAINTING = "painting",
+  SCULPTURE = "sculpture",
+  MASK = "mask",
+  TEXTILE = "textile",
+  CLOTHING = "clothing",
+
+  MUSIC_GENRE = "music_genre",
+  SONG = "song",
+  DANCE = "dance",
+  MUSICAL_INSTRUMENT = "musical_instrument",
+
+  FILM = "film",
+  BOOK = "book",
+  MANUSCRIPT = "manuscript",
+  DOCUMENT = "document",
+
+  // Architecture
+  PALACE = "palace",
+  MONUMENT = "monument",
+  LANDMARK = "landmark",
+  ARCHAEOLOGICAL_SITE = "archaeological_site",
+  SACRED_SITE = "sacred_site",
+  ARCHITECTURAL_STYLE = "architectural_style",
+
+  // Education
+  UNIVERSITY = "university",
+  SCHOOL = "school",
+  LIBRARY = "library",
+  RESEARCH_CENTER = "research_center",
+
+  // Health
+  HOSPITAL = "hospital",
+  DISEASE = "disease",
+  PANDEMIC = "pandemic",
+
+  // Environment
+  RIVER = "river",
+  LAKE = "lake",
+  MOUNTAIN = "mountain",
+  FOREST = "forest",
+  DESERT = "desert",
+  ISLAND = "island",
+  ECOZONE = "ecozone",
+  CLIMATE_ZONE = "climate_zone",
+  FLORA = "flora",
+  FAUNA = "fauna",
+  NATURAL_RESOURCE = "natural_resource",
+
+  // Economy
+  CURRENCY = "currency",
+  COMMODITY = "commodity",
+  INDUSTRY = "industry",
+  MARKET = "market",
+  COMPANY = "company",
+  TRADE_ROUTE = "trade_route",
+
+  // Infrastructure
+  ROAD = "road",
+  RAILWAY = "railway",
+  BRIDGE = "bridge",
+  AIRPORT = "airport",
+  SEAPORT = "seaport",
+  DAM = "dam",
+
+  // History
+  HISTORICAL_EVENT = "historical_event",
+  BATTLE = "battle",
+  WAR = "war",
+  MIGRATION = "migration",
+  CORONATION = "coronation",
+  REVOLUTION = "revolution",
+  ELECTION = "election",
+
+  // Law
+  TREATY = "treaty",
+  CONSTITUTION = "constitution",
+  LEGAL_CODE = "legal_code",
+
+  // Technology
+  TECHNOLOGY = "technology",
+  INVENTION = "invention",
+  TECH_HUB = "tech_hub"
+}
+
+
+==================================================
+FILE: src/types/enums/RelationshipType.ts
+==================================================
+export enum RelationshipType {
+
+  // =====================
+  // Geography
+  // =====================
+
+  LOCATED_IN = "located_in",
+  CONTAINS = "contains",
+  PART_OF = "part_of",
+
+  NEIGHBOR_OF = "neighbor_of",
+  BORDERS = "borders",
+
+  CAPITAL_OF = "capital_of",
+  HAS_CAPITAL = "has_capital",
+
+  FLOWS_THROUGH = "flows_through",
+  ORIGINATES_IN = "originates_in",
+  ENDS_IN = "ends_in",
+
+  NEAR = "near",
+  CROSSES = "crosses",
+
+  CONNECTED_TO = "connected_to",
+
+  // =====================
+  // Governance
+  // =====================
+
+  RULED_BY = "ruled_by",
+  RULED = "ruled",
+
+  GOVERNED_BY = "governed_by",
+
+  HAS_RULER = "has_ruler",
+  HAS_GOVERNOR = "has_governor",
+  HAS_PRESIDENT = "has_president",
+
+  ADMINISTERS = "administers",
+
+  MEMBER_OF = "member_of",
+
+  // =====================
+  // Family & Lineage
+  // =====================
+
+  PARENT_OF = "parent_of",
+  CHILD_OF = "child_of",
+
+  ANCESTOR_OF = "ancestor_of",
+  DESCENDANT_OF = "descendant_of",
+
+  SPOUSE_OF = "spouse_of",
+
+  SUCCEEDED = "succeeded",
+  SUCCEEDED_BY = "succeeded_by",
+
+  PRECEDED = "preceded",
+  PRECEDED_BY = "preceded_by",
+
+  // =====================
+  // Foundation
+  // =====================
+
+  FOUNDED = "founded",
+  FOUNDED_BY = "founded_by",
+
+  CREATED = "created",
+  CREATED_BY = "created_by",
+
+  BUILT = "built",
+  BUILT_BY = "built_by",
+
+  DISCOVERED_BY = "discovered_by",
+
+  // =====================
+  // Culture
+  // =====================
+
+  SPEAKS = "speaks",
+  SPOKEN_BY = "spoken_by",
+
+  PRACTICES = "practices",
+  PRACTICED_BY = "practiced_by",
+
+  WORSHIPS = "worships",
+  WORSHIPPED_BY = "worshipped_by",
+
+  CELEBRATES = "celebrates",
+
+  BELONGS_TO_CULTURE = "belongs_to_culture",
+  BELONGS_TO_ETHNIC_GROUP = "belongs_to_ethnic_group",
+
+  ASSOCIATED_WITH = "associated_with",
+
+  // =====================
+  // Historical
+  // =====================
+
+  PARTICIPATED_IN = "participated_in",
+
+  OCCURRED_IN = "occurred_in",
+
+  FOUGHT_IN = "fought_in",
+
+  LED = "led",
+
+  INFLUENCED = "influenced",
+  INFLUENCED_BY = "influenced_by",
+
+  INSPIRED = "inspired",
+  INSPIRED_BY = "inspired_by",
+
+  // =====================
+  // Economy
+  // =====================
+
+  TRADES_WITH = "trades_with",
+
+  IMPORTS = "imports",
+  EXPORTS = "exports",
+
+  PRODUCES = "produces",
+  CONSUMES = "consumes",
+
+  USES_CURRENCY = "uses_currency",
+
+  // =====================
+  // Infrastructure
+  // =====================
+
+  CONNECTS_TO = "connects_to",
+
+  PASSES_THROUGH = "passes_through",
+
+  SERVES = "serves",
+
+  // =====================
+  // Arts & Media
+  // =====================
+
+  AUTHORED_BY = "authored_by",
+
+  COMPOSED_BY = "composed_by",
+
+  PERFORMED_BY = "performed_by",
+
+  DEPICTS = "depicts",
+
+  FEATURES = "features",
+
+  // =====================
+  // Knowledge
+  // =====================
+
+  MENTIONED_IN = "mentioned_in",
+
+  REFERENCES = "references",
+
+  DOCUMENTED_IN = "documented_in",
+
+  SOURCED_FROM = "sourced_from",
+
+  SOURCE_FOR = "source_for",
+
+  // =====================
+  // Nature
+  // =====================
+
+  NATIVE_TO = "native_to",
+
+  PROTECTED_BY = "protected_by",
+
+  ENDANGERED_BY = "endangered_by",
+
+  // =====================
+  // Discovery
+  // =====================
+
+  RELATED_TO = "related_to"
+}
+
+
+
+==================================================
+FILE: src/types/fact.ts
+==================================================
+import { Source } from "./source";
+import { TraitType } from "./traits";
+
+export enum FactType {
+
+  TEXT = "text",
+
+  NUMBER = "number",
+
+  BOOLEAN = "boolean",
+
+  DATE = "date",
+
+  DATE_RANGE = "date_range",
+
+  PERCENTAGE = "percentage",
+
+  CURRENCY = "currency",
+
+  COORDINATES = "coordinates",
+
+  REFERENCE = "reference",
+
+  LIST = "list"
+}
+
+export enum FactConfidence {
+
+  CONFIRMED = "confirmed",
+
+  HIGH = "high",
+
+  MEDIUM = "medium",
+
+  LOW = "low",
+
+  DISPUTED = "disputed",
+
+  LEGENDARY = "legendary"
+}
+
+export interface FactValue {
+
+  value: any;
+
+  unit?: string;
+}
+
+export interface Fact {
+
+  id: string;
+
+  key: string;
+
+  label: string;
+
+  traitType?: TraitType;
+
+  type: FactType;
+
+  value: FactValue;
+
+  confidence: FactConfidence;
+
+  verified?: boolean;
+
+  isDisputed?: boolean;
+
+  priority?: number;
+
+  description?: string;
+
+  validFrom?: string;
+
+  validTo?: string;
+
+  sources: Source[];
+
+  metadata?: Record<string, any>;
+}
+
+
+
+==================================================
+FILE: src/types/importance.ts
+==================================================
+export enum EntityImportance {
+
+  GLOBAL = "global",
+
+  CONTINENTAL = "continental",
+
+  REGIONAL = "regional",
+
+  NATIONAL = "national",
+
+  LOCAL = "local"
+}
+
+
+
+==================================================
+FILE: src/types/relationship.ts
+==================================================
+import { RelationshipType } from "./enums/RelationshipType";
+
+export enum RelationshipStrength {
+
+  CORE = "core",
+
+  STRONG = "strong",
+
+  MODERATE = "moderate",
+
+  WEAK = "weak"
+}
+
+export interface Relationship {
+
+  type: RelationshipType;
+
+  targetId: string;
+
+  strength?: RelationshipStrength;
+
+  weight?: number;
+
+  description?: string;
+}
+
+
+
+==================================================
+FILE: src/types/source.ts
+==================================================
+export enum SourceType {
+  BOOK = "book",
+  JOURNAL = "journal",
+  THESIS = "thesis",
+  MANUSCRIPT = "manuscript",
+  ARCHIVE = "archive",
+
+  GOVERNMENT_RECORD = "government_record",
+  CENSUS = "census",
+  LEGAL_DOCUMENT = "legal_document",
+
+  NEWSPAPER = "newspaper",
+  MAGAZINE = "magazine",
+
+  WEBSITE = "website",
+  DATABASE = "database",
+
+  INTERVIEW = "interview",
+  ORAL_TRADITION = "oral_tradition",
+  FIELD_RESEARCH = "field_research",
+
+  MUSEUM = "museum",
+  UNIVERSITY = "university",
+  ORGANIZATION = "organization",
+
+  MAP = "map",
+  IMAGE = "image",
+  AUDIO = "audio",
+  VIDEO = "video",
+
+  OTHER = "other",
+  INSCRIPTION = "inscription",
+  
+  ORAL_HISTORY = "oral_history",
+  ARTIFACT = "artifact",
+  ARCHAEOLOGICAL_REPORT = "archaeological_report",
+  MISSIONARY_RECORD = "missionary_record",
+  COLONIAL_RECORD = "colonial_record",
+  ROYAL_CHRONICLE = "royal_chronicle",
+  GENEALOGY = "genealogy"
+}
+
+export enum SourceReliability {
+  VERIFIED = "verified",
+  HIGH = "high",
+  MEDIUM = "medium",
+  LOW = "low",
+  UNVERIFIED = "unverified"
+}
+
+export interface SourceAuthor {
+  name: string;
+  role?: string;
+}
+
+export interface Source {
+  id: string;
+
+  type: SourceType;
+
+  title: string;
+
+  authors?: SourceAuthor[];
+
+  publisher?: string;
+
+  publicationDate?: string;
+
+  url?: string;
+
+  isbn?: string;
+
+  issn?: string;
+
+  language?: string;
+
+  region?: string;
+
+  archiveReference?: string;
+
+  reliability: SourceReliability;
+
+  notes?: string;
+
+  accessedAt?: string;
+}
+
+
+==================================================
+FILE: src/types/trait.ts
+==================================================
+import { TraitType } from "./traits";
+
+export interface Trait {
+
+  type: TraitType;
+
+  title: string;
+
+  description?: string;
+
+  facts?: string[];
+
+  metadata?: Record<string, any>;
+}
+
+
+
+==================================================
+FILE: src/types/traits.ts
+==================================================
+export enum TraitType {
+
+  OVERVIEW = "overview",
+
+  HISTORY = "history",
+  TIMELINE = "timeline",
+  BIOGRAPHY = "biography",
+
+  GEOGRAPHY = "geography",
+  CLIMATE = "climate",
+  ENVIRONMENT = "environment",
+  BIODIVERSITY = "biodiversity",
+
+  DEMOGRAPHICS = "demographics",
+
+  GOVERNANCE = "governance",
+  POLITICS = "politics",
+  LAW = "law",
+  DIPLOMACY = "diplomacy",
+  MILITARY = "military",
+
+  ECONOMY = "economy",
+  TRADE = "trade",
+  INDUSTRY = "industry",
+  AGRICULTURE = "agriculture",
+
+  INFRASTRUCTURE = "infrastructure",
+  TRANSPORT = "transport",
+
+  CULTURE = "culture",
+  LANGUAGE = "language",
+  RELIGION = "religion",
+
+  ARTS = "arts",
+  MUSIC = "music",
+  DANCE = "dance",
+  LITERATURE = "literature",
+  ARCHITECTURE = "architecture",
+
+  FOOD = "food",
+  CLOTHING = "clothing",
+  CUSTOMS = "customs",
+  FESTIVALS = "festivals",
+  MYTHOLOGY = "mythology",
+
+  EDUCATION = "education",
+  SCIENCE = "science",
+  TECHNOLOGY = "technology",
+  HEALTHCARE = "healthcare",
+
+  ARCHAEOLOGY = "archaeology",
+
+  LINEAGE = "lineage",
+  DYNASTY = "dynasty",
+
+  TERRITORY = "territory",
+  SETTLEMENTS = "settlements",
+
+  NATURAL_RESOURCES = "natural_resources",
+
+  MEDIA = "media",
+  SPORTS = "sports",
+
+  STATISTICS = "statistics",
+
+  RELATIONSHIPS = "relationships",
+
+  SOURCES = "sources"
+}
+
+

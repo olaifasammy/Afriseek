@@ -1,17 +1,26 @@
 import { EntityRepository } from "./EntityRepository";
 import { AfriseekEntity } from "../types/entity";
 import { entities } from "../data/entities";
+import { GraphNormalizer } from "../core/graph/GraphNormalizer";
 
 export class SeedEntityRepository
-  implements EntityRepository {
+implements EntityRepository {
+
+  private normalized =
+    new GraphNormalizer()
+      .normalize(
+        structuredClone(
+          entities
+        )
+      );
 
   async findById(
     id: string
   ): Promise<AfriseekEntity | null> {
 
     return (
-      entities.find(
-        e => e.id === id
+      this.normalized.find(
+        entity => entity.id === id
       ) ?? null
     );
   }
@@ -21,19 +30,25 @@ export class SeedEntityRepository
   ): Promise<AfriseekEntity | null> {
 
     return (
-      entities.find(
-        e => e.slug === slug
+      this.normalized.find(
+        entity => entity.slug === slug
       ) ?? null
     );
   }
 
   async findAll(): Promise<AfriseekEntity[]> {
-    return entities;
+    return this.normalized;
   }
 
-  async create(): Promise<void> {}
+  async create(
+    entity: AfriseekEntity
+  ): Promise<void> {}
 
-  async update(): Promise<void> {}
+  async update(
+    entity: AfriseekEntity
+  ): Promise<void> {}
 
-  async delete(): Promise<void> {}
+  async delete(
+    id: string
+  ): Promise<void> {}
 }

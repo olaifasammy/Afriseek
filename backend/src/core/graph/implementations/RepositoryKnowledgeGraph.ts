@@ -1,37 +1,67 @@
-import { KnowledgeGraph }
-from "../KnowledgeGraph";
+import { KnowledgeGraph } from "../KnowledgeGraph";
+import { AfriseekEntity } from "../../../types/entity";
+import { EntityRepository } from "../../../repositories/EntityRepository";
+import { GraphIndex } from "../GraphIndex";
+import { GeoContextEngine } from "../../intelligence/GeoContextEngine";
+import { CulturalGraphBiasEngine } from "../../intelligence/CulturalGraphBiasEngine";
 
-import { AfriseekEntity }
-from "../../../types/entity";
-
-import { EntityRepository }
-from "../../../repositories/EntityRepository";
-
-export class RepositoryKnowledgeGraph
-implements KnowledgeGraph {
+export class RepositoryKnowledgeGraph implements KnowledgeGraph {
+  private index?: GraphIndex;
 
   constructor(
-    private repository: EntityRepository
+    private readonly repository: EntityRepository,
+    private readonly geo: GeoContextEngine,
+    private readonly cultural: CulturalGraphBiasEngine
   ) {}
+
+  /**
+   * Lazily loads the graph into memory.
+   */
+  private async getIndex(): Promise<GraphIndex> {
+    if (!this.index) {
+      const entities = await this.repository.findAll();
+      this.index = new GraphIndex(entities);
+    }
+
+    return this.index;
+  }
 
   async getEntity(
     id: string
   ): Promise<AfriseekEntity | null> {
 
-    return this.repository.findById(
-      id
-    );
+    const index = await this.getIndex();
+
+    return index.getEntity(id);
   }
 
+  /**
+   * Search entities.
+   * Uses repository-level search if implemented,
+   * otherwise falls back to in-memory filtering.
+   */
   async search(
     query: string
   ): Promise<AfriseekEntity[]> {
 
-    const entities =
-      await this.repository.findAll();
-
     const normalized =
       query.toLowerCase();
+
+    const repository =
+      this.repository as EntityRepository & {
+        searchByName?: (
+          query: string
+        ) => Promise<AfriseekEntity[]>;
+      };
+
+    if (repository.searchByName) {
+      return repository.searchByName(
+        normalized
+      );
+    }
+
+    const entities =
+      await this.repository.findAll();
 
     return entities.filter(
       entity =>
@@ -46,69 +76,67 @@ implements KnowledgeGraph {
   ): Promise<AfriseekEntity[]> {
 
     const entity =
-      await this.repository.findById(
-        entityId
-      );
+      await this.getEntity(entityId);
 
     if (!entity) {
       return [];
     }
 
-    const all =
-      await this.repository.findAll();
+    const index =
+      await this.getIndex();
 
-    const map =
-      new Map(
-        all.map(
-          e => [e.id, e]
+    const neighbors =
+      entity.relationships
+        .map(
+          relationship =>
+            index.getEntity(
+              relationship.targetId
+            )
         )
-      );
+        .filter(
+          (
+            entity
+          ): entity is AfriseekEntity =>
+            entity !== null
+        );
 
-    return entity.relationships
-      .map(
-        r => map.get(
-          r.targetId
-        )
-      )
-      .filter(
-        (
-          e
-        ): e is AfriseekEntity =>
-          e !== undefined
-      );
+    return this.cultural.sortNeighbors(
+      entity,
+      neighbors
+    );
   }
 
   async getIncomingNeighbors(
     entityId: string
   ): Promise<AfriseekEntity[]> {
 
-    const all =
-      await this.repository.findAll();
+    const index =
+      await this.getIndex();
 
-    return all.filter(
-      entity =>
-        entity.relationships.some(
-          relationship =>
-            relationship.targetId ===
-            entityId
-        )
+    return index.getIncoming(
+      entityId
     );
   }
 
+  /**
+   * Traverses the graph while applying
+   * cultural gating and locality ranking.
+   */
   async getRelated(
     entityId: string,
-    depth: number = 2
+    depth: number = 2,
+    relationshipTypes?: string[]
   ): Promise<AfriseekEntity[]> {
 
-    const all =
-      await this.repository.findAll();
+    const index =
+      await this.getIndex();
 
-    const map =
-      new Map(
-        all.map(
-          e => [e.id, e]
-        )
-      );
+    const root =
+      index.getEntity(entityId);
+
+    if (!root) {
+      return [];
+    }
 
     const visited =
       new Set<string>();
@@ -121,46 +149,112 @@ implements KnowledgeGraph {
       currentDepth: number
     ) => {
 
-      if (
-        currentDepth > depth
-      ) {
+      if (currentDepth > depth) {
         return;
       }
 
-      if (
-        visited.has(id)
-      ) {
+      if (visited.has(id)) {
         return;
       }
-
-      visited.add(id);
 
       const entity =
-        map.get(id);
+        index.getEntity(id);
 
       if (!entity) {
         return;
       }
 
+      visited.add(id);
       results.push(entity);
 
+      // Outgoing relationships
       for (
-        const relation
+        const relationship
         of entity.relationships
       ) {
 
+        if (
+          relationshipTypes?.length &&
+          !relationshipTypes.includes(
+            relationship.type
+          )
+        ) {
+          continue;
+        }
+
+        const target =
+          index.getEntity(
+            relationship.targetId
+          );
+
+        if (!target) {
+          continue;
+        }
+
+        if (
+          !this.cultural.allowTraversal(
+            entity,
+            target
+          )
+        ) {
+          continue;
+        }
+
         traverse(
-          relation.targetId,
+          relationship.targetId,
+          currentDepth + 1
+        );
+      }
+
+      // Incoming relationships
+      const incoming =
+        index.getIncoming(id);
+
+      for (
+        const incomingEntity
+        of incoming
+      ) {
+
+        if (
+          !this.cultural.allowTraversal(
+            entity,
+            incomingEntity
+          )
+        ) {
+          continue;
+        }
+
+        traverse(
+          incomingEntity.id,
           currentDepth + 1
         );
       }
     };
 
-    traverse(
-      entityId,
-      0
-    );
+    traverse(entityId, 0);
 
-    return results;
+    return results
+      .filter(
+        entity =>
+          entity.id !== entityId
+      )
+      .sort((a, b) => {
+
+        const scoreA =
+          this.geo.scoreLocalBias(
+            root,
+            a
+          ) +
+          this.cultural.score(a);
+
+        const scoreB =
+          this.geo.scoreLocalBias(
+            root,
+            b
+          ) +
+          this.cultural.score(b);
+
+        return scoreB - scoreA;
+      });
   }
 }

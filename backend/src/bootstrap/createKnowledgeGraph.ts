@@ -1,13 +1,13 @@
-import { RepositoryKnowledgeGraph }
-from "../core/graph/implementations/RepositoryKnowledgeGraph";
+import { RepositoryKnowledgeGraph } from "../core/graph/implementations/RepositoryKnowledgeGraph";
+import { createEntityRepository } from "./createEntityRepository";
+import { GeoContextEngine } from "../core/intelligence/GeoContextEngine";
+import { CulturalGraphBiasEngine } from "../core/intelligence/CulturalGraphBiasEngine";
 
-import { createEntityRepository }
-from "./createEntityRepository";
-
-export function
-createKnowledgeGraph() {
-
+// FIX: Updated factory to correctly satisfy constructor injection parameters
+export function createKnowledgeGraph() {
   return new RepositoryKnowledgeGraph(
-    createEntityRepository()
+    createEntityRepository(),
+    new GeoContextEngine(),
+    new CulturalGraphBiasEngine()
   );
 }
