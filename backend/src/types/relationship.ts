@@ -1,15 +1,18 @@
-import { RelationshipType } from "./enums/RelationshipType";
+import { RelationshipType }
+from "./enums/RelationshipType";
 
 export enum RelationshipStrength {
 
-  CORE = "core",
-
-  STRONG = "strong",
+  WEAK = "weak",
 
   MODERATE = "moderate",
 
-  WEAK = "weak"
+  STRONG = "strong",
+
+  CORE = "core"
 }
+
+export { RelationshipType };
 
 export interface Relationship {
 
@@ -17,7 +20,7 @@ export interface Relationship {
 
   targetId: string;
 
-  strength?: RelationshipStrength;
+  strength: RelationshipStrength;
 
   weight?: number;
 

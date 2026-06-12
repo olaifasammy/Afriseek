@@ -1,22 +1,14 @@
-import { EntityRepository } from "../repositories/EntityRepository";
-import { AfriseekEntity } from "../types/entity";
+import { User } from "../types/user";
+import { UserRepository } from "../repositories/UserRepository";
 
-export class EntityService {
+export class UserService {
 
   constructor(
-    private repository: EntityRepository
+    private repository: UserRepository
   ) {}
 
   async getAll() {
     return this.repository.findAll();
-  }
-
-  async getBySlug(
-    slug: string
-  ) {
-    return this.repository.findBySlug(
-      slug
-    );
   }
 
   async getById(
@@ -27,19 +19,27 @@ export class EntityService {
     );
   }
 
+  async getByEmail(
+    email: string
+  ) {
+    return this.repository.findByEmail(
+      email
+    );
+  }
+
   async create(
-    entity: AfriseekEntity
+    user: User
   ) {
     return this.repository.create(
-      entity
+      user
     );
   }
 
   async update(
-    entity: AfriseekEntity
+    user: User
   ) {
     return this.repository.update(
-      entity
+      user
     );
   }
 

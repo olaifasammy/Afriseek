@@ -5,15 +5,14 @@ import { getSupabase } from "../config/supabase";
 export class SupabaseEntityRepository
   implements EntityRepository {
 
-  private supabase =
-    getSupabase();
+  private getClient() { return getSupabase(); }
 
   async findById(
     id: string
   ): Promise<AfriseekEntity | null> {
 
     const { data, error } =
-      await this.supabase
+      await this.getClient()
         .from("entities")
         .select("*")
         .eq("id", id)
@@ -31,7 +30,7 @@ export class SupabaseEntityRepository
   ): Promise<AfriseekEntity | null> {
 
     const { data, error } =
-      await this.supabase
+      await this.getClient()
         .from("entities")
         .select("*")
         .eq("slug", slug)
@@ -47,7 +46,7 @@ export class SupabaseEntityRepository
   async findAll(): Promise<AfriseekEntity[]> {
 
     const { data, error } =
-      await this.supabase
+      await this.getClient()
         .from("entities")
         .select("*");
 
@@ -63,7 +62,7 @@ export class SupabaseEntityRepository
   ): Promise<void> {
 
     const { error } =
-      await this.supabase
+      await this.getClient()
         .from("entities")
         .insert(entity);
 
@@ -77,7 +76,7 @@ export class SupabaseEntityRepository
   ): Promise<void> {
 
     const { error } =
-      await this.supabase
+      await this.getClient()
         .from("entities")
         .update(entity)
         .eq("id", entity.id);
@@ -92,7 +91,7 @@ export class SupabaseEntityRepository
   ): Promise<void> {
 
     const { error } =
-      await this.supabase
+      await this.getClient()
         .from("entities")
         .delete()
         .eq("id", id);

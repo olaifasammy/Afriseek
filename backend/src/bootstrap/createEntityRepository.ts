@@ -6,5 +6,6 @@ export function createEntityRepository(): EntityRepository {
   if (process.env.USE_SUPABASE === "true") {
     return new SupabaseEntityRepository();
   }
+
   return new SeedEntityRepository();
 }

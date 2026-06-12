@@ -9,6 +9,9 @@ from "../services/EntityService";
 import { createEntityRepository }
 from "../bootstrap/createEntityRepository";
 
+import { requireSecretKey }
+from "../middleware/requireSecretKey";
+
 const router = Router();
 
 const controller =
@@ -26,6 +29,24 @@ router.get(
 router.get(
   "/:slug",
   controller.getEntityBySlug
+);
+
+router.post(
+  "/",
+  requireSecretKey,
+  controller.createEntity
+);
+
+router.put(
+  "/:id",
+  requireSecretKey,
+  controller.updateEntity
+);
+
+router.delete(
+  "/:id",
+  requireSecretKey,
+  controller.deleteEntity
 );
 
 export default router;
