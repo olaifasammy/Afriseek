@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { createEntityRepository } from "../bootstrap/createEntityRepository";
+import { getDependencies } from "../config/dependencies";
 import { createKnowledgeGraph } from "../bootstrap/createKnowledgeGraph";
 
 import { GraphController } from "../controllers/GraphController";
@@ -13,24 +13,16 @@ import { NarrativeEngine } from "../core/intelligence/NarrativeEngine";
 
 const router = Router();
 
-// -------------------------
-// Infrastructure Layer
-// -------------------------
-const repository = createEntityRepository();
-const entityService = new EntityService(repository);
+// 1. Re-instantiate stateful graph structure
 const graph = createKnowledgeGraph();
 
-// -------------------------
-// Intelligence Layer
-// -------------------------
+// 2. Initialize analysis engines
 const discovery = new DiscoveryEngine();
 const pathFinder = new GraphPathFinder(graph);
 const recommender = new GraphRecommendationEngine(graph);
 const narrativeEngine = new NarrativeEngine();
 
-// -------------------------
-// Orchestrator
-// -------------------------
+// 3. Mount foundational orchestration engine
 const engine = new GraphEngine(
   graph,
   discovery,
@@ -38,18 +30,17 @@ const engine = new GraphEngine(
   recommender
 );
 
-// -------------------------
-// Controller Layer
-// -------------------------
+// 4. Wrap the injected Repository back into the required EntityService class
+const entityServiceWrapper = new EntityService(getDependencies().entityRepository);
+
+// 5. Construct the Controller with the correctly typed service wrapper
 const controller = new GraphController(
   engine,
-  entityService,
+  entityServiceWrapper,
   narrativeEngine
 );
 
-// -------------------------
-// Routes
-// -------------------------
+// 6. Establish API network route mappings
 router.get("/path", controller.getPath);
 router.get("/recommend/:slug", controller.getRecommendations);
 router.get("/:slug", controller.getGraph);

@@ -1,40 +1,92 @@
 import { Request, Response } from "express";
-import { AuthService } from "../modules/auth/AuthService";
+import { getDependencies } from "../config/dependencies";
+import crypto from "crypto";
+import { UserRole } from "../types/role";
 
 export class AuthController {
+  
+  register = async (req: Request, res: Response) => {
+    try {
+      const { username, email, password } = req.body;
+      const { userRepository, passwordService } = getDependencies();
 
-  constructor(
-    private auth: AuthService
-  ) {}
+      // 1. Strict Input Validation
+      if (!username || !email || !password) {
+        return res.status(400).json({ success: false, message: "Username, email, and password are required." });
+      }
 
-  login = async (
-    req: Request,
-    res: Response
-  ) => {
+      // 2. Check for existing users (Enforce Unique Constraints)
+      const existingUser = await userRepository.findByEmail(email);
+      if (existingUser) {
+        return res.status(409).json({ success: false, message: "Email is already registered." });
+      }
 
-    const {
-      email,
-      password
-    } = req.body;
+      // 3. Secure Cryptographic Hashing
+      const passwordHash = await passwordService.hash(password);
 
-    const user =
-      await this.auth.login(
+      // 4. Construct Domain-Compliant User Entity
+      const newUser = {
+        id: crypto.randomUUID(),
+        username,
         email,
-        password
-      );
+        passwordHash,
+        role: "user" as UserRole, // Default role
+        secretKeyVerified: false,
+        active: true,
+        metadata: {
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString()
+        }
+      };
 
-    if (!user) {
+      // 5. Persist to Supabase
+      await userRepository.create(newUser);
 
-      return res.status(401).json({
-        success: false,
-        message:
-          "Invalid credentials"
+      return res.status(201).json({ 
+        success: true, 
+        message: "User registered successfully.",
+        userId: newUser.id 
       });
-    }
 
-    return res.json({
-      success: true,
-      data: user
-    });
+    } catch (error) {
+      console.error("❌ Registration Error:", error);
+      return res.status(500).json({ success: false, message: "Internal server error during registration." });
+    }
+  };
+
+  login = async (req: Request, res: Response) => {
+    try {
+      const { email, password } = req.body;
+      const { userRepository, passwordService } = getDependencies();
+
+      if (!email || !password) {
+        return res.status(400).json({ success: false, message: "Email and password are required." });
+      }
+
+      // 1. Fetch user from Supabase
+      const user = await userRepository.findByEmail(email);
+      if (!user) {
+        return res.status(401).json({ success: false, message: "Invalid credentials." });
+      }
+
+      // 2. Constant-time secure verification
+      const isValid = await passwordService.verify(password, user.passwordHash);
+      if (!isValid) {
+        return res.status(401).json({ success: false, message: "Invalid credentials." });
+      }
+
+      // 3. Strip sensitive data before sending back to the client
+      const { passwordHash, secretKeyHash, ...safeUser } = user;
+
+      return res.json({ 
+        success: true, 
+        message: "Login successful.",
+        user: safeUser 
+      });
+
+    } catch (error) {
+      console.error("❌ Login Error:", error);
+      return res.status(500).json({ success: false, message: "Internal server error during login." });
+    }
   };
 }

@@ -1,30 +1,12 @@
 import { Router } from "express";
-
-import { SecretKeyController }
-from "../controllers/SecretKeyController";
-
-import { UserService }
-from "../services/UserService";
-
-import { SecretKeyService }
-from "../modules/security/SecretKeyService";
-
-import { createUserRepository }
-from "../bootstrap/createUserRepository";
+import { SecretKeyController } from "../controllers/SecretKeyController";
 
 const router = Router();
 
-const controller =
-  new SecretKeyController(
-    new UserService(
-      createUserRepository()
-    ),
-    new SecretKeyService()
-  );
+// Fully decoupled controller initialization utilizing centralized container resolution
+const controller = new SecretKeyController();
 
-router.post(
-  "/verify",
-  controller.verify
-);
+router.post("/verify", controller.verify);
 
 export default router;
+
