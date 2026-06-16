@@ -1,37 +1,33 @@
-import { useState } from "react";
+import Header from "../components/layout/Header";
+import Footer from "../components/layout/Footer";
+import Breadcrumbs from "../components/layout/Breadcrumbs";
+
+import SearchHero from "../components/search/SearchHero";
+import SearchFilters from "../components/search/SearchFilters";
+import CategoryFilters from "../components/search/CategoryFilters";
+import TrendingKnowledge from "../components/search/TrendingKnowledge";
 
 export default function SearchPage() {
-  const [query,setQuery] = useState("");
-
   return (
-    <main
-      style={{
-        padding:"1rem",
-        maxWidth:"900px",
-        margin:"0 auto"
-      }}
-    >
-      <h1>Search Afriseek</h1>
+    <>
+      <Header />
 
-      <input
-        value={query}
-        onChange={(e)=>setQuery(e.target.value)}
-        placeholder="Search countries, cultures, people..."
-        style={{
-          width:"100%",
-          padding:"1rem",
-          marginTop:"1rem",
-          borderRadius:"12px"
-        }}
+      <Breadcrumbs
+        items={[
+          { label:"Home", href:"/" },
+          { label:"Search" }
+        ]}
       />
 
-      <div
-        style={{
-          marginTop:"2rem"
-        }}
-      >
-        Search results will appear here.
-      </div>
-    </main>
+      <SearchHero />
+
+      <SearchFilters />
+
+      <CategoryFilters />
+
+      <TrendingKnowledge />
+
+      <Footer />
+    </>
   );
 }

@@ -1,0 +1,17 @@
+city
+clan
+country
+dynasty
+empire
+ethnic_group
+geographic_feature
+kingdom
+landform
+language
+mountain
+people_group
+place
+polity
+republic
+river
+settlement

@@ -4,43 +4,56 @@ import { UserService } from "../services/UserService";
 import { SecretKeyService } from "../modules/security/SecretKeyService";
 
 export class SecretKeyController {
-  private users: UserService;
-  private secrets: SecretKeyService;
 
-  constructor() {
-    const { userRepository } = getDependencies();
-    this.users = new UserService(userRepository);
-    this.secrets = new SecretKeyService();
-  }
+  verify = async (
+    req: Request,
+    res: Response
+  ) => {
 
-  verify = async (req: Request, res: Response) => {
-    const { userId, secretKey } = req.body;
+    const { userRepository } =
+      getDependencies();
 
-    const user = await this.users.getById(userId);
+    const users =
+      new UserService(userRepository);
+
+    const secrets =
+      new SecretKeyService();
+
+    const {
+      userId,
+      secretKey
+    } = req.body;
+
+    const user =
+      await users.getById(userId);
 
     if (!user) {
       return res.status(404).json({
         success: false,
-        verified: false,
+        verified: false
       });
     }
 
-    const valid = this.secrets.verify(secretKey, user.secretKeyHash || "");
+    const valid =
+      secrets.verify(
+        secretKey,
+        user.secretKeyHash || ""
+      );
 
     if (!valid) {
       return res.status(401).json({
         success: false,
-        verified: false,
+        verified: false
       });
     }
 
     user.secretKeyVerified = true;
 
-    await this.users.update(user);
+    await users.update(user);
 
     return res.json({
       success: true,
-      verified: true,
+      verified: true
     });
   };
 }

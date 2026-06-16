@@ -1,6 +1,27 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+
+  --afri-gold: #D4A54A;
+  --afri-gold-light: #E7C57A;
+
+  --afri-bg: #F5F1E8;
+  --afri-surface: #FFFFFF;
+  --afri-dark: #0F172A;
+
+  --afri-text: #111827;
+  --afri-text-muted: #6B7280;
+
+  --afri-border: #E5E7EB;
+
+  --afri-blue: #2563EB;
+  --afri-green: #16A34A;
+  --afri-red: #DC2626;
+}
+
 * {
-  margin: 0;
-  padding: 0;
   box-sizing: border-box;
 }
 
@@ -11,19 +32,13 @@ body,
 }
 
 body {
-  background: #09090b;
-  color: white;
+  margin: 0;
+  background: var(--afri-bg);
+  color: var(--afri-text);
   font-family:
     Inter,
     system-ui,
     sans-serif;
-}
-
-.card {
-  background: #18181b;
-  padding: 1rem;
-  border-radius: 16px;
-  border: 1px solid #27272a;
 }
 
 a {
@@ -32,19 +47,29 @@ a {
 }
 
 button {
-  cursor: pointer;
+  font: inherit;
+}
+.afri-card {
+  background: var(--afri-surface);
+  border: 1px solid var(--afri-border);
+  border-radius: 18px;
+  padding: 1.25rem;
+  transition: all .2s ease;
 }
 
-body {
-  margin: 0;
-  background: #09090b;
-  color: white;
-  font-family: system-ui, sans-serif;
+.afri-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 30px rgba(0,0,0,.06);
 }
 
-.card {
-  background: #18181b;
-  border: 1px solid #27272a;
-  border-radius: 16px;
-  padding: 1rem;
+.afri-section-title {
+  margin-top: 0;
+  margin-bottom: 1rem;
+  color: var(--afri-text);
+  font-weight: 700;
 }
+
+.afri-muted {
+  color: var(--afri-text-muted);
+}
+

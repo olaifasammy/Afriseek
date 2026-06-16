@@ -28,6 +28,8 @@ export enum RelationshipType {
   // =====================
 
   RULED_BY = "ruled_by",
+GOVERNED_UNDER = "governed_under",
+USES_SYSTEM = "uses_system",
   RULED = "ruled",
 
   GOVERNED_BY = "governed_by",
@@ -87,6 +89,14 @@ export enum RelationshipType {
   WORSHIPPED_BY = "worshipped_by",
 
   CELEBRATES = "celebrates",
+PERFORMS = "performs",
+USES_INSTRUMENT = "uses_instrument",
+PRESERVES = "preserves",
+TRANSMITS = "transmits",
+RECITES = "recites",
+WEARS = "wears",
+FEATURES_MASK = "features_mask",
+USES_TEXTILE = "uses_textile",
 
   BELONGS_TO_CULTURE = "belongs_to_culture",
   BELONGS_TO_ETHNIC_GROUP = "belongs_to_ethnic_group",
@@ -98,6 +108,14 @@ export enum RelationshipType {
   // =====================
 
   PARTICIPATED_IN = "participated_in",
+OCCURRED_DURING = "occurred_during",
+STARTED_IN = "started_in",
+ENDED_IN = "ended_in",
+SIGNED_BY = "signed_by",
+FOUGHT_BY = "fought_by",
+RESULTED_IN = "resulted_in",
+DISCOVERED_AT = "discovered_at",
+EXCAVATED_AT = "excavated_at",
 
   OCCURRED_IN = "occurred_in",
 

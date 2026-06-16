@@ -8,6 +8,7 @@ import { Fact } from "./fact";
 import { Source } from "./source";
 
 import { Relationship } from "./relationship";
+import { EntityMetadataField } from "./entityMetadata";
 
 export interface Alias {
 
@@ -29,6 +30,15 @@ export interface EntityMetadata {
   featured?: boolean;
 
   popularityScore?: number;
+}
+
+export interface EntityMedia {
+
+  coverImage?: string;
+
+  thumbnailImage?: string;
+
+  gallery?: string[];
 }
 
 export interface AfriseekEntity {
@@ -58,6 +68,10 @@ export interface AfriseekEntity {
   relationships: Relationship[];
 
   sources: Source[];
+
+  metadataFields?: EntityMetadataField[];
+
+  media?: EntityMedia;
 
   metadata: EntityMetadata;
 }

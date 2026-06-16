@@ -1,0 +1,14 @@
+city
+entity
+geographic_feature
+governing_system
+historical_entity
+institution
+landform
+people_group
+place
+polity
+religious_system
+settlement
+src/ontology/geography/settlements/settlement.ts:  parentType:
+water_body

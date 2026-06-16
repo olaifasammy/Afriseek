@@ -1,0 +1,49 @@
+import { OntologyDefinition } from "../../types/ontology/OntologyDefinition";
+
+export class OntologyRegistry {
+  private readonly definitions =
+    new Map<string, OntologyDefinition>();
+
+  register(
+    definition: OntologyDefinition
+  ): void {
+    this.definitions.set(
+      definition.entityType,
+      definition
+    );
+  }
+
+  get(
+    entityType: string
+  ): OntologyDefinition | undefined {
+    return this.definitions.get(
+      entityType
+    );
+  }
+
+  has(
+    entityType: string
+  ): boolean {
+    return this.definitions.has(
+      entityType
+    );
+  }
+
+  getAll(): OntologyDefinition[] {
+    return [
+      ...this.definitions.values()
+    ];
+  }
+
+  getByDomain(
+    domain: string
+  ): OntologyDefinition[] {
+    return this.getAll().filter(
+      definition =>
+        definition.domain === domain
+    );
+  }
+}
+
+export const ontologyRegistry =
+  new OntologyRegistry();

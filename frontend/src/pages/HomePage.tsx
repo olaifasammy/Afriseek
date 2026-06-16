@@ -1,21 +1,31 @@
+import Header from "../components/layout/Header";
+
 import Hero from "../components/home/Hero";
-import QuickExplore from "../components/home/QuickExplore";
-import FeaturedEntities from "../components/home/FeaturedEntities";
+import CategoryGrid from "../components/home/CategoryGrid";
+import RecentEntities from "../components/home/RecentEntities";
+import FeaturedKnowledgePaths from "../components/home/FeaturedKnowledgePaths";
 import RecentArticles from "../components/home/RecentArticles";
-import StatsSection from "../components/home/StatsSection";
+import CommunitySection from "../components/home/CommunitySection";
+import Footer from "../components/layout/Footer";
 
 export default function HomePage() {
   return (
     <>
+      <Header />
+
       <Hero />
 
-      <QuickExplore />
+      <CategoryGrid />
 
-      <FeaturedEntities />
+      <RecentEntities />
+
+      <FeaturedKnowledgePaths />
 
       <RecentArticles />
-
-      <StatsSection />
+      
+      <CommunitySection/>
+      
+      <Footer/>
     </>
   );
 }

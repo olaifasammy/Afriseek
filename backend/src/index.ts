@@ -1,5 +1,7 @@
 import express from "express";
 import { initializeDependencies } from "./config/dependencies";
+import { ontologyService }
+from "./modules/ontology/OntologyService";
 
 // Core Routing Architecture Components
 import entityRoutes from "./routes/entityRoutes";
@@ -12,6 +14,7 @@ import articleRoutes from "./routes/articleRoutes";
 import searchRoutes from "./routes/searchRoutes";
 import contextRoutes from "./routes/contextRoutes";
 import eventRoutes from "./routes/eventRoutes";
+import ontologyRoutes from "./routes/ontologyRoutes";
 
 /**
  * Orchestrates the secure asynchronous bootstrap sequence of the Afriseek application engine.
@@ -23,10 +26,12 @@ async function bootstrap() {
   const PORT = process.env.PORT || 3000;
 
   // =========================================================================
+  
   // 1. CORE LIFECYCLE INITIALIZATION
   // =========================================================================
   try {
     initializeDependencies();
+    await ontologyService.load();
     console.log("⚡ [Afriseek Engine]: Graph & Auth relational repositories securely bound to Supabase.");
   } catch (error) {
     console.error("❌ [Fatal Bootstrap Error]: Core dependency injection sequence failed:", error);
@@ -63,6 +68,7 @@ async function bootstrap() {
   app.use("/api/search", searchRoutes);
   app.use("/api/context", contextRoutes);
   app.use("/api/events", eventRoutes);
+  app.use("/api/ontology", ontologyRoutes);
 
   // =========================================================================
   // 5. PORTS & INTERFACE EXECUTION

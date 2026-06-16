@@ -3,10 +3,9 @@ import { UserController } from "../controllers/UserController";
 
 const router = Router();
 
-// Fully decoupled controller initialization utilizing centralized container resolution
-const controller = new UserController();
-
-router.get("/", controller.getAllUsers);
+router.get("/", async (req, res) => {
+  const controller = new UserController();
+  return controller.getAllUsers(req, res);
+});
 
 export default router;
-;

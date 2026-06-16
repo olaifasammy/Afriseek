@@ -1,0 +1,249 @@
+src
+├── bootstrap
+│   ├── createArticleService.ts
+│   ├── createAuditService.ts
+│   ├── createContextExplorerService.ts
+│   ├── createEntityRepository.ts
+│   ├── createEventService.ts
+│   ├── createGraphExplorerService.ts
+│   ├── createIntelligentContextService.ts
+│   ├── createKnowledgeGraph.ts
+│   └── createUserRepository.ts
+├── config
+│   ├── afriseekDomains.ts
+│   ├── dependencies.ts
+│   ├── entityRelationships.ts
+│   ├── entitySchemas.ts
+│   ├── entitySections.ts
+│   ├── ontologyRegistry.ts
+│   └── supabase.ts
+├── controllers
+│   ├── ArticleController.ts
+│   ├── AuthController.ts
+│   ├── ContextController.ts
+│   ├── EntityController.ts
+│   ├── EventController.ts
+│   ├── GraphController.ts
+│   ├── OntologyController.ts
+│   ├── SearchController.ts
+│   ├── SecretKeyController.ts
+│   └── UserController.ts
+├── core
+│   ├── auth
+│   │   └── RolePermissions.ts
+│   ├── graph
+│   │   ├── GraphEngine.ts
+│   │   ├── GraphIndex.ts
+│   │   ├── GraphNormalizer.ts
+│   │   ├── GraphPathFinder.ts
+│   │   ├── KnowledgeGraph.ts
+│   │   ├── contracts
+│   │   └── implementations
+│   ├── intelligence
+│   │   ├── ContextBucketEngine.ts
+│   │   ├── CulturalGraphBiasEngine.ts
+│   │   ├── DiscoveryEngine.ts
+│   │   ├── GeoContextEngine.ts
+│   │   └── NarrativeEngine.ts
+│   ├── ontology
+│   │   └── inverseRelationships.ts
+│   └── recommendation
+│       └── GraphRecommendationEngine.ts
+├── data
+│   ├── entities.ts
+│   └── seeds
+│       ├── africa.ts
+│       ├── index.ts
+│       └── libya.ts
+├── index.ts
+├── middleware
+│   └── requireSecretKey.ts
+├── modules
+│   ├── audit
+│   │   └── AuditService.ts
+│   ├── auth
+│   │   ├── AuthService.ts
+│   │   ├── JwtService.ts
+│   │   └── PasswordService.ts
+│   ├── ontology
+│   │   ├── ContextRegistry.ts
+│   │   ├── EntityOntologyValidator.ts
+│   │   ├── InheritanceResolver.ts
+│   │   ├── MetadataRegistry.ts
+│   │   ├── MetadataTypeValidator.ts
+│   │   ├── MetadataValidator.ts
+│   │   ├── OntologyInheritanceResolver.ts
+│   │   ├── OntologyRegistry.ts
+│   │   ├── OntologyRegistry.ts.bak
+│   │   ├── OntologyService.ts
+│   │   ├── OntologyTypes.ts
+│   │   ├── OntologyValidator.ts
+│   │   ├── RelationshipRegistry.ts
+│   │   ├── RelationshipTargetValidator.ts
+│   │   ├── RelationshipValidator.ts
+│   │   ├── SectionGenerator.ts
+│   │   ├── ValidationRegistry.ts
+│   │   ├── errors
+│   │   ├── inheritance
+│   │   ├── loaders
+│   │   └── validators
+│   ├── security
+│   │   └── SecretKeyService.ts
+│   └── timeline
+├── ontology
+│   ├── base
+│   │   ├── AbstractSettlementOntology.helper.ts
+│   │   ├── economicEntity.ts
+│   │   ├── ecosystem.ts
+│   │   ├── geographicFeature.ts
+│   │   ├── historicalEntity.ts
+│   │   ├── infrastructureAsset.ts
+│   │   ├── institution.ts
+│   │   ├── languageFamily.ts
+│   │   ├── peopleGroup.ts
+│   │   ├── polity.ts
+│   │   ├── religiousSystem.ts
+│   │   └── settlement.ts
+│   ├── biodiversity
+│   ├── core
+│   │   ├── administrative_unit.ts
+│   │   ├── belief_system.ts
+│   │   ├── biodiversityEntity.ts
+│   │   ├── cultural_entity.ts
+│   │   ├── entity.ts
+│   │   ├── event.ts
+│   │   ├── infrastructure.ts
+│   │   ├── infrastructureEntity.ts
+│   │   ├── person.ts
+│   │   ├── religiousEntity.ts
+│   │   ├── social_group.ts
+│   │   └── technologyEntity.ts
+│   ├── culture
+│   │   ├── artifacts
+│   │   ├── ceremonies
+│   │   ├── dance
+│   │   ├── festivals
+│   │   ├── music
+│   │   ├── oral
+│   │   └── textiles
+│   ├── economy
+│   ├── geography
+│   │   ├── city.ts
+│   │   ├── continent.ts
+│   │   ├── hydrology
+│   │   ├── landform.ts
+│   │   ├── landforms
+│   │   ├── natural
+│   │   ├── place
+│   │   ├── political
+│   │   ├── protectedArea.ts
+│   │   ├── region.ts
+│   │   ├── settlements
+│   │   ├── waterBodies
+│   │   └── waterBody.ts
+│   ├── governance
+│   │   ├── chiefdom.ts
+│   │   ├── cityState.ts
+│   │   ├── empire.ts
+│   │   ├── federalSystem.ts
+│   │   ├── governingSystem.ts
+│   │   ├── kingdom.ts
+│   │   ├── monarchy.ts
+│   │   ├── republic.ts
+│   │   ├── republicSystem.ts
+│   │   ├── sultanate.ts
+│   │   ├── systems
+│   │   └── traditionalInstitution.ts
+│   ├── history
+│   │   ├── archaeology
+│   │   ├── conflicts
+│   │   ├── eras
+│   │   ├── events
+│   │   ├── historicalEvent.ts
+│   │   └── movements
+│   ├── infrastructure
+│   ├── institutions
+│   │   └── university.ts
+│   ├── language
+│   │   └── language.ts
+│   ├── media
+│   ├── nature
+│   ├── people
+│   │   ├── clan.ts
+│   │   ├── diasporaCommunity.ts
+│   │   ├── dynasty.ts
+│   │   └── ethnicGroup.ts
+│   ├── registry
+│   │   ├── entityTypes.ts
+│   │   ├── loadOntologyDefinitions.scanner.ts
+│   │   └── loadOntologyDefinitions.ts
+│   ├── religion
+│   │   └── religion.ts
+│   └── technology
+├── repositories
+│   ├── ArticleRepository.ts
+│   ├── EntityRepository.ts
+│   ├── EventRepository.ts
+│   ├── InMemoryArticleRepository.ts
+│   ├── InMemoryAuditRepository.ts
+│   ├── InMemoryEventRepository.ts
+│   ├── SeedEntityRepository.ts
+│   ├── SeedUserRepository.ts
+│   ├── SupabaseEntityRepository.ts
+│   ├── SupabaseUserRepository.ts
+│   └── UserRepository.ts
+├── routes
+│   ├── articleRoutes.ts
+│   ├── auditRoutes.ts
+│   ├── authRoutes.ts
+│   ├── contextRoutes.ts
+│   ├── entityRoutes.ts
+│   ├── eventRoutes.ts
+│   ├── graphRoutes.ts
+│   ├── ontologyRoutes.ts
+│   ├── searchRoutes.ts
+│   ├── secretKeyRoutes.ts
+│   └── userRoutes.ts
+├── services
+│   ├── ArticleService.ts
+│   ├── AuditService.ts
+│   ├── ContextExplorerService.ts
+│   ├── ContextTraversalService.ts
+│   ├── EntityService.ts
+│   ├── EventService.ts
+│   ├── GraphExplorerService.ts
+│   ├── IntelligentContextService.ts
+│   ├── PasswordService.ts
+│   ├── SearchService.ts
+│   └── UserService.ts
+└── types
+    ├── activityLog.ts
+    ├── api
+    │   ├── ExpansionResponse.ts
+    │   ├── GraphResponse.ts
+    │   └── RecommendationResponse.ts
+    ├── article.ts
+    ├── audit.ts
+    ├── citation.ts
+    ├── entity.ts
+    ├── entityMetadata.ts
+    ├── enums
+    │   ├── EntityType.ts
+    │   └── RelationshipType.ts
+    ├── event.ts
+    ├── fact.ts
+    ├── importance.ts
+    ├── ontology
+    │   ├── MetadataDefinition.ts
+    │   ├── OntologyDefinition.ts
+    │   ├── RelationshipDefinition.ts
+    │   └── SectionDefinition.ts
+    ├── permission.ts
+    ├── relationship.ts
+    ├── role.ts
+    ├── source.ts
+    ├── trait.ts
+    ├── traits.ts
+    └── user.ts
+
+70 directories, 177 files

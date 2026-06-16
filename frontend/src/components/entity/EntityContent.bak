@@ -1,0 +1,86 @@
+import { useState } from "react";
+
+import EntityTabs from "./EntityTabs";
+import EntityOverview from "./EntityOverview";
+import EntityTraits from "./EntityTraits";
+import EntityFacts from "./EntityFacts";
+import EntityTimeline from "./EntityTimeline";
+import EntityLibrarian from "./EntityLibrarian";
+import EntitySources from "./EntitySources";
+import EntityRelated from "./EntityRelated";
+
+interface Props {
+  entity: any;
+}
+
+export default function EntityContent({
+  entity
+}: Props) {
+  const [activeTab, setActiveTab] =
+    useState("Overview");
+
+  return (
+    <>
+      <section
+        style={{
+          background: "#fff",
+          border: "1px solid #e5e7eb",
+          padding: "2rem",
+          marginTop: "2rem"
+        }}
+      >
+        <EntityTabs
+          active={activeTab}
+          onChange={setActiveTab}
+        />
+
+        {activeTab === "Overview" && (
+          <EntityOverview
+            summary={entity.summary}
+          />
+        )}
+
+        {activeTab === "Traits" && (
+          <EntityTraits
+            traits={entity.traits || []}
+          />
+        )}
+
+        {activeTab === "Facts" && (
+          <EntityFacts
+            facts={entity.facts || []}
+          />
+        )}
+
+        {activeTab === "Timeline" && (
+          <EntityTimeline
+            timeline={entity.timeline || []}
+          />
+        )}
+
+        <div
+          style={{
+            marginTop: "3rem",
+            paddingTop: "2rem",
+            borderTop:
+              "1px solid #e5e7eb"
+          }}
+        >
+          <EntityLibrarian
+            entity={entity}
+          />
+        </div>
+      </section>
+
+      <EntitySources
+        sources={entity.sources || []}
+      />
+
+      <EntityRelated
+        relationships={
+          entity.relationships || []
+        }
+      />
+    </>
+  );
+}

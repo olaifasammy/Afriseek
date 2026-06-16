@@ -1,63 +1,131 @@
-import { FileText } from "lucide-react";
-import { useArticles } from "../../hooks/useArticles";
+import {
+  FileText,
+  ChevronRight
+} from "lucide-react";
+
+const articles = [
+  {
+    title:"The Legacy of the Benin Empire",
+    meta:"History • 5 min read"
+  },
+  {
+    title:"Understanding the Yoruba People",
+    meta:"Culture • 7 min read"
+  },
+  {
+    title:"Ancient Trade Routes Across Africa",
+    meta:"History • 8 min read"
+  }
+];
 
 export default function RecentArticles() {
-
-  const articles = useArticles();
-
   return (
-    <section style={{ padding:"1rem" }}>
-
+    <section
+      style={{
+        background:"var(--afri-surface)",
+        padding:"2rem 1rem"
+      }}
+    >
       <div
         style={{
           display:"flex",
           justifyContent:"space-between",
+          alignItems:"center",
           marginBottom:"1rem"
         }}
       >
-        <h2>Recent Articles</h2>
-
-        <span
+        <h2
           style={{
-            color:"#d4a54a"
+            margin:0,
+            color:"var(--afri-text)"
+          }}
+        >
+          Recent Articles
+        </h2>
+
+        <button
+          style={{
+            background:"none",
+            border:"none",
+            color:"var(--afri-gold)",
+            display:"flex",
+            alignItems:"center",
+            gap:"0.25rem",
+            fontWeight:600
           }}
         >
           View all
-        </span>
+          <ChevronRight size={16}/>
+        </button>
       </div>
 
       <div
         style={{
-          display:"grid",
-          gap:"0.75rem"
+          display:"flex",
+          flexDirection:"column",
+          gap:"1rem"
         }}
       >
-        {articles.slice(0,3).map((article:any) => (
-
+        {articles.map((article)=>(
           <div
-            key={article.id}
-            className="card"
+            key={article.title}
+            style={{
+              background:"var(--afri-surface)",
+              border:"1px solid var(--afri-border)",
+              borderRadius:"18px",
+              padding:"1rem",
+              boxShadow:
+                "0 8px 20px rgba(0,0,0,.04)"
+            }}
           >
             <div
               style={{
                 display:"flex",
-                gap:"0.75rem",
-                alignItems:"center"
+                gap:"1rem",
+                alignItems:"flex-start"
               }}
             >
-              <FileText size={20} />
+              <div
+                style={{
+                  width:"50px",
+                  height:"50px",
+                  borderRadius:"14px",
+                  background:"var(--afri-gold)15",
+                  display:"flex",
+                  justifyContent:"center",
+                  alignItems:"center"
+                }}
+              >
+                <FileText
+                  size={22}
+                  color="var(--afri-gold)"
+                />
+              </div>
 
               <div>
-                <strong>
+                <div
+                  style={{
+                    fontWeight:700,
+                    color:"var(--afri-text)",
+                    marginBottom:"0.4rem"
+                  }}
+                >
                   {article.title}
-                </strong>
+                </div>
+
+                <div
+                  style={{
+                    color:"var(--afri-text-muted)",
+                    fontSize:"0.9rem"
+                  }}
+                >
+                  {article.meta}
+                </div>
               </div>
             </div>
           </div>
-
         ))}
       </div>
-
     </section>
   );
 }

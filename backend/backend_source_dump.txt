@@ -1,0 +1,5883 @@
+===== SCHEMA =====
+
+-- ==========================================
+-- MIGRATION 02: AUTHENTICATION & USER MANAGEMENT
+-- ==========================================
+
+CREATE TABLE users (
+	    id VARCHAR(64) PRIMARY KEY,
+	        username VARCHAR(255) UNIQUE NOT NULL,
+	            email VARCHAR(255) UNIQUE NOT NULL,
+	                password_hash TEXT NOT NULL,
+	                    role VARCHAR(32) NOT NULL DEFAULT 'user',
+	                        secret_key_hash TEXT,
+	                            secret_key_verified BOOLEAN DEFAULT false,
+	                                active BOOLEAN DEFAULT true,
+	                                    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+	                                        updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+	                                        );
+
+	                                        CREATE INDEX idx_users_email ON users(email);
+	                             
+)
+
+===== SRC =====
+
+FILE: src/bootstrap/createArticleService.ts
+----------------------------------------
+import { ArticleService }
+from "../services/ArticleService";
+
+import { InMemoryArticleRepository }
+from "../repositories/InMemoryArticleRepository";
+
+const repository =
+  new InMemoryArticleRepository();
+
+const service =
+  new ArticleService(
+    repository
+  );
+
+export function
+createArticleService() {
+
+  return service;
+}
+
+FILE: src/bootstrap/createAuditService.ts
+----------------------------------------
+import { AuditService }
+from "../services/AuditService";
+
+import { InMemoryAuditRepository }
+from "../repositories/InMemoryAuditRepository";
+
+const repository =
+  new InMemoryAuditRepository();
+
+const service =
+  new AuditService(
+    repository
+  );
+
+export function createAuditService() {
+
+  return service;
+}
+
+FILE: src/bootstrap/createContextExplorerService.ts
+----------------------------------------
+import { ContextExplorerService }
+from "../services/ContextExplorerService";
+
+import { EntityService }
+from "../services/EntityService";
+
+import { createEntityRepository }
+from "./createEntityRepository";
+
+const service =
+  new ContextExplorerService(
+
+    new EntityService(
+      createEntityRepository()
+    )
+
+  );
+
+export function
+createContextExplorerService() {
+
+  return service;
+}
+
+FILE: src/bootstrap/createEntityRepository.ts
+----------------------------------------
+import { EntityRepository } from "../repositories/EntityRepository";
+import { SeedEntityRepository } from "../repositories/SeedEntityRepository";
+import { SupabaseEntityRepository } from "../repositories/SupabaseEntityRepository";
+
+export function createEntityRepository(): EntityRepository {
+  if (process.env.USE_SUPABASE === "true") {
+    return new SupabaseEntityRepository();
+  }
+
+  return new SeedEntityRepository();
+}
+
+FILE: src/bootstrap/createEventService.ts
+----------------------------------------
+import { EventService }
+from "../services/EventService";
+
+import { InMemoryEventRepository }
+from "../repositories/InMemoryEventRepository";
+
+const repository =
+  new InMemoryEventRepository();
+
+const service =
+  new EventService(
+    repository
+  );
+
+export function
+createEventService() {
+
+  return service;
+}
+
+FILE: src/bootstrap/createGraphExplorerService.ts
+----------------------------------------
+import { GraphExplorerService }
+from "../services/GraphExplorerService";
+
+import { EntityService }
+from "../services/EntityService";
+
+import { createEntityRepository }
+from "./createEntityRepository";
+
+export function
+createGraphExplorerService() {
+
+  return new GraphExplorerService(
+
+    new EntityService(
+      createEntityRepository()
+    )
+
+  );
+}
+
+FILE: src/bootstrap/createIntelligentContextService.ts
+----------------------------------------
+import { IntelligentContextService }
+from "../services/IntelligentContextService";
+
+import { EntityService }
+from "../services/EntityService";
+
+import { createEntityRepository }
+from "./createEntityRepository";
+
+const service =
+  new IntelligentContextService(
+
+    new EntityService(
+      createEntityRepository()
+    )
+
+  );
+
+export function
+createIntelligentContextService() {
+
+  return service;
+}
+
+FILE: src/bootstrap/createKnowledgeGraph.ts
+----------------------------------------
+import { RepositoryKnowledgeGraph } from "../core/graph/implementations/RepositoryKnowledgeGraph";
+import { createEntityRepository } from "./createEntityRepository";
+import { GeoContextEngine } from "../core/intelligence/GeoContextEngine";
+import { CulturalGraphBiasEngine } from "../core/intelligence/CulturalGraphBiasEngine";
+
+// FIX: Updated factory to correctly satisfy constructor injection parameters
+export function createKnowledgeGraph() {
+  return new RepositoryKnowledgeGraph(
+    createEntityRepository(),
+    new GeoContextEngine(),
+    new CulturalGraphBiasEngine()
+  );
+}
+FILE: src/bootstrap/createUserRepository.ts
+----------------------------------------
+import { UserRepository } from "../repositories/UserRepository";
+import { SeedUserRepository } from "../repositories/SeedUserRepository";
+
+export function createUserRepository(): UserRepository {
+
+  return new SeedUserRepository();
+}
+
+FILE: src/config/afriseekDomains.ts
+----------------------------------------
+export const afriseekDomains = {
+  identity: [
+    "person",
+    "ethnic_group",
+    "tribe",
+    "clan",
+    "dynasty",
+    "royal_house",
+    "diaspora_community"
+  ],
+
+  governance: [
+    "kingdom",
+    "empire",
+    "republic",
+    "government",
+    "political_party",
+    "traditional_institution"
+  ],
+
+  history: [
+    "historical_event",
+    "battle",
+    "war",
+    "migration",
+    "coronation",
+    "revolution",
+    "treaty"
+  ],
+
+  language: [
+    "language",
+    "language_family",
+    "proverb",
+    "folktale",
+    "oral_tradition",
+    "manuscript",
+    "book"
+  ],
+
+  spirituality: [
+    "religion",
+    "belief_system",
+    "deity",
+    "spirit",
+    "sacred_site",
+    "ritual",
+    "ceremony"
+  ],
+
+  culture: [
+    "festival",
+    "dance",
+    "music_genre",
+    "musical_instrument",
+    "clothing",
+    "textile",
+    "mask",
+    "custom"
+  ],
+
+  geography: [
+    "continent",
+    "region",
+    "country",
+    "state",
+    "province",
+    "district",
+    "city",
+    "town",
+    "village",
+    "river",
+    "mountain",
+    "forest",
+    "desert",
+    "island"
+  ],
+
+  institutions: [
+    "university",
+    "school",
+    "library",
+    "museum",
+    "research_center",
+    "hospital"
+  ],
+
+  economy: [
+    "currency",
+    "commodity",
+    "industry",
+    "market",
+    "company",
+    "trade_route"
+  ],
+
+  infrastructure: [
+    "road",
+    "railway",
+    "bridge",
+    "airport",
+    "seaport",
+    "dam",
+    "palace",
+    "landmark",
+    "monument",
+    "archaeological_site"
+  ]
+};
+
+FILE: src/config/dependencies.ts
+----------------------------------------
+import { createEntityRepository } from "../bootstrap/createEntityRepository";
+import { SupabaseUserRepository } from "../repositories/SupabaseUserRepository";
+import { PasswordService } from "../services/PasswordService";
+import { EntityRepository } from "../repositories/EntityRepository";
+import { UserRepository } from "../repositories/UserRepository";
+
+export interface AppDependencies {
+  entityRepository: EntityRepository;
+  userRepository: UserRepository;
+  passwordService: PasswordService;
+}
+
+let container: AppDependencies | null = null;
+
+export function initializeDependencies(): AppDependencies {
+  if (container) {
+    return container;
+  }
+
+  const entityRepository = createEntityRepository();
+
+  const userRepository =
+    new SupabaseUserRepository();
+
+  const passwordService =
+    new PasswordService();
+
+  container = {
+    entityRepository,
+    userRepository,
+    passwordService
+  };
+
+  Object.freeze(container);
+
+  return container;
+}
+
+export function getDependencies(): AppDependencies {
+  if (!container) {
+    throw new Error(
+      "AppDependencies container accessed before lifecycle initialization. Ensure initializeDependencies() is triggered in index.ts."
+    );
+  }
+
+  return container;
+}
+
+FILE: src/config/entityRelationships.ts
+----------------------------------------
+export const entityRelationships = {
+  person: [
+    "born_in",
+    "member_of",
+    "founded",
+    "influenced",
+    "influenced_by",
+    "associated_with",
+    "related_to"
+  ],
+
+  ethnic_group: [
+    "located_in",
+    "speaks",
+    "practices",
+    "associated_with",
+    "related_to"
+  ],
+
+  kingdom: [
+    "located_in",
+    "founded_by",
+    "ruled_by",
+    "preceded_by",
+    "succeeded_by",
+    "related_to"
+  ],
+
+  city: [
+    "located_in",
+    "contains",
+    "capital_of",
+    "related_to"
+  ],
+
+  university: [
+    "located_in",
+    "founded_by",
+    "associated_with",
+    "related_to"
+  ],
+
+  language: [
+    "spoken_by",
+    "associated_with",
+    "related_to"
+  ]
+};
+
+FILE: src/config/entitySchemas.ts
+----------------------------------------
+export const entitySchemas = {
+  person: {
+    required: [
+      "birthDate",
+      "nationality"
+    ],
+    optional: [
+      "deathDate",
+      "occupation",
+      "education",
+      "knownFor"
+    ]
+  },
+
+  city: {
+    required: [
+      "country"
+    ],
+    optional: [
+      "population",
+      "coordinates",
+      "founded"
+    ]
+  },
+
+  kingdom: {
+    required: [
+      "capital"
+    ],
+    optional: [
+      "founder",
+      "period",
+      "successor"
+    ]
+  },
+
+  ethnic_group: {
+    required: [
+      "primaryRegion"
+    ],
+    optional: [
+      "population",
+      "language",
+      "religion"
+    ]
+  },
+
+  language: {
+    required: [],
+    optional: [
+      "languageFamily",
+      "speakers",
+      "writingSystem"
+    ]
+  },
+
+  university: {
+    required: [
+      "country"
+    ],
+    optional: [
+      "established",
+      "students",
+      "website"
+    ]
+  }
+};
+
+FILE: src/config/entitySections.ts
+----------------------------------------
+export const entitySections = {
+  person: [
+    "overview",
+    "biography",
+    "timeline",
+    "legacy"
+  ],
+
+  ethnic_group: [
+    "overview",
+    "history",
+    "culture",
+    "language",
+    "timeline"
+  ],
+
+  kingdom: [
+    "overview",
+    "history",
+    "government",
+    "timeline"
+  ],
+
+  city: [
+    "overview",
+    "history",
+    "geography"
+  ],
+
+  university: [
+    "overview",
+    "history",
+    "academics"
+  ],
+
+  language: [
+    "overview",
+    "history",
+    "grammar"
+  ]
+};
+
+FILE: src/config/ontologyRegistry.ts
+----------------------------------------
+import { entitySchemas } from "./entitySchemas";
+import { entityRelationships } from "./entityRelationships";
+import { entitySections } from "./entitySections";
+
+export const ontologyRegistry = {
+  person: {
+    metadata: entitySchemas.person,
+    relationships: entityRelationships.person,
+    sections: entitySections.person
+  },
+
+  ethnic_group: {
+    metadata: entitySchemas.ethnic_group,
+    relationships: entityRelationships.ethnic_group,
+    sections: entitySections.ethnic_group
+  },
+
+  kingdom: {
+    metadata: entitySchemas.kingdom,
+    relationships: entityRelationships.kingdom,
+    sections: entitySections.kingdom
+  },
+
+  city: {
+    metadata: entitySchemas.city,
+    relationships: entityRelationships.city,
+    sections: entitySections.city
+  },
+
+  university: {
+    metadata: entitySchemas.university,
+    relationships: entityRelationships.university,
+    sections: entitySections.university
+  },
+
+  language: {
+    metadata: entitySchemas.language,
+    relationships: entityRelationships.language,
+    sections: entitySections.language
+  }
+};
+
+FILE: src/config/supabase.ts
+----------------------------------------
+import { createClient }
+from "@supabase/supabase-js";
+
+import dotenv
+from "dotenv";
+
+dotenv.config();
+
+export function
+getSupabase() {
+
+  const url =
+    process.env.SUPABASE_URL;
+
+  const key =
+    process.env.SUPABASE_ANON_KEY;
+
+  if (!url || !key) {
+
+    throw new Error(
+      "Supabase configuration missing"
+    );
+  }
+
+  return createClient(
+    url,
+    key
+  );
+}
+
+FILE: src/controllers/ArticleController.ts
+----------------------------------------
+import crypto from "crypto";
+
+import { Request, Response }
+from "express";
+
+import { createArticleService }
+from "../bootstrap/createArticleService";
+
+import { createAuditService }
+from "../bootstrap/createAuditService";
+
+export class ArticleController {
+
+  private articles =
+    createArticleService();
+
+  private audit =
+    createAuditService();
+
+  getAllArticles = async (
+    _req: Request,
+    res: Response
+  ) => {
+
+    const data =
+      await this.articles.getAll();
+
+    return res.json({
+      success: true,
+      data
+    });
+  };
+
+  getArticleBySlug = async (
+    req: Request,
+    res: Response
+  ) => {
+
+    const article =
+      await this.articles.getBySlug(
+        String(req.params.slug)
+      );
+
+    if (!article) {
+
+      return res.status(404).json({
+        success: false
+      });
+    }
+
+    return res.json({
+      success: true,
+      data: article
+    });
+  };
+
+  createArticle = async (
+    req: Request,
+    res: Response
+  ) => {
+
+    await this.articles.create(
+      req.body
+    );
+
+    await this.audit.log({
+
+      id:
+        crypto.randomUUID(),
+
+      actorId:
+        String(
+          req.headers["x-user-id"]
+          || "unknown"
+        ),
+
+      action:
+        "create_article",
+
+      targetType:
+        "article",
+
+      targetId:
+        String(
+          req.body.id
+        ),
+
+      timestamp:
+        new Date()
+          .toISOString()
+    });
+
+    return res.status(201).json({
+      success: true
+    });
+  };
+
+  updateArticle = async (
+    req: Request,
+    res: Response
+  ) => {
+
+    const article =
+      await this.articles.getBySlug(
+        req.body.slug
+      );
+
+    if (!article) {
+
+      return res.status(404).json({
+        success: false
+      });
+    }
+
+    article.versions.push({
+
+      version:
+        article.versions.length + 1,
+
+      content:
+        req.body.content,
+
+      editorId:
+        String(
+          req.headers["x-user-id"]
+          || "unknown"
+        ),
+
+      createdAt:
+        new Date()
+          .toISOString()
+    });
+
+    article.metadata.updatedAt =
+      new Date()
+        .toISOString();
+
+    await this.articles.update(
+      article
+    );
+
+    await this.audit.log({
+
+      id:
+        crypto.randomUUID(),
+
+      actorId:
+        String(
+          req.headers["x-user-id"]
+          || "unknown"
+        ),
+
+      action:
+        "update_article",
+
+      targetType:
+        "article",
+
+      targetId:
+        article.id,
+
+      timestamp:
+        new Date()
+          .toISOString()
+    });
+
+    return res.json({
+      success: true
+    });
+  };
+}
+
+FILE: src/controllers/AuthController.ts
+----------------------------------------
+import { Request, Response } from "express";
+import { getDependencies } from "../config/dependencies";
+import crypto from "crypto";
+import { UserRole } from "../types/role";
+
+export class AuthController {
+  
+  register = async (req: Request, res: Response) => {
+    try {
+      const { username, email, password } = req.body;
+      const { userRepository, passwordService } = getDependencies();
+
+      // 1. Strict Input Validation
+      if (!username || !email || !password) {
+        return res.status(400).json({ success: false, message: "Username, email, and password are required." });
+      }
+
+      // 2. Check for existing users (Enforce Unique Constraints)
+      const existingUser = await userRepository.findByEmail(email);
+      if (existingUser) {
+        return res.status(409).json({ success: false, message: "Email is already registered." });
+      }
+
+      // 3. Secure Cryptographic Hashing
+      const passwordHash = await passwordService.hash(password);
+
+      // 4. Construct Domain-Compliant User Entity
+      const newUser = {
+        id: crypto.randomUUID(),
+        username,
+        email,
+        passwordHash,
+        role: "user" as UserRole, // Default role
+        secretKeyVerified: false,
+        active: true,
+        metadata: {
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString()
+        }
+      };
+
+      // 5. Persist to Supabase
+      await userRepository.create(newUser);
+
+      return res.status(201).json({ 
+        success: true, 
+        message: "User registered successfully.",
+        userId: newUser.id 
+      });
+
+    } catch (error) {
+      console.error("❌ Registration Error:", error);
+      return res.status(500).json({ success: false, message: "Internal server error during registration." });
+    }
+  };
+
+  login = async (req: Request, res: Response) => {
+    try {
+      const { email, password } = req.body;
+      const { userRepository, passwordService } = getDependencies();
+
+      if (!email || !password) {
+        return res.status(400).json({ success: false, message: "Email and password are required." });
+      }
+
+      // 1. Fetch user from Supabase
+      const user = await userRepository.findByEmail(email);
+      if (!user) {
+        return res.status(401).json({ success: false, message: "Invalid credentials." });
+      }
+
+      // 2. Constant-time secure verification
+      const isValid = await passwordService.verify(password, user.passwordHash);
+      if (!isValid) {
+        return res.status(401).json({ success: false, message: "Invalid credentials." });
+      }
+
+      // 3. Strip sensitive data before sending back to the client
+      const { passwordHash, secretKeyHash, ...safeUser } = user;
+
+      return res.json({ 
+        success: true, 
+        message: "Login successful.",
+        user: safeUser 
+      });
+
+    } catch (error) {
+      console.error("❌ Login Error:", error);
+      return res.status(500).json({ success: false, message: "Internal server error during login." });
+    }
+  };
+}
+
+FILE: src/controllers/ContextController.ts
+----------------------------------------
+import { Request, Response }
+from "express";
+
+import { createContextExplorerService }
+from "../bootstrap/createContextExplorerService";
+
+import { createIntelligentContextService }
+from "../bootstrap/createIntelligentContextService";
+
+const service =
+  createContextExplorerService();
+
+const intelligent =
+  createIntelligentContextService();
+
+export class ContextController {
+
+  explore = async (
+    req: Request,
+    res: Response
+  ) => {
+
+    try {
+
+      const slug =
+        String(req.params.slug);
+
+      const result =
+        await service.explore(
+          slug
+        );
+
+      if (!result) {
+
+        return res.status(404).json({
+          success: false,
+          message: "Entity not found"
+        });
+      }
+
+      return res.json({
+        success: true,
+        data: result
+      });
+
+    } catch (error) {
+
+      console.error(error);
+
+      return res.status(500).json({
+        success: false,
+        message: "Context lookup failed"
+      });
+    }
+  };
+
+  intelligentExplore = async (
+    req: Request,
+    res: Response
+  ) => {
+
+    try {
+
+      const slug =
+        String(req.params.slug);
+
+      const result =
+        await intelligent.build(
+          slug
+        );
+
+      if (!result) {
+
+        return res.status(404).json({
+          success: false,
+          message: "Entity not found"
+        });
+      }
+
+      return res.json({
+        success: true,
+        data: result
+      });
+
+    } catch (error) {
+
+      console.error(error);
+
+      return res.status(500).json({
+        success: false,
+        message:
+          "Intelligent context failed"
+      });
+    }
+  };
+}
+
+FILE: src/controllers/EntityController.ts
+----------------------------------------
+import crypto from "crypto";
+import { Request, Response } from "express";
+import { getDependencies } from "../config/dependencies";
+import { createAuditService } from "../bootstrap/createAuditService";
+
+export class EntityController {
+  // Retain your established audit logger instantiation
+  private audit = createAuditService();
+
+  getEntityBySlug = async (req: Request, res: Response) => {
+    try {
+      const slug = String(req.params.slug);
+      const { entityRepository } = getDependencies();
+      
+      const entity = await entityRepository.findBySlug(slug);
+
+      if (!entity) {
+        return res.status(404).json({
+          success: false,
+          message: "Entity not found"
+        });
+      }
+
+      return res.json({
+        success: true,
+        data: entity
+      });
+    } catch (error) {
+      console.error("❌ Get Entity By Slug Error:", error);
+      return res.status(500).json({
+        success: false,
+        message: "Internal server error"
+      });
+    }
+  };
+
+  getAllEntities = async (req: Request, res: Response) => {
+    try {
+      const { entityRepository } = getDependencies();
+      const entities = await entityRepository.findAll();
+
+      return res.json({
+        success: true,
+        data: entities
+      });
+    } catch (error) {
+      console.error("❌ Get All Entities Error:", error);
+      return res.status(500).json({
+        success: false,
+        message: "Internal server error"
+      });
+    }
+  };
+
+  createEntity = async (req: Request, res: Response) => {
+    try {
+      const { entityRepository } = getDependencies();
+      await entityRepository.create(req.body);
+
+      // Persist the administrative action tracking footprint
+      await this.audit.log({
+        id: crypto.randomUUID(),
+        actorId: String(req.headers["x-user-id"] || "unknown"),
+        action: "create_entity",
+        targetType: "entity",
+        targetId: String(req.body.id || "unknown"),
+        timestamp: new Date().toISOString()
+      });
+
+      return res.status(201).json({
+        success: true
+      });
+    } catch (error) {
+      console.error("❌ Create Entity Error:", error);
+      return res.status(500).json({
+        success: false,
+        message: "Failed to create entity"
+      });
+    }
+  };
+
+  updateEntity = async (req: Request, res: Response) => {
+    try {
+      const { entityRepository } = getDependencies();
+      // Ensure the id variable is parsed cleanly or resolved against domain attributes
+      const id = String(req.params.id || req.body.id || "unknown");
+      // Merge the URL id into the body object to match your Repository signature
+await entityRepository.update({ ...req.body, id });
+
+
+      await this.audit.log({
+        id: crypto.randomUUID(),
+        actorId: String(req.headers["x-user-id"] || "unknown"),
+        action: "update_entity",
+        targetType: "entity",
+        targetId: id,
+        timestamp: new Date().toISOString()
+      });
+
+      return res.json({
+        success: true
+      });
+    } catch (error) {
+      console.error("❌ Update Entity Error:", error);
+      return res.status(500).json({
+        success: false,
+        message: "Failed to update entity"
+      });
+    }
+  };
+
+  deleteEntity = async (req: Request, res: Response) => {
+    try {
+      const id = String(req.params.id);
+      const { entityRepository } = getDependencies();
+      
+      await entityRepository.delete(id);
+
+      await this.audit.log({
+        id: crypto.randomUUID(),
+        actorId: String(req.headers["x-user-id"] || "unknown"),
+        action: "delete_entity",
+        targetType: "entity",
+        targetId: id,
+        timestamp: new Date().toISOString()
+      });
+
+      return res.json({
+        success: true
+      });
+    } catch (error) {
+      console.error("❌ Delete Entity Error:", error);
+      return res.status(500).json({
+        success: false,
+        message: "Failed to delete entity"
+      });
+    }
+  };
+}
+
+FILE: src/controllers/EventController.ts
+----------------------------------------
+import { Request, Response }
+from "express";
+
+import { createEventService }
+from "../bootstrap/createEventService";
+
+const service =
+  createEventService();
+
+export class EventController {
+
+  getAll = async (
+    req: Request,
+    res: Response
+  ) => {
+
+    try {
+
+      const events =
+        await service.getAll();
+
+      return res.json({
+
+        success: true,
+
+        data: events
+
+      });
+
+    } catch (error) {
+
+      console.error(error);
+
+      return res.status(500).json({
+
+        success: false,
+
+        message:
+          "Failed to load events"
+
+      });
+    }
+  };
+
+  getBySlug = async (
+    req: Request,
+    res: Response
+  ) => {
+
+    try {
+
+      const event =
+        await service.getBySlug(
+          String(
+            req.params.slug
+          )
+        );
+
+      if (!event) {
+
+        return res.status(404).json({
+
+          success: false,
+
+          message:
+            "Event not found"
+
+        });
+      }
+
+      return res.json({
+
+        success: true,
+
+        data: event
+
+      });
+
+    } catch (error) {
+
+      console.error(error);
+
+      return res.status(500).json({
+
+        success: false,
+
+        message:
+          "Failed to load event"
+
+      });
+    }
+  };
+
+  create = async (
+    req: Request,
+    res: Response
+  ) => {
+
+    try {
+
+      await service.create(
+        req.body
+      );
+
+      return res.status(201).json({
+
+        success: true
+
+      });
+
+    } catch (error) {
+
+      console.error(error);
+
+      return res.status(500).json({
+
+        success: false,
+
+        message:
+          "Failed to create event"
+
+      });
+    }
+  };
+}
+
+FILE: src/controllers/GraphController.ts
+----------------------------------------
+import { Request, Response } from "express";
+import { GraphEngine } from "../core/graph/GraphEngine";
+import { EntityService } from "../services/EntityService";
+import { NarrativeEngine } from "../core/intelligence/NarrativeEngine";
+import { GraphResponse } from "../types/api/GraphResponse";
+
+export class GraphController {
+  // FIX: Injected NarrativeEngine to bridge intelligence with API output
+  constructor(
+    private graphEngine: GraphEngine,
+    private entityService: EntityService,
+    private narrativeEngine: NarrativeEngine
+  ) {}
+
+  getGraph = async (req: Request, res: Response) => {
+    try {
+      const slug = String(req.params.slug);
+      const entity = await this.entityService.getBySlug(slug);
+
+      if (!entity) return res.status(404).json({ success: false, message: "Entity not found" });
+
+      const related = await this.graphEngine.deepDive(entity.id, 2);
+      
+      // Generate Narrative using the orphaned engine
+      const mappedRelated = related.map(item => item.entity);
+      const narrative = this.narrativeEngine.generate(entity, mappedRelated);
+
+      const response: GraphResponse = {
+        entity: { id: entity.id, name: entity.name, type: entity.entityType },
+        narrative, // Connected and returning to client!
+        related: related.filter(item => item.entity.id !== entity.id).map(item => ({
+          name: item.entity.name,
+          type: item.entity.entityType,
+          score: item.score,
+          reasoning: item.explanation?.breakdown ?? []
+        }))
+      };
+
+      return res.json({ success: true, data: response });
+    } catch (error) {
+      console.error("[GraphController.getGraph] Error:", error);
+      return res.status(500).json({ success: false, message: "Internal server error" });
+    }
+  };
+
+  getPath = async (req: Request, res: Response) => {
+    try {
+      const from = String(req.query.from ?? "");
+      const to = String(req.query.to ?? "");
+      const start = await this.entityService.getBySlug(from);
+      const end = await this.entityService.getBySlug(to);
+
+      if (!start || !end) return res.status(404).json({ success: false, message: "Entity not found" });
+
+      const path = await this.graphEngine.findPath(start.id, end.id);
+      return res.json({ success: true, data: path });
+    } catch (error) {
+      console.error("[GraphController.getPath] Error:", error);
+      return res.status(500).json({ success: false, message: "Internal server error" });
+    }
+  };
+
+  getRecommendations = async (req: Request, res: Response) => {
+    try {
+      const slug = String(req.params.slug);
+      const entity = await this.entityService.getBySlug(slug);
+
+      if (!entity) return res.status(404).json({ success: false, message: "Entity not found" });
+
+      const recommendations = await this.graphEngine.recommend(entity.id, 10);
+      return res.json({ success: true, data: recommendations });
+    } catch (error) {
+      console.error("[GraphController.getRecommendations] Error:", error);
+      return res.status(500).json({ success: false, message: "Internal server error" });
+    }
+  };
+}
+FILE: src/controllers/SearchController.ts
+----------------------------------------
+import { Request, Response }
+from "express";
+
+import { SearchService }
+from "../services/SearchService";
+
+import { EntityService }
+from "../services/EntityService";
+
+import { createEntityRepository }
+from "../bootstrap/createEntityRepository";
+
+import { createArticleService }
+from "../bootstrap/createArticleService";
+
+const searchService =
+  new SearchService(
+    new EntityService(
+      createEntityRepository()
+    ),
+    createArticleService()
+  );
+
+export class SearchController {
+
+  search = async (
+    req: Request,
+    res: Response
+  ) => {
+
+    try {
+
+      const query =
+        String(
+          req.query.q || ""
+        );
+
+      const results =
+        await searchService.search(
+          query
+        );
+
+      return res.json({
+        success: true,
+        data: results
+      });
+
+    } catch (error) {
+
+      console.error(error);
+
+      return res.status(500).json({
+        success: false,
+        message:
+          "Search failed"
+      });
+    }
+  };
+}
+
+FILE: src/controllers/SecretKeyController.ts
+----------------------------------------
+import { Request, Response } from "express";
+import { getDependencies } from "../config/dependencies";
+import { UserService } from "../services/UserService";
+import { SecretKeyService } from "../modules/security/SecretKeyService";
+
+export class SecretKeyController {
+
+  verify = async (
+    req: Request,
+    res: Response
+  ) => {
+
+    const { userRepository } =
+      getDependencies();
+
+    const users =
+      new UserService(userRepository);
+
+    const secrets =
+      new SecretKeyService();
+
+    const {
+      userId,
+      secretKey
+    } = req.body;
+
+    const user =
+      await users.getById(userId);
+
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        verified: false
+      });
+    }
+
+    const valid =
+      secrets.verify(
+        secretKey,
+        user.secretKeyHash || ""
+      );
+
+    if (!valid) {
+      return res.status(401).json({
+        success: false,
+        verified: false
+      });
+    }
+
+    user.secretKeyVerified = true;
+
+    await users.update(user);
+
+    return res.json({
+      success: true,
+      verified: true
+    });
+  };
+}
+
+FILE: src/controllers/UserController.ts
+----------------------------------------
+import { Request, Response } from "express";
+import { getDependencies } from "../config/dependencies";
+import { UserService } from "../services/UserService";
+
+export class UserController {
+
+  getAllUsers = async (_req: Request, res: Response) => {
+    try {
+
+      const { userRepository } = getDependencies();
+
+      const userService =
+        new UserService(userRepository);
+
+      const users =
+        await userService.getAll();
+
+      const safeUsers =
+        users.map(
+          ({ passwordHash, secretKeyHash, ...safe }) => safe
+        );
+
+      return res.json({
+        success: true,
+        data: safeUsers
+      });
+
+    } catch (error) {
+
+      console.error(
+        "❌ Get All Users Error:",
+        error
+      );
+
+      return res.status(500).json({
+        success: false,
+        message: "Internal server error"
+      });
+    }
+  };
+}
+
+FILE: src/core/auth/RolePermissions.ts
+----------------------------------------
+import { UserRole } from "../../types/user";
+import { Permission } from "../../types/permission";
+
+export const ROLE_PERMISSIONS:
+Record<UserRole, Permission> = {
+
+  super_admin: {
+    createEntity: true,
+    updateEntity: true,
+    deleteEntity: true,
+    createArticle: true,
+    updateArticle: true,
+    deleteArticle: true,
+    manageUsers: true,
+    manageRoles: true,
+    manageSystem: true
+  },
+
+  admin: {
+    createEntity: true,
+    updateEntity: true,
+    deleteEntity: false,
+    createArticle: true,
+    updateArticle: true,
+    deleteArticle: false,
+    manageUsers: true,
+    manageRoles: false,
+    manageSystem: false
+  },
+
+  editor: {
+    createEntity: true,
+    updateEntity: true,
+    deleteEntity: false,
+    createArticle: true,
+    updateArticle: true,
+    deleteArticle: false,
+    manageUsers: false,
+    manageRoles: false,
+    manageSystem: false
+  },
+
+  moderator: {
+    createEntity: false,
+    updateEntity: true,
+    deleteEntity: false,
+    createArticle: false,
+    updateArticle: true,
+    deleteArticle: false,
+    manageUsers: false,
+    manageRoles: false,
+    manageSystem: false
+  },
+
+  user: {
+    createEntity: false,
+    updateEntity: false,
+    deleteEntity: false,
+    createArticle: false,
+    updateArticle: false,
+    deleteArticle: false,
+    manageUsers: false,
+    manageRoles: false,
+    manageSystem: false
+  }
+};
+
+FILE: src/core/graph/GraphEngine.ts
+----------------------------------------
+import { KnowledgeGraph } from "./KnowledgeGraph";
+import { DiscoveryEngine } from "../intelligence/DiscoveryEngine";
+import { GraphPathFinder } from "./GraphPathFinder";
+import { GraphRecommendationEngine } from "../recommendation/GraphRecommendationEngine";
+import { AfriseekEntity } from "../../types/entity";
+
+export class GraphEngine {
+  // FIX: Full Dependency Injection applied. Removes hardcoded engine instantiation.
+  constructor(
+    private readonly graph: KnowledgeGraph,
+    private readonly discovery: DiscoveryEngine,
+    private readonly pathFinder: GraphPathFinder,
+    private readonly recommender: GraphRecommendationEngine
+  ) {}
+
+  async search(query: string) { return this.graph.search(query); }
+  async explore(entityId: string) { return this.graph.getNeighbors(entityId); }
+  async exploreIncoming(entityId: string) { return this.graph.getIncomingNeighbors(entityId); }
+  async getEntity(entityId: string) { return this.graph.getEntity(entityId); }
+
+  async deepDive(entityId: string, depth: number = 2, relationshipTypes?: string[]) {
+    const root = await this.graph.getEntity(entityId);
+    if (!root) return [];
+    const related = await this.graph.getRelated(entityId, depth, relationshipTypes);
+    return this.discovery.discover(root, related);
+  }
+
+  async recommend(entityId: string, limit: number = 10) {
+    return this.recommender.recommend(entityId, limit);
+  }
+
+  async expandPath(entityId: string, steps: number = 3): Promise<AfriseekEntity[][]> {
+    const root = await this.graph.getEntity(entityId);
+    if (!root) return [];
+    const result: AfriseekEntity[][] = [];
+    let frontier: AfriseekEntity[] = [root];
+    const visited = new Set<string>([root.id]);
+
+    for (let i = 0; i < steps; i++) {
+      const nextLayer: AfriseekEntity[] = [];
+      for (const node of frontier) {
+        const neighbors = await this.graph.getNeighbors(node.id);
+        for (const neighbor of neighbors) {
+          if (visited.has(neighbor.id)) continue;
+          visited.add(neighbor.id);
+          nextLayer.push(neighbor);
+        }
+      }
+      if (nextLayer.length === 0) break;
+      result.push(nextLayer);
+      frontier = nextLayer;
+    }
+    return result;
+  }
+
+  async findPath(startId: string, endId: string) {
+    return this.pathFinder.findPath(startId, endId);
+  }
+}
+FILE: src/core/graph/GraphIndex.ts
+----------------------------------------
+import { AfriseekEntity } from "../../types/entity";
+
+export class GraphIndex {
+
+  private byId =
+    new Map<string, AfriseekEntity>();
+
+  private incoming =
+    new Map<string, AfriseekEntity[]>();
+
+  constructor(
+    entities: AfriseekEntity[]
+  ) {
+
+    for (const entity of entities) {
+
+      this.byId.set(
+        entity.id,
+        entity
+      );
+
+      for (
+        const relationship
+        of entity.relationships
+      ) {
+
+        const bucket =
+          this.incoming.get(
+            relationship.targetId
+          ) ?? [];
+
+        bucket.push(entity);
+
+        this.incoming.set(
+          relationship.targetId,
+          bucket
+        );
+      }
+    }
+  }
+
+  getEntity(
+    id: string
+  ) {
+
+    return (
+      this.byId.get(id)
+      ?? null
+    );
+  }
+
+  getIncoming(
+    id: string
+  ) {
+
+    return (
+      this.incoming.get(id)
+      ?? []
+    );
+  }
+}
+
+FILE: src/core/graph/GraphNormalizer.ts
+----------------------------------------
+import { AfriseekEntity } from "../../types/entity";
+import { Relationship } from "../../types/relationship";
+import { inverseRelationships } from "../ontology/inverseRelationships";
+
+export class GraphNormalizer {
+
+  normalize(
+    entities: AfriseekEntity[]
+  ): AfriseekEntity[] {
+
+    const map =
+      new Map(
+        entities.map(
+          entity => [entity.id, entity]
+        )
+      );
+
+    for (const entity of entities) {
+
+      for (const relationship of entity.relationships) {
+
+        const inverseType =
+          inverseRelationships[
+            relationship.type
+          ];
+
+        if (!inverseType) {
+          continue;
+        }
+
+        const target =
+          map.get(
+            relationship.targetId
+          );
+
+        if (!target) {
+          continue;
+        }
+
+        const exists =
+          target.relationships.some(
+            r =>
+              r.targetId === entity.id &&
+              r.type === inverseType
+          );
+
+        if (exists) {
+          continue;
+        }
+
+        const inverse: Relationship = {
+          type: inverseType,
+          targetId: entity.id,
+          strength: relationship.strength,
+          weight: relationship.weight,
+          description: relationship.description
+        };
+
+        target.relationships.push(
+          inverse
+        );
+      }
+    }
+
+    return entities;
+  }
+}
+
+FILE: src/core/graph/GraphPathFinder.ts
+----------------------------------------
+import { KnowledgeGraph } from "./KnowledgeGraph";
+
+export class GraphPathFinder {
+  constructor(private graph: KnowledgeGraph) {}
+
+  async findPath(startId: string, endId: string): Promise<string[]> {
+    if (startId === endId) return [startId];
+
+    const visited = new Set<string>([startId]);
+    const queue: string[] = [startId];
+    
+    // FIX: Using ParentMap instead of array spread loops prevents exponential memory GC leaks.
+    const parentMap = new Map<string, string>(); 
+
+    while (queue.length > 0) {
+      const current = queue.shift()!;
+
+      if (current === endId) {
+        // Target found! Reconstruct the path backwards.
+        const path: string[] = [];
+        let currNode: string | undefined = current;
+        while (currNode) {
+          path.unshift(currNode);
+          currNode = parentMap.get(currNode);
+        }
+        return path;
+      }
+
+      const neighbors = await this.graph.getNeighbors(current);
+      for (const neighbor of neighbors) {
+        if (!visited.has(neighbor.id)) {
+          visited.add(neighbor.id);
+          parentMap.set(neighbor.id, current);
+          queue.push(neighbor.id);
+        }
+      }
+    }
+    return [];
+  }
+}
+FILE: src/core/graph/KnowledgeGraph.ts
+----------------------------------------
+import { AfriseekEntity } from "../../types/entity";
+
+export interface KnowledgeGraph {
+
+  getEntity(id: string): Promise<AfriseekEntity | null>;
+
+  search(query: string): Promise<AfriseekEntity[]>;
+
+  getNeighbors(entityId: string): Promise<AfriseekEntity[]>;
+
+  getIncomingNeighbors(entityId: string): Promise<AfriseekEntity[]>;
+
+  getRelated(
+    entityId: string,
+    depth?: number,
+    relationshipTypes?: string[]
+  ): Promise<AfriseekEntity[]>;
+}
+FILE: src/core/graph/contracts/GraphPath.ts
+----------------------------------------
+export interface GraphPath {
+  nodes: string[];
+  score: number;
+}
+
+FILE: src/core/graph/implementations/RepositoryKnowledgeGraph.ts
+----------------------------------------
+import { KnowledgeGraph } from "../KnowledgeGraph";
+import { AfriseekEntity } from "../../../types/entity";
+import { EntityRepository } from "../../../repositories/EntityRepository";
+import { GraphIndex } from "../GraphIndex";
+import { GeoContextEngine } from "../../intelligence/GeoContextEngine";
+import { CulturalGraphBiasEngine } from "../../intelligence/CulturalGraphBiasEngine";
+
+export class RepositoryKnowledgeGraph implements KnowledgeGraph {
+  private index?: GraphIndex;
+
+  constructor(
+    private readonly repository: EntityRepository,
+    private readonly geo: GeoContextEngine,
+    private readonly cultural: CulturalGraphBiasEngine
+  ) {}
+
+  /**
+   * Lazily loads the graph into memory.
+   */
+  private async getIndex(): Promise<GraphIndex> {
+    if (!this.index) {
+      const entities = await this.repository.findAll();
+      this.index = new GraphIndex(entities);
+    }
+
+    return this.index;
+  }
+
+  async getEntity(
+    id: string
+  ): Promise<AfriseekEntity | null> {
+
+    const index = await this.getIndex();
+
+    return index.getEntity(id);
+  }
+
+  /**
+   * Search entities.
+   * Uses repository-level search if implemented,
+   * otherwise falls back to in-memory filtering.
+   */
+  async search(
+    query: string
+  ): Promise<AfriseekEntity[]> {
+
+    const normalized =
+      query.toLowerCase();
+
+    const repository =
+      this.repository as EntityRepository & {
+        searchByName?: (
+          query: string
+        ) => Promise<AfriseekEntity[]>;
+      };
+
+    if (repository.searchByName) {
+      return repository.searchByName(
+        normalized
+      );
+    }
+
+    const entities =
+      await this.repository.findAll();
+
+    return entities.filter(
+      entity =>
+        entity.name
+          .toLowerCase()
+          .includes(normalized)
+    );
+  }
+
+  async getNeighbors(
+    entityId: string
+  ): Promise<AfriseekEntity[]> {
+
+    const entity =
+      await this.getEntity(entityId);
+
+    if (!entity) {
+      return [];
+    }
+
+    const index =
+      await this.getIndex();
+
+    const neighbors =
+      entity.relationships
+        .map(
+          relationship =>
+            index.getEntity(
+              relationship.targetId
+            )
+        )
+        .filter(
+          (
+            entity
+          ): entity is AfriseekEntity =>
+            entity !== null
+        );
+
+    return this.cultural.sortNeighbors(
+      entity,
+      neighbors
+    );
+  }
+
+  async getIncomingNeighbors(
+    entityId: string
+  ): Promise<AfriseekEntity[]> {
+
+    const index =
+      await this.getIndex();
+
+    return index.getIncoming(
+      entityId
+    );
+  }
+
+  /**
+   * Traverses the graph while applying
+   * cultural gating and locality ranking.
+   */
+  async getRelated(
+    entityId: string,
+    depth: number = 2,
+    relationshipTypes?: string[]
+  ): Promise<AfriseekEntity[]> {
+
+    const index =
+      await this.getIndex();
+
+    const root =
+      index.getEntity(entityId);
+
+    if (!root) {
+      return [];
+    }
+
+    const visited =
+      new Set<string>();
+
+    const results:
+      AfriseekEntity[] = [];
+
+    const traverse = (
+      id: string,
+      currentDepth: number
+    ) => {
+
+      if (currentDepth > depth) {
+        return;
+      }
+
+      if (visited.has(id)) {
+        return;
+      }
+
+      const entity =
+        index.getEntity(id);
+
+      if (!entity) {
+        return;
+      }
+
+      visited.add(id);
+      results.push(entity);
+
+      // Outgoing relationships
+      for (
+        const relationship
+        of entity.relationships
+      ) {
+
+        if (
+          relationshipTypes?.length &&
+          !relationshipTypes.includes(
+            relationship.type
+          )
+        ) {
+          continue;
+        }
+
+        const target =
+          index.getEntity(
+            relationship.targetId
+          );
+
+        if (!target) {
+          continue;
+        }
+
+        if (
+          !this.cultural.allowTraversal(
+            entity,
+            target
+          )
+        ) {
+          continue;
+        }
+
+        traverse(
+          relationship.targetId,
+          currentDepth + 1
+        );
+      }
+
+      // Incoming relationships
+      const incoming =
+        index.getIncoming(id);
+
+      for (
+        const incomingEntity
+        of incoming
+      ) {
+
+        if (
+          !this.cultural.allowTraversal(
+            entity,
+            incomingEntity
+          )
+        ) {
+          continue;
+        }
+
+        traverse(
+          incomingEntity.id,
+          currentDepth + 1
+        );
+      }
+    };
+
+    traverse(entityId, 0);
+
+    return results
+      .filter(
+        entity =>
+          entity.id !== entityId
+      )
+      .sort((a, b) => {
+
+        const scoreA =
+          this.geo.scoreLocalBias(
+            root,
+            a
+          ) +
+          this.cultural.score(a);
+
+        const scoreB =
+          this.geo.scoreLocalBias(
+            root,
+            b
+          ) +
+          this.cultural.score(b);
+
+        return scoreB - scoreA;
+      });
+  }
+}
+FILE: src/core/intelligence/ContextBucketEngine.ts
+----------------------------------------
+import { AfriseekEntity } from "../../types/entity";
+import { EntityType } from "../../types/enums/EntityType";
+
+export interface ContextBuckets {
+
+  geography: AfriseekEntity[];
+
+  people: AfriseekEntity[];
+
+  culture: AfriseekEntity[];
+
+  institutions: AfriseekEntity[];
+
+  landmarks: AfriseekEntity[];
+
+  events: AfriseekEntity[];
+
+  economy: AfriseekEntity[];
+
+  infrastructure: AfriseekEntity[];
+
+  knowledge: AfriseekEntity[];
+}
+
+export class ContextBucketEngine {
+
+  bucket(
+    entities: AfriseekEntity[]
+  ): ContextBuckets {
+
+    return {
+
+      geography:
+        entities.filter(
+          e =>
+            [
+              EntityType.CONTINENT,
+              EntityType.REGION,
+              EntityType.COUNTRY,
+              EntityType.STATE,
+              EntityType.PROVINCE,
+              EntityType.CITY,
+              EntityType.TOWN,
+              EntityType.VILLAGE
+            ].includes(e.entityType)
+        ),
+
+      people:
+        entities.filter(
+          e =>
+            [
+              EntityType.PERSON,
+              EntityType.ETHNIC_GROUP,
+              EntityType.TRIBE,
+              EntityType.CLAN
+            ].includes(e.entityType)
+        ),
+
+      culture:
+        entities.filter(
+          e =>
+            [
+              EntityType.CULTURE,
+              EntityType.LANGUAGE,
+              EntityType.RELIGION,
+              EntityType.FESTIVAL,
+              EntityType.DANCE,
+              EntityType.SONG
+            ].includes(e.entityType)
+        ),
+
+      institutions:
+        entities.filter(
+          e =>
+            [
+              EntityType.UNIVERSITY,
+              EntityType.SCHOOL,
+              EntityType.LIBRARY,
+              EntityType.RESEARCH_CENTER,
+              EntityType.GOVERNMENT,
+              EntityType.MINISTRY
+            ].includes(e.entityType)
+        ),
+
+      landmarks:
+        entities.filter(
+          e =>
+            [
+              EntityType.LANDMARK,
+              EntityType.MONUMENT,
+              EntityType.PALACE,
+              EntityType.ARCHAEOLOGICAL_SITE,
+              EntityType.SACRED_SITE
+            ].includes(e.entityType)
+        ),
+
+      events:
+        entities.filter(
+          e =>
+            [
+              EntityType.HISTORICAL_EVENT,
+              EntityType.BATTLE,
+              EntityType.WAR,
+              EntityType.MIGRATION,
+              EntityType.CORONATION,
+              EntityType.ELECTION
+            ].includes(e.entityType)
+        ),
+
+      economy:
+        entities.filter(
+          e =>
+            [
+              EntityType.COMPANY,
+              EntityType.MARKET,
+              EntityType.INDUSTRY,
+              EntityType.CURRENCY,
+              EntityType.COMMODITY
+            ].includes(e.entityType)
+        ),
+
+      infrastructure:
+        entities.filter(
+          e =>
+            [
+              EntityType.AIRPORT,
+              EntityType.SEAPORT,
+              EntityType.ROAD,
+              EntityType.RAILWAY,
+              EntityType.BRIDGE,
+              EntityType.DAM
+            ].includes(e.entityType)
+        ),
+
+      knowledge:
+        entities.filter(
+          e =>
+            [
+              EntityType.BOOK,
+              EntityType.DOCUMENT,
+              EntityType.MANUSCRIPT
+            ].includes(e.entityType)
+        )
+    };
+  }
+}
+
+FILE: src/core/intelligence/CulturalGraphBiasEngine.ts
+----------------------------------------
+import { AfriseekEntity } from "../../types/entity";
+import { EntityType } from "../../types/enums/EntityType";
+
+export class CulturalGraphBiasEngine {
+
+  private localityWeight: Record<string, number> = {
+    village: 100,
+    town: 110,
+    city: 120,
+    district: 130,
+    local_government: 140,
+    state: 160,
+    province: 160,
+    country: 180,
+    continent: 200
+  };
+
+  private culturalWeight: Record<string, number> = {
+    tribe: 180,
+    ethnic_group: 180,
+    language: 170,
+    religion: 160,
+    dynasty: 150,
+    kingdom: 160,
+    empire: 140,
+    cultural: 150
+  };
+
+  score(entity: AfriseekEntity): number {
+
+    const type = entity.entityType as string;
+
+    let score = 10;
+
+    if (this.localityWeight[type]) {
+      score += this.localityWeight[type];
+    }
+
+    if (this.culturalWeight[type]) {
+      score += this.culturalWeight[type];
+    }
+
+    score += entity.relationships.length * 2;
+    score += entity.facts.length * 1;
+
+    if (entity.metadata?.featured) {
+      score += 50;
+    }
+
+    return score;
+  }
+
+  sortNeighbors(
+    root: AfriseekEntity,
+    neighbors: AfriseekEntity[]
+  ): AfriseekEntity[] {
+
+    return neighbors.sort((a, b) => {
+      return this.score(b) - this.score(a);
+    });
+  }
+
+  allowTraversal(
+    from: AfriseekEntity,
+    to: AfriseekEntity
+  ): boolean {
+
+    const fromScore = this.score(from);
+    const toScore = this.score(to);
+
+    if (toScore > fromScore + 120) {
+      return false;
+    }
+
+    return true;
+  }
+}
+
+FILE: src/core/intelligence/DiscoveryEngine.ts
+----------------------------------------
+import { AfriseekEntity } from "../../types/entity";
+import { EntityImportance } from "../../types/importance";
+import {
+  Relationship,
+  RelationshipStrength
+} from "../../types/relationship";
+import { RelationshipType } from "../../types/enums/RelationshipType";
+
+interface DiscoveryResult {
+  entity: AfriseekEntity;
+  score: number;
+  explanation: {
+    breakdown: string[];
+  };
+}
+
+export class DiscoveryEngine {
+
+  private scoreImportance(
+    importance?: EntityImportance
+  ): number {
+
+    switch (importance) {
+      case EntityImportance.GLOBAL:
+        return 300;
+      case EntityImportance.CONTINENTAL:
+        return 200;
+      case EntityImportance.NATIONAL:
+        return 120;
+      case EntityImportance.REGIONAL:
+        return 80;
+      case EntityImportance.LOCAL:
+        return 40;
+      default:
+        return 10;
+    }
+  }
+
+  // =========================
+  // UPDATED RELATIONSHIP SCORING (IMPORTANT FIX)
+  // =========================
+  private scoreRelationship(
+    relationship: Relationship
+  ): number {
+
+    const base =
+      relationship.strength === RelationshipStrength.CORE ? 120 :
+      relationship.strength === RelationshipStrength.STRONG ? 80 :
+      relationship.strength === RelationshipStrength.MODERATE ? 40 :
+      relationship.strength === RelationshipStrength.WEAK ? 20 :
+      10;
+
+    // NEW: Geographic + cultural boost
+    const contextualBoost =
+      relationship.type === RelationshipType.LOCATED_IN ? 70 :
+      relationship.type === RelationshipType.PART_OF ? 60 :
+      relationship.type === RelationshipType.BELONGS_TO_ETHNIC_GROUP ? 50 :
+      relationship.type === RelationshipType.ASSOCIATED_WITH ? 20 :
+      0;
+
+    return (base + contextualBoost) * (relationship.weight ?? 1);
+  }
+
+  private scoreRelevance(
+    entity: AfriseekEntity
+  ): number {
+
+    let score = 0;
+
+    score += entity.relationships.length * 3;
+    score += entity.facts.length * 2;
+
+    if (entity.metadata.featured) {
+      score += 25;
+    }
+
+    return score;
+  }
+
+  // =========================
+  // STRONGER LOCALITY BIAS (CORE FIX)
+  // =========================
+  private scoreLocality(
+    root: AfriseekEntity,
+    entity: AfriseekEntity
+  ): number {
+
+    let score = 0;
+
+    const rootTargets =
+      new Set(root.relationships.map(r => r.targetId));
+
+    for (const relationship of entity.relationships) {
+
+      // direct connection boost (same cluster)
+      if (rootTargets.has(relationship.targetId)) {
+        score += 200;
+      }
+
+      // geographic chain reinforcement
+      if (
+        relationship.type === RelationshipType.LOCATED_IN ||
+        relationship.type === RelationshipType.PART_OF
+      ) {
+        score += 100;
+      }
+    }
+
+    return score;
+  }
+
+  // =========================
+  // CULTURAL BOOST (NEW BUT SAFE)
+  // =========================
+  private scoreCultural(entity: AfriseekEntity): number {
+
+    let score = 0;
+
+    for (const r of entity.relationships) {
+      if (
+        r.type === RelationshipType.BELONGS_TO_ETHNIC_GROUP ||
+        r.type === RelationshipType.PRACTICES ||
+        r.type === RelationshipType.WORSHIPS
+      ) {
+        score += 40;
+      }
+    }
+
+    return score;
+  }
+
+  private explain(entity: AfriseekEntity, score: number) {
+
+    return {
+      entityId: entity.id,
+      score,
+      breakdown: [
+        `Importance: ${entity.importance ?? "unknown"}`,
+        `Relationships: ${entity.relationships.length}`,
+        `Facts: ${entity.facts.length}`
+      ]
+    };
+  }
+
+  discover(
+    root: AfriseekEntity,
+    candidates: AfriseekEntity[]
+  ): DiscoveryResult[] {
+
+    return candidates
+      .filter(e => e.id !== root.id)
+      .map(entity => {
+
+        let score = 0;
+
+        score += this.scoreImportance(entity.importance);
+        score += this.scoreRelevance(entity);
+        score += this.scoreLocality(root, entity);
+        score += this.scoreCultural(entity);
+
+        for (const rel of entity.relationships) {
+          score += this.scoreRelationship(rel);
+        }
+
+        return {
+          entity,
+          score,
+          explanation: this.explain(entity, score)
+        };
+      })
+      .sort((a, b) => b.score - a.score);
+  }
+}
+FILE: src/core/intelligence/GeoContextEngine.ts
+----------------------------------------
+
+import { AfriseekEntity } from "../../types/entity";
+import { EntityType } from "../../types/enums/EntityType";
+import { RelationshipType } from "../../types/enums/RelationshipType";
+
+/**
+ * GeoContextEngine
+ * Enforces locality-first discovery:
+ * Akure → Ondo → Nigeria → West Africa → Africa
+ * NOT random jumps across the graph
+ */
+export class GeoContextEngine {
+
+  private geoPriority: Record<string, number> = {
+    // highest locality priority
+    city: 100,
+    town: 95,
+    village: 90,
+    district: 85,
+    local_government: 80,
+    state: 70,
+    province: 70,
+    region: 60,
+    country: 50,
+    continent: 40,
+
+    // cultural clustering (very important for Afriseek)
+    ethnic_group: 65,
+    tribe: 65,
+    language: 60,
+    religion: 55,
+
+    // historical structures
+    kingdom: 68,
+    empire: 66,
+    dynasty: 64,
+    historical_event: 50,
+
+    // default
+    default: 10
+  };
+
+  /**
+   * Extract geo relevance score
+   */
+  getGeoScore(entity: AfriseekEntity): number {
+    return this.geoPriority[entity.entityType] ?? this.geoPriority.default;
+  }
+
+  /**
+   * Checks if entity is geographically closer to root
+   */
+  isGeoLocal(root: AfriseekEntity, candidate: AfriseekEntity): boolean {
+
+    const rootGeo = this.getGeoScore(root);
+    const candidateGeo = this.getGeoScore(candidate);
+
+    // same or closer level = allowed
+    return candidateGeo >= (rootGeo - 15);
+  }
+
+  /**
+   * Strong locality bias scoring
+   */
+  scoreLocalBias(
+    root: AfriseekEntity,
+    candidate: AfriseekEntity
+  ): number {
+
+    let score = 0;
+
+    // same entity type family boosts locality
+    if (this.isSameGeoFamily(root, candidate)) {
+      score += 120;
+    }
+
+    // direct relationship boosts locality heavily
+    const directMatch = root.relationships.some(
+      r => r.targetId === candidate.id
+    );
+
+    if (directMatch) {
+      score += 200;
+    }
+
+    // shared neighbors = contextual closeness
+    const rootTargets = new Set(
+      root.relationships.map(r => r.targetId)
+    );
+
+    const shared = candidate.relationships.filter(
+      r => rootTargets.has(r.targetId)
+    );
+
+    score += shared.length * 40;
+
+    // enforce geographic hierarchy bias
+    score += this.getGeoScore(candidate);
+
+    return score;
+  }
+
+  /**
+   * Prevents jumps like Akure → Nigeria → random continent skipping
+   */
+  isSameGeoFamily(
+    a: AfriseekEntity,
+    b: AfriseekEntity
+  ): boolean {
+
+    const geoFamily = new Set([
+      EntityType.CITY,
+      EntityType.TOWN,
+      EntityType.VILLAGE,
+      EntityType.DISTRICT,
+      EntityType.LOCAL_GOVERNMENT,
+      EntityType.STATE,
+      EntityType.PROVINCE,
+      EntityType.COUNTRY,
+      EntityType.CONTINENT
+    ]);
+
+    if (!geoFamily.has(a.entityType) || !geoFamily.has(b.entityType)) {
+      return false;
+    }
+
+    return true;
+  }
+
+  /**
+   * Sort candidates so locality ALWAYS comes first
+   */
+  sortByGeoPriority(
+    root: AfriseekEntity,
+    candidates: AfriseekEntity[]
+  ): AfriseekEntity[] {
+
+    return candidates.sort((a, b) => {
+
+      const scoreA =
+        this.scoreLocalBias(root, a);
+
+      const scoreB =
+        this.scoreLocalBias(root, b);
+
+      return scoreB - scoreA;
+    });
+  }
+
+  /**
+   * Hard filter for unwanted long jumps (configurable safety net)
+   */
+  filterOutDistantJumps(
+    root: AfriseekEntity,
+    candidates: AfriseekEntity[]
+  ): AfriseekEntity[] {
+
+    return candidates.filter(c => {
+
+      const geoA = this.getGeoScore(root);
+      const geoB = this.getGeoScore(c);
+
+      // allow upward or same-level expansion only
+      return geoB >= geoA - 25;
+    });
+  }
+}
+
+
+FILE: src/core/intelligence/NarrativeEngine.ts
+----------------------------------------
+import { AfriseekEntity } from "../../types/entity";
+
+export interface NarrativeSection {
+  title: string;
+  content: string;
+  entities: string[];
+}
+
+export interface NarrativeResult {
+  root: string;
+  title: string;
+  summary: string;
+  sections: NarrativeSection[];
+}
+
+export class NarrativeEngine {
+  generate(
+    root: AfriseekEntity,
+    related: AfriseekEntity[]
+  ): NarrativeResult {
+
+    const title = `Understanding ${root.name}`;
+
+    const summary =
+      `${root.name} is a ${root.entityType} with connections across geographic, cultural, historical and modern African knowledge domains.`;
+
+    const sections: NarrativeSection[] = [];
+
+    const geoEntities = related.filter(e =>
+      ["city", "state", "country", "region"].includes(
+        e.entityType
+      )
+    );
+
+    if (geoEntities.length) {
+      sections.push({
+        title: "Geographic Context",
+        content:
+          `${root.name} is geographically connected to ${geoEntities
+            .slice(0, 5)
+            .map(e => e.name)
+            .join(", ")}.`,
+        entities: geoEntities.map(e => e.id)
+      });
+    }
+
+    const culturalEntities = related.filter(e =>
+      ["tribe", "ethnic_group", "language", "religion", "culture"].includes(
+        e.entityType
+      )
+    );
+
+    if (culturalEntities.length) {
+      sections.push({
+        title: "Cultural Identity",
+        content:
+          `${root.name} is culturally linked with ${culturalEntities
+            .slice(0, 5)
+            .map(e => e.name)
+            .join(", ")}.`,
+        entities: culturalEntities.map(e => e.id)
+      });
+    }
+
+    const historicalEntities = related.filter(e =>
+      ["kingdom", "empire", "historical_event", "dynasty"].includes(
+        e.entityType
+      )
+    );
+
+    if (historicalEntities.length) {
+      sections.push({
+        title: "Historical Background",
+        content:
+          `${root.name} has historical connections with ${historicalEntities
+            .slice(0, 5)
+            .map(e => e.name)
+            .join(", ")}.`,
+        entities: historicalEntities.map(e => e.id)
+      });
+    }
+
+    const modernEntities = related.filter(e =>
+      ["company", "infrastructure", "airport", "government"].includes(
+        e.entityType
+      )
+    );
+
+    if (modernEntities.length) {
+      sections.push({
+        title: "Modern Relevance",
+        content:
+          `${root.name} connects to modern structures such as ${modernEntities
+            .slice(0, 5)
+            .map(e => e.name)
+            .join(", ")}.`,
+        entities: modernEntities.map(e => e.id)
+      });
+    }
+
+    return {
+      root: root.id,
+      title,
+      summary,
+      sections
+    };
+  }
+}
+FILE: src/core/ontology/inverseRelationships.ts
+----------------------------------------
+import { RelationshipType } from "../../types/enums/RelationshipType";
+
+export const inverseRelationships:
+Partial<Record<RelationshipType, RelationshipType>> = {
+
+  [RelationshipType.LOCATED_IN]:
+    RelationshipType.CONTAINS,
+
+  [RelationshipType.CONTAINS]:
+    RelationshipType.LOCATED_IN,
+
+  [RelationshipType.HAS_CAPITAL]:
+    RelationshipType.CAPITAL_OF,
+
+  [RelationshipType.CAPITAL_OF]:
+    RelationshipType.HAS_CAPITAL,
+
+  [RelationshipType.FOUNDED_BY]:
+    RelationshipType.FOUNDED,
+
+  [RelationshipType.FOUNDED]:
+    RelationshipType.FOUNDED_BY,
+
+  [RelationshipType.CREATED_BY]:
+    RelationshipType.CREATED,
+
+  [RelationshipType.CREATED]:
+    RelationshipType.CREATED_BY,
+
+  [RelationshipType.RULED_BY]:
+    RelationshipType.RULED,
+
+  [RelationshipType.RULED]:
+    RelationshipType.RULED_BY,
+
+  [RelationshipType.SPEAKS]:
+    RelationshipType.SPOKEN_BY,
+
+  [RelationshipType.SPOKEN_BY]:
+    RelationshipType.SPEAKS,
+
+  [RelationshipType.PRACTICES]:
+    RelationshipType.PRACTICED_BY,
+
+  [RelationshipType.PRACTICED_BY]:
+    RelationshipType.PRACTICES,
+
+  [RelationshipType.INFLUENCED]:
+    RelationshipType.INFLUENCED_BY,
+
+  [RelationshipType.INFLUENCED_BY]:
+    RelationshipType.INFLUENCED
+};
+
+FILE: src/core/recommendation/GraphRecommendationEngine.ts
+----------------------------------------
+import { AfriseekEntity } from "../../types/entity";
+import { KnowledgeGraph } from "../graph/KnowledgeGraph";
+
+export interface RecommendationResult {
+  entity: AfriseekEntity;
+  score: number;
+  reasons: string[];
+}
+
+export class GraphRecommendationEngine {
+
+  constructor(
+    private graph: KnowledgeGraph
+  ) {}
+
+  async recommend(
+    entityId: string,
+    limit: number = 10
+  ): Promise<RecommendationResult[]> {
+
+    const root =
+      await this.graph.getEntity(
+        entityId
+      );
+
+    if (!root) {
+      return [];
+    }
+
+    const related =
+      await this.graph.getRelated(
+        entityId,
+        3
+      );
+
+    return related
+
+      .filter(
+        entity =>
+          entity.id !== root.id
+      )
+
+      .map(entity => {
+
+        let score = 0;
+
+        const reasons: string[] = [];
+
+        const rootTargets =
+          root.relationships.map(
+            r => r.targetId
+          );
+
+        const entityTargets =
+          entity.relationships.map(
+            r => r.targetId
+          );
+
+        const sharedTargets =
+          entityTargets.filter(
+            id =>
+              rootTargets.includes(id)
+          );
+
+        if (
+          entity.entityType ===
+          root.entityType
+        ) {
+
+          score += 30;
+
+          reasons.push(
+            "Same entity type"
+          );
+        }
+
+        if (
+          sharedTargets.length
+        ) {
+
+          score +=
+            sharedTargets.length * 100;
+
+          reasons.push(
+            `${sharedTargets.length} shared parent`
+          );
+        }
+
+        const directlyConnected =
+
+          root.relationships.some(
+            r =>
+              r.targetId === entity.id
+          )
+
+          ||
+
+          entity.relationships.some(
+            r =>
+              r.targetId === root.id
+          );
+
+        if (
+          directlyConnected
+        ) {
+
+          score += 500;
+
+          reasons.push(
+            "Direct connection"
+          );
+        }
+
+        score +=
+          entity.relationships.length;
+
+        return {
+          entity,
+          score,
+          reasons
+        };
+      })
+
+      .sort(
+        (a, b) =>
+          b.score - a.score
+      )
+
+      .slice(
+        0,
+        limit
+      );
+  }
+}
+
+FILE: src/data/entities.ts
+----------------------------------------
+export { entities }
+from "./seeds";
+
+FILE: src/data/seeds/africa.ts
+----------------------------------------
+import { AfriseekEntity } from "../../types/entity";
+import { EntityType } from "../../types/enums/EntityType";
+import { EntityImportance } from "../../types/importance";
+import { RelationshipStrength } from "../../types/relationship";
+import { RelationshipType } from "../../types/enums/RelationshipType";
+
+const now = new Date().toISOString();
+
+export const africaEntities: AfriseekEntity[] = [
+  {
+    id: "africa",
+    slug: "africa",
+    name: "Africa",
+    entityType: EntityType.CONTINENT,
+    importance: EntityImportance.GLOBAL,
+    summary: "Second largest continent.",
+    traits: [],
+    facts: [],
+    relationships: [],
+    sources: [],
+    metadata: {
+      createdAt: now,
+      updatedAt: now,
+      verified: true
+    }
+  },
+  {
+    id: "nigeria",
+    slug: "nigeria",
+    name: "Nigeria",
+    entityType: EntityType.COUNTRY,
+    importance: EntityImportance.NATIONAL,
+    summary: "Country in West Africa.",
+    traits: [],
+    facts: [],
+    relationships: [
+      {
+        type: RelationshipType.LOCATED_IN,
+        targetId: "africa",
+        strength: RelationshipStrength.CORE
+      }
+    ],
+    sources: [],
+    metadata: {
+      createdAt: now,
+      updatedAt: now,
+      verified: true
+    }
+  },
+  {
+    id: "yoruba",
+    slug: "yoruba",
+    name: "Yoruba",
+    entityType: EntityType.ETHNIC_GROUP,
+    importance: EntityImportance.REGIONAL,
+    summary: "Major ethnic group in West Africa.",
+    traits: [],
+    facts: [],
+    relationships: [
+      {
+        type: RelationshipType.LOCATED_IN,
+        targetId: "nigeria",
+        strength: RelationshipStrength.CORE
+      }
+    ],
+    sources: [],
+    metadata: {
+      createdAt: now,
+      updatedAt: now,
+      verified: true
+    }
+  }
+];
+
+FILE: src/data/seeds/index.ts
+----------------------------------------
+import { africaEntities } from "./africa";
+import { libyaEntities } from "./libya";
+
+export const entities = [
+  ...africaEntities,
+  ...libyaEntities
+];
+
+FILE: src/data/seeds/libya.ts
+----------------------------------------
+import { AfriseekEntity } from "../../types/entity";
+import { EntityType } from "../../types/enums/EntityType";
+import { EntityImportance } from "../../types/importance";
+import { RelationshipType } from "../../types/enums/RelationshipType";
+import { RelationshipStrength } from "../../types/relationship";
+
+const now = new Date().toISOString();
+
+export const libyaEntities: AfriseekEntity[] = [
+
+  {
+    id: "libya",
+    slug: "libya",
+    name: "Libya",
+    entityType: EntityType.COUNTRY,
+    importance: EntityImportance.NATIONAL,
+    summary: "Country in North Africa.",
+    traits: [],
+    facts: [],
+    relationships: [
+      {
+        type: RelationshipType.LOCATED_IN,
+        targetId: "africa",
+        strength: RelationshipStrength.CORE
+      }
+    ],
+    sources: [],
+    metadata: {
+      createdAt: now,
+      updatedAt: now,
+      verified: true
+    }
+  },
+
+  {
+    id: "misrata",
+    slug: "misrata",
+    name: "Misrata",
+    entityType: EntityType.CITY,
+    importance: EntityImportance.REGIONAL,
+    summary: "Major city and port in Libya.",
+    traits: [],
+    facts: [],
+    relationships: [
+      {
+        type: RelationshipType.LOCATED_IN,
+        targetId: "libya",
+        strength: RelationshipStrength.CORE
+      }
+    ],
+    sources: [],
+    metadata: {
+      createdAt: now,
+      updatedAt: now,
+      verified: true
+    }
+  },
+
+  {
+    id: "tripoli",
+    slug: "tripoli",
+    name: "Tripoli",
+    entityType: EntityType.CITY,
+    importance: EntityImportance.REGIONAL,
+    summary: "Capital city of Libya.",
+    traits: [],
+    facts: [],
+    relationships: [
+      {
+        type: RelationshipType.LOCATED_IN,
+        targetId: "libya",
+        strength: RelationshipStrength.CORE
+      }
+    ],
+    sources: [],
+    metadata: {
+      createdAt: now,
+      updatedAt: now,
+      verified: true
+    }
+  },
+
+  {
+    id: "amazigh",
+    slug: "amazigh",
+    name: "Amazigh",
+    entityType: EntityType.ETHNIC_GROUP,
+    importance: EntityImportance.REGIONAL,
+    summary: "Indigenous peoples of North Africa.",
+    traits: [],
+    facts: [],
+    relationships: [
+      {
+        type: RelationshipType.LOCATED_IN,
+        targetId: "libya",
+        strength: RelationshipStrength.STRONG
+      }
+    ],
+    sources: [],
+    metadata: {
+      createdAt: now,
+      updatedAt: now,
+      verified: true
+    }
+  }
+
+];
+
+FILE: src/index.ts
+----------------------------------------
+import express from "express";
+import { initializeDependencies } from "./config/dependencies";
+
+// Core Routing Architecture Components
+import entityRoutes from "./routes/entityRoutes";
+import graphRoutes from "./routes/graphRoutes";
+import userRoutes from "./routes/userRoutes";
+import authRoutes from "./routes/authRoutes";
+import secretKeyRoutes from "./routes/secretKeyRoutes";
+import auditRoutes from "./routes/auditRoutes";
+import articleRoutes from "./routes/articleRoutes";
+import searchRoutes from "./routes/searchRoutes";
+import contextRoutes from "./routes/contextRoutes";
+import eventRoutes from "./routes/eventRoutes";
+
+/**
+ * Orchestrates the secure asynchronous bootstrap sequence of the Afriseek application engine.
+ */
+async function bootstrap() {
+  const app = express();
+  
+  // Honor runtime hosting environments (e.g., Docker, Render, VPS) while preserving local 3000 fallback
+  const PORT = process.env.PORT || 3000;
+
+  // =========================================================================
+  // 1. CORE LIFECYCLE INITIALIZATION
+  // =========================================================================
+  try {
+    initializeDependencies();
+    console.log("⚡ [Afriseek Engine]: Graph & Auth relational repositories securely bound to Supabase.");
+  } catch (error) {
+    console.error("❌ [Fatal Bootstrap Error]: Core dependency injection sequence failed:", error);
+    // Explicit non-zero status exit guarantees task runner/orchestrators know the app is broken
+    process.exit(1);
+  }
+
+  // =========================================================================
+  // 2. GLOBAL ROUTING MIDDLEWARE
+  // =========================================================================
+  app.use(express.json());
+
+  // =========================================================================
+  // 3. TELEMETRY & HEALTH SYSTEM
+  // =========================================================================
+  app.get("/health", (_req, res) => {
+    res.status(200).json({
+      status: "healthy",
+      timestamp: new Date().toISOString(),
+      environment: process.env.NODE_ENV || "development"
+    });
+  });
+
+  // =========================================================================
+  // 4. API SUBSYSTEM ROUTING MOUNTS
+  // =========================================================================
+  app.use("/api/entities", entityRoutes);
+  app.use("/api/graph", graphRoutes);
+  app.use("/api/users", userRoutes);
+  app.use("/api/auth", authRoutes);
+  app.use("/api/secret-key", secretKeyRoutes);
+  app.use("/api/audit", auditRoutes);
+  app.use("/api/articles", articleRoutes);
+  app.use("/api/search", searchRoutes);
+  app.use("/api/context", contextRoutes);
+  app.use("/api/events", eventRoutes);
+
+  // =========================================================================
+  // 5. PORTS & INTERFACE EXECUTION
+  // =========================================================================
+  app.listen(PORT, () => {
+    console.log(`🚀 [Afriseek Server Live]: Operating smoothly on port http://localhost:${PORT}`);
+  });
+}
+
+// Intercept unhandled promise runtime exceptions across the main initialization loop
+bootstrap().catch((error) => {
+  console.error("❌ [Fatal Async Crash]: Unhandled exception caught inside engine lifecycle root:", error);
+  process.exit(1);
+});
+
+FILE: src/middleware/requireSecretKey.ts
+----------------------------------------
+import { Request, Response, NextFunction }
+from "express";
+
+export function requireSecretKey(
+  req: Request,
+  res: Response,
+  next: NextFunction
+) {
+
+  const verified =
+    req.headers[
+      "x-secret-verified"
+    ];
+
+  if (
+    verified !== "true"
+  ) {
+
+    return res.status(403).json({
+      success: false,
+      message:
+        "Secret key verification required"
+    });
+  }
+
+  next();
+}
+
+FILE: src/modules/audit/AuditService.ts
+----------------------------------------
+export class AuditService {
+
+  async log(
+    action: string,
+    userId: string,
+    targetId: string
+  ): Promise<void> {
+
+    console.log(
+      "[AUDIT]",
+      action,
+      userId,
+      targetId
+    );
+  }
+}
+
+FILE: src/modules/auth/AuthService.ts
+----------------------------------------
+import { UserRepository } from "../../repositories/UserRepository";
+
+export class AuthService {
+
+  constructor(
+    private users: UserRepository
+  ) {}
+
+  async login(
+    email: string,
+    password: string
+  ) {
+
+    const user =
+      await this.users.findByEmail(
+        email
+      );
+
+    if (!user) {
+      return null;
+    }
+
+    if (
+      user.passwordHash !== password
+    ) {
+      return null;
+    }
+
+    return {
+      id: user.id,
+      username: user.username,
+      role: user.role,
+      secretKeyVerified:
+        user.secretKeyVerified
+    };
+  }
+}
+
+FILE: src/modules/auth/JwtService.ts
+----------------------------------------
+export class JwtService {
+
+  generateToken(
+    userId: string
+  ): string {
+
+    return `token-${userId}`;
+  }
+
+  verifyToken(
+    token: string
+  ): boolean {
+
+    return token.startsWith(
+      "token-"
+    );
+  }
+}
+
+FILE: src/modules/auth/PasswordService.ts
+----------------------------------------
+export class PasswordService {
+
+  async hash(
+    password: string
+  ): Promise<string> {
+
+    return password;
+  }
+
+  async verify(
+    password: string,
+    hash: string
+  ): Promise<boolean> {
+
+    return password === hash;
+  }
+}
+
+FILE: src/modules/security/SecretKeyService.ts
+----------------------------------------
+export class SecretKeyService {
+
+  verify(
+    provided: string,
+    stored: string
+  ): boolean {
+
+    return (
+      provided === stored
+    );
+  }
+
+  generate(): string {
+
+    return (
+      Math.random()
+      .toString(36)
+      .substring(2, 12)
+      .toUpperCase()
+    );
+  }
+}
+
+FILE: src/repositories/ArticleRepository.ts
+----------------------------------------
+import { Article }
+from "../types/article";
+
+export interface ArticleRepository {
+
+  findAll():
+    Promise<Article[]>;
+
+  findBySlug(
+    slug: string
+  ):
+    Promise<Article | null>;
+
+  create(
+    article: Article
+  ):
+    Promise<void>;
+
+  update(
+    article: Article
+  ):
+    Promise<void>;
+}
+
+FILE: src/repositories/EntityRepository.ts
+----------------------------------------
+import { AfriseekEntity } from "../types/entity";
+
+export interface EntityRepository {
+
+  findById(
+    id: string
+  ): Promise<AfriseekEntity | null>;
+
+  findBySlug(
+    slug: string
+  ): Promise<AfriseekEntity | null>;
+
+  findAll(): Promise<AfriseekEntity[]>;
+
+  create(
+    entity: AfriseekEntity
+  ): Promise<void>;
+
+  update(
+    entity: AfriseekEntity
+  ): Promise<void>;
+
+  delete(
+    id: string
+  ): Promise<void>;
+}
+
+FILE: src/repositories/EventRepository.ts
+----------------------------------------
+import { Event }
+from "../types/event";
+
+export interface EventRepository {
+
+  findAll():
+    Promise<Event[]>;
+
+  findBySlug(
+    slug: string
+  ):
+    Promise<Event | null>;
+
+  create(
+    event: Event
+  ):
+    Promise<void>;
+
+  update(
+    event: Event
+  ):
+    Promise<void>;
+}
+
+FILE: src/repositories/InMemoryArticleRepository.ts
+----------------------------------------
+import { ArticleRepository }
+from "./ArticleRepository";
+
+import { Article }
+from "../types/article";
+
+export class InMemoryArticleRepository
+implements ArticleRepository {
+
+  private articles:
+    Article[] = [];
+
+  async findAll() {
+
+    return this.articles;
+  }
+
+  async findBySlug(
+    slug: string
+  ) {
+
+    return (
+      this.articles.find(
+        a => a.slug === slug
+      ) || null
+    );
+  }
+
+  async create(
+    article: Article
+  ) {
+
+    this.articles.push(
+      article
+    );
+  }
+
+  async update(
+    article: Article
+  ) {
+
+    const index =
+      this.articles.findIndex(
+        a => a.id === article.id
+      );
+
+    if (index >= 0) {
+
+      this.articles[index] =
+        article;
+    }
+  }
+}
+
+FILE: src/repositories/InMemoryAuditRepository.ts
+----------------------------------------
+import { AuditLog } from "../types/audit";
+
+export class InMemoryAuditRepository {
+
+  private logs: AuditLog[] = [];
+
+  async create(
+    log: AuditLog
+  ) {
+
+    this.logs.push(log);
+  }
+
+  async getAll() {
+
+    return this.logs;
+  }
+}
+
+FILE: src/repositories/InMemoryEventRepository.ts
+----------------------------------------
+import { Event }
+from "../types/event";
+
+import { EventRepository }
+from "./EventRepository";
+
+export class InMemoryEventRepository
+implements EventRepository {
+
+  private events:
+    Event[] = [];
+
+  async findAll() {
+
+    return this.events;
+  }
+
+  async findBySlug(
+    slug: string
+  ) {
+
+    return (
+      this.events.find(
+        e => e.slug === slug
+      ) || null
+    );
+  }
+
+  async create(
+    event: Event
+  ) {
+
+    this.events.push(
+      event
+    );
+  }
+
+  async update(
+    event: Event
+  ) {
+
+    const index =
+      this.events.findIndex(
+        e => e.id === event.id
+      );
+
+    if (index >= 0) {
+
+      this.events[index] =
+        event;
+    }
+  }
+}
+
+FILE: src/repositories/SeedEntityRepository.ts
+----------------------------------------
+import { EntityRepository } from "./EntityRepository";
+import { AfriseekEntity } from "../types/entity";
+import { entities } from "../data/entities";
+import { GraphNormalizer } from "../core/graph/GraphNormalizer";
+
+export class SeedEntityRepository
+implements EntityRepository {
+
+  private normalized =
+    new GraphNormalizer()
+      .normalize(
+        structuredClone(
+          entities
+        )
+      );
+
+  async findById(
+    id: string
+  ): Promise<AfriseekEntity | null> {
+
+    return (
+      this.normalized.find(
+        entity => entity.id === id
+      ) ?? null
+    );
+  }
+
+  async findBySlug(
+    slug: string
+  ): Promise<AfriseekEntity | null> {
+
+    return (
+      this.normalized.find(
+        entity => entity.slug === slug
+      ) ?? null
+    );
+  }
+
+  async findAll(): Promise<AfriseekEntity[]> {
+    return this.normalized;
+  }
+
+  async create(
+    entity: AfriseekEntity
+  ): Promise<void> {}
+
+  async update(
+    entity: AfriseekEntity
+  ): Promise<void> {}
+
+  async delete(
+    id: string
+  ): Promise<void> {}
+}
+
+FILE: src/repositories/SeedUserRepository.ts
+----------------------------------------
+import { UserRepository } from "./UserRepository";
+import { User } from "../types/user";
+
+export class SeedUserRepository
+implements UserRepository {
+
+  private users: User[] = [
+
+    {
+      id: "super-admin",
+
+      username: "admin",
+
+      email: "admin@afriseek.local",
+
+      passwordHash: "admin123",
+
+      role: "super_admin",
+
+      secretKeyVerified: false,
+      
+      secretKeyHash:
+      "AFRISEEK-MASTER-001",
+      
+      active: true,
+
+      metadata: {
+        createdAt:
+          new Date().toISOString(),
+
+        updatedAt:
+          new Date().toISOString()
+      }
+    }
+  ];
+
+  async findAll() {
+    return this.users;
+  }
+
+  async findById(id: string) {
+    return this.users.find(
+      user => user.id === id
+    ) || null;
+  }
+
+  async findByEmail(email: string) {
+    return this.users.find(
+      user => user.email === email
+    ) || null;
+  }
+
+  async create(user: User) {
+    this.users.push(user);
+  }
+
+  async update(user: User) {
+
+    const index =
+      this.users.findIndex(
+        item => item.id === user.id
+      );
+
+    if (index >= 0) {
+      this.users[index] = user;
+    }
+  }
+
+  async delete(id: string) {
+
+    this.users =
+      this.users.filter(
+        user => user.id !== id
+      );
+  }
+}
+
+FILE: src/repositories/SupabaseEntityRepository.ts
+----------------------------------------
+import { getSupabase } from "../config/supabase";
+import { EntityRepository } from "./EntityRepository";
+import { AfriseekEntity } from "../types/entity";
+import { Relationship } from "../types/relationship";
+
+export class SupabaseEntityRepository implements EntityRepository {
+  private getClient() { 
+    return getSupabase(); 
+  }
+
+  /**
+   * Hydrates an entity with its structural graph relationships
+   */
+  async findById(id: string): Promise<AfriseekEntity | null> {
+    const client = this.getClient();
+
+    // 1. Fetch core entity details
+    const { data: entity, error: entityError } = await client
+      .from("entities")
+      .select("*")
+      .eq("id", id)
+      .single();
+
+    if (entityError || !entity) return null;
+
+    // 2. Fetch active graph connections where this node is the source
+    const { data: relations, error: relError } = await client
+      .from("entity_relationships")
+      .select("relationship_type, target_id, strength, weight, description")
+      .eq("source_id", id);
+
+    const relationships: Relationship[] = relError || !relations ? [] : relations.map(r => ({
+      type: r.relationship_type,
+      targetId: r.target_id,
+      strength: r.strength,
+      weight: Number(r.weight),
+      description: r.description
+    }));
+
+    return {
+      id: entity.id,
+      slug: entity.slug,
+      name: entity.name,
+      entityType: entity.entity_type,
+      importance: entity.importance,
+      summary: entity.summary,
+      aliases: entity.aliases,
+      endonyms: entity.endonyms,
+      exonyms: entity.exonyms,
+      traits: [], // Fully extensible for standalone trait mapping later
+      facts: [],  
+      relationships,
+      sources: [],
+      metadata: {
+        createdAt: entity.created_at,
+        updatedAt: entity.updated_at,
+        verified: entity.verified,
+        featured: entity.featured,
+        popularityScore: Number(entity.popularity_score)
+      }
+    };
+  }
+
+  async findBySlug(slug: string): Promise<AfriseekEntity | null> {
+    const client = this.getClient();
+    const { data, error } = await client
+      .from("entities")
+      .select("id")
+      .eq("slug", slug)
+      .single();
+
+    if (error || !data) return null;
+    return this.findById(data.id);
+  }
+
+  /**
+   * Prevents full-table memory pollution. Replaces full system loads with light streaming keys.
+   */
+  async findAll(): Promise<AfriseekEntity[]> {
+    const client = this.getClient();
+    const { data, error } = await client
+      .from("entities")
+      .select("id");
+
+    if (error || !data) return [];
+    
+    // Resolve entities safely. For heavy production pipelines, this will use paginated streams.
+    const results = await Promise.all(data.map(item => this.findById(item.id)));
+    return results.filter((e): e is AfriseekEntity => e !== null);
+  }
+
+  async create(entity: AfriseekEntity): Promise<void> {
+    const client = this.getClient();
+
+    // 1. Persist Normalized Node
+    const { error: entityError } = await client.from("entities").insert({
+      id: entity.id,
+      slug: entity.slug,
+      name: entity.name,
+      entity_type: entity.entityType,
+      importance: entity.importance,
+      summary: entity.summary,
+      aliases: entity.aliases || [],
+      endonyms: entity.endonyms || [],
+      exonyms: entity.exonyms || [],
+      verified: entity.metadata?.verified || false,
+      featured: entity.metadata?.featured || false,
+      popularity_score: entity.metadata?.popularityScore || 0.00
+    });
+
+    if (entityError) throw entityError;
+
+    // 2. Persist Structural Graph Edges (Relationships)
+    if (entity.relationships && entity.relationships.length > 0) {
+      const edgePayload = entity.relationships.map(rel => ({
+        source_id: entity.id,
+        target_id: rel.targetId,
+        relationship_type: rel.type,
+        strength: rel.strength,
+        weight: rel.weight || 1.00,
+        description: rel.description
+      }));
+
+      const { error: relError } = await client.from("entity_relationships").insert(edgePayload);
+      if (relError) console.error("Non-blocking graph relation mapping error:", relError);
+    }
+  }
+
+  async update(entity: AfriseekEntity): Promise<void> {
+    const client = this.getClient();
+
+    const { error } = await client
+      .from("entities")
+      .update({
+        name: entity.name,
+        summary: entity.summary,
+        importance: entity.importance,
+        aliases: entity.aliases,
+        updated_at: new Date().toISOString()
+      })
+      .eq("id", entity.id);
+
+    if (error) throw error;
+  }
+
+  async delete(id: string): Promise<void> {
+    const { error } = await this.getClient()
+      .from("entities")
+      .delete()
+      .eq("id", id);
+
+    if (error) throw error;
+  }
+}
+
+FILE: src/repositories/SupabaseUserRepository.ts
+----------------------------------------
+import { getSupabase } from "../config/supabase";
+import { UserRepository } from "./UserRepository";
+import { User } from "../types/user";
+import { UserRole } from "../types/role";
+
+export class SupabaseUserRepository implements UserRepository {
+  private getClient() {
+    return getSupabase();
+  }
+
+  async findAll(): Promise<User[]> {
+    const { data, error } = await this.getClient()
+      .from("users")
+      .select("*");
+
+    if (error || !data) return [];
+    return data.map(this.mapRowToUser);
+  }
+
+  async findById(id: string): Promise<User | null> {
+    const { data, error } = await this.getClient()
+      .from("users")
+      .select("*")
+      .eq("id", id)
+      .single();
+
+    if (error || !data) return null;
+    return this.mapRowToUser(data);
+  }
+
+  async findByEmail(email: string): Promise<User | null> {
+    const { data, error } = await this.getClient()
+      .from("users")
+      .select("*")
+      .eq("email", email)
+      .single();
+
+    if (error || !data) return null;
+    return this.mapRowToUser(data);
+  }
+
+  async create(user: User): Promise<void> {
+    const { error } = await this.getClient()
+      .from("users")
+      .insert({
+        id: user.id,
+        username: user.username,
+        email: user.email,
+        password_hash: user.passwordHash,
+        role: user.role,
+        secret_key_hash: user.secretKeyHash,
+        secret_key_verified: user.secretKeyVerified,
+        active: user.active,
+        created_at: user.metadata?.createdAt || new Date().toISOString(),
+        updated_at: user.metadata?.updatedAt || new Date().toISOString()
+      });
+
+    if (error) throw error;
+  }
+
+  async update(user: User): Promise<void> {
+    const { error } = await this.getClient()
+      .from("users")
+      .update({
+        username: user.username,
+        email: user.email,
+        password_hash: user.passwordHash,
+        role: user.role,
+        secret_key_hash: user.secretKeyHash,
+        secret_key_verified: user.secretKeyVerified,
+        active: user.active,
+        updated_at: new Date().toISOString()
+      })
+      .eq("id", user.id);
+
+    if (error) throw error;
+  }
+
+  async delete(id: string): Promise<void> {
+    const { error } = await this.getClient()
+      .from("users")
+      .delete()
+      .eq("id", id);
+
+    if (error) throw error;
+  }
+
+  /**
+   * Maps database snake_case storage fields back to strict camelCase Domain Types
+   */
+  private mapRowToUser(row: any): User {
+    return {
+      id: row.id,
+      username: row.username,
+      email: row.email,
+      passwordHash: row.password_hash,
+      role: row.role as UserRole,
+      secretKeyHash: row.secret_key_hash,
+      secretKeyVerified: row.secret_key_verified,
+      active: row.active,
+      metadata: {
+        createdAt: row.created_at,
+        updatedAt: row.updated_at
+      }
+    };
+  }
+}
+
+FILE: src/repositories/UserRepository.ts
+----------------------------------------
+import { User } from "../types/user";
+
+export interface UserRepository {
+
+  findAll(): Promise<User[]>;
+
+  findById(
+    id: string
+  ): Promise<User | null>;
+
+  findByEmail(
+    email: string
+  ): Promise<User | null>;
+
+  create(
+    user: User
+  ): Promise<void>;
+
+  update(
+    user: User
+  ): Promise<void>;
+
+  delete(
+    id: string
+  ): Promise<void>;
+}
+
+FILE: src/routes/articleRoutes.ts
+----------------------------------------
+import { Router }
+from "express";
+
+import { ArticleController }
+from "../controllers/ArticleController";
+
+import { requireSecretKey }
+from "../middleware/requireSecretKey";
+
+const router = Router();
+
+const controller =
+  new ArticleController();
+
+router.get(
+  "/",
+  controller.getAllArticles
+);
+
+router.get(
+  "/:slug",
+  controller.getArticleBySlug
+);
+
+router.post(
+  "/",
+  requireSecretKey,
+  controller.createArticle
+);
+
+router.put(
+  "/:slug",
+  requireSecretKey,
+  controller.updateArticle
+);
+
+export default router;
+
+FILE: src/routes/auditRoutes.ts
+----------------------------------------
+import { Router } from "express";
+
+import { createAuditService }
+from "../bootstrap/createAuditService";
+
+const router = Router();
+
+const audit =
+  createAuditService();
+
+router.get(
+  "/",
+  async (_req, res) => {
+
+    res.json({
+      success: true,
+      data:
+        await audit.getAll()
+    });
+  }
+);
+
+export default router;
+
+FILE: src/routes/authRoutes.ts
+----------------------------------------
+import { Router } from "express";
+import { AuthController } from "../controllers/AuthController";
+
+const router = Router();
+
+// The AuthController now cleanly pulls its required live repositories 
+// directly from the centralized dependency container we built.
+const controller = new AuthController();
+
+// Map POST requests to the controller logic
+router.post("/register", controller.register);
+router.post("/login", controller.login);
+
+export default router;
+
+FILE: src/routes/contextRoutes.ts
+----------------------------------------
+import { Router }
+from "express";
+
+import { ContextController }
+from "../controllers/ContextController";
+
+const router = Router();
+
+const controller =
+  new ContextController();
+
+router.get(
+  "/:slug",
+  controller.explore
+);
+
+router.get(
+  "/:slug/intelligent",
+  controller.intelligentExplore
+);
+
+export default router;
+
+FILE: src/routes/entityRoutes.ts
+----------------------------------------
+import { Router } from "express";
+import { EntityController } from "../controllers/EntityController";
+import { requireSecretKey } from "../middleware/requireSecretKey";
+
+const router = Router();
+const controller = new EntityController();
+
+// Core public read endpoints
+router.get("/", controller.getAllEntities);
+router.get("/:slug", controller.getEntityBySlug);
+
+// Mutating endpoints protected via secret key middleware
+router.post("/", requireSecretKey, controller.createEntity);
+router.put("/:id", requireSecretKey, controller.updateEntity);
+router.delete("/:id", requireSecretKey, controller.deleteEntity);
+
+export default router;
+
+FILE: src/routes/eventRoutes.ts
+----------------------------------------
+import { Router }
+from "express";
+
+import { EventController }
+from "../controllers/EventController";
+
+import { requireSecretKey }
+from "../middleware/requireSecretKey";
+
+const router = Router();
+
+const controller =
+  new EventController();
+
+router.get(
+  "/",
+  controller.getAll
+);
+
+router.get(
+  "/:slug",
+  controller.getBySlug
+);
+
+router.post(
+  "/",
+  requireSecretKey,
+  controller.create
+);
+
+export default router;
+
+FILE: src/routes/graphRoutes.ts
+----------------------------------------
+import { Router } from "express";
+import { getDependencies } from "../config/dependencies";
+import { createKnowledgeGraph } from "../bootstrap/createKnowledgeGraph";
+
+import { GraphController } from "../controllers/GraphController";
+import { GraphEngine } from "../core/graph/GraphEngine";
+
+import { EntityService } from "../services/EntityService";
+import { DiscoveryEngine } from "../core/intelligence/DiscoveryEngine";
+import { GraphPathFinder } from "../core/graph/GraphPathFinder";
+import { GraphRecommendationEngine } from "../core/recommendation/GraphRecommendationEngine";
+import { NarrativeEngine } from "../core/intelligence/NarrativeEngine";
+
+const router = Router();
+
+const graph = createKnowledgeGraph();
+
+const discovery = new DiscoveryEngine();
+const pathFinder = new GraphPathFinder(graph);
+const recommender = new GraphRecommendationEngine(graph);
+const narrativeEngine = new NarrativeEngine();
+
+const engine = new GraphEngine(
+  graph,
+  discovery,
+  pathFinder,
+  recommender
+);
+
+function createController() {
+  const entityService = new EntityService(
+    getDependencies().entityRepository
+  );
+
+  return new GraphController(
+    engine,
+    entityService,
+    narrativeEngine
+  );
+}
+
+router.get("/path", (req, res) =>
+  createController().getPath(req, res)
+);
+
+router.get("/recommend/:slug", (req, res) =>
+  createController().getRecommendations(req, res)
+);
+
+router.get("/:slug", (req, res) =>
+  createController().getGraph(req, res)
+);
+
+export default router;
+
+FILE: src/routes/searchRoutes.ts
+----------------------------------------
+import { Router }
+from "express";
+
+import { SearchController }
+from "../controllers/SearchController";
+
+const router = Router();
+
+const controller =
+  new SearchController();
+
+router.get(
+  "/",
+  controller.search
+);
+
+export default router;
+
+FILE: src/routes/secretKeyRoutes.ts
+----------------------------------------
+import { Router } from "express";
+import { SecretKeyController } from "../controllers/SecretKeyController";
+
+const router = Router();
+
+// Fully decoupled controller initialization utilizing centralized container resolution
+const controller = new SecretKeyController();
+
+router.post("/verify", controller.verify);
+
+export default router;
+
+
+FILE: src/routes/userRoutes.ts
+----------------------------------------
+import { Router } from "express";
+import { UserController } from "../controllers/UserController";
+
+const router = Router();
+
+router.get("/", async (req, res) => {
+  const controller = new UserController();
+  return controller.getAllUsers(req, res);
+});
+
+export default router;
+FILE: src/services/ArticleService.ts
+----------------------------------------
+import { Article }
+from "../types/article";
+
+import { ArticleRepository }
+from "../repositories/ArticleRepository";
+
+export class ArticleService {
+
+  constructor(
+    private repository:
+      ArticleRepository
+  ) {}
+
+  async getAll() {
+
+    return this.repository.findAll();
+  }
+
+  async getBySlug(
+    slug: string
+  ) {
+
+    return this.repository.findBySlug(
+      slug
+    );
+  }
+
+  async create(
+    article: Article
+  ) {
+
+    await this.repository.create(
+      article
+    );
+  }
+
+  async update(
+    article: Article
+  ) {
+
+    await this.repository.update(
+      article
+    );
+  }
+}
+
+FILE: src/services/AuditService.ts
+----------------------------------------
+import { AuditLog } from "../types/audit";
+import { InMemoryAuditRepository }
+from "../repositories/InMemoryAuditRepository";
+
+export class AuditService {
+
+  constructor(
+    private repository:
+      InMemoryAuditRepository
+  ) {}
+
+  async log(
+    log: AuditLog
+  ) {
+
+    await this.repository.create(
+      log
+    );
+  }
+
+  async getAll() {
+
+    return this.repository.getAll();
+  }
+}
+
+FILE: src/services/ContextExplorerService.ts
+----------------------------------------
+import { EntityService }
+from "./EntityService";
+
+export class ContextExplorerService {
+
+  constructor(
+    private entities:
+      EntityService
+  ) {}
+
+  async explore(
+    slug: string
+  ) {
+
+    const root =
+      await this.entities.getBySlug(
+        slug
+      );
+
+    if (!root) {
+      return null;
+    }
+
+    const all =
+      await this.entities.getAll();
+
+    const related =
+      all.filter(entity =>
+
+        entity.relationships.some(
+
+          relation =>
+
+            relation.targetId
+            === root.id
+
+        )
+
+        ||
+
+        root.relationships.some(
+
+          relation =>
+
+            relation.targetId
+            === entity.id
+
+        )
+
+      );
+
+    return {
+
+      root,
+
+      related
+    };
+  }
+}
+
+FILE: src/services/ContextTraversalService.ts
+----------------------------------------
+import { EntityService }
+from "./EntityService";
+
+export class ContextTraversalService {
+
+  constructor(
+    private entities:
+      EntityService
+  ) {}
+
+  async traverse(
+    slug: string,
+    depth = 3
+  ) {
+
+    const all =
+      await this.entities.getAll();
+
+    const root =
+      all.find(
+        e => e.slug === slug
+      );
+
+    if (!root) {
+      return null;
+    }
+
+    const visited =
+      new Set<string>();
+
+    const results: any[] =
+      [];
+
+    const walk = (
+      entityId: string,
+      level: number
+    ) => {
+
+      if (
+        level > depth
+      ) {
+        return;
+      }
+
+      if (
+        visited.has(
+          entityId
+        )
+      ) {
+        return;
+      }
+
+      visited.add(
+        entityId
+      );
+
+      const entity =
+        all.find(
+          e =>
+            e.id === entityId
+        );
+
+      if (!entity) {
+        return;
+      }
+
+      results.push({
+
+        level,
+
+        entity
+
+      });
+
+      entity.relationships.forEach(
+        relation =>
+
+          walk(
+            relation.targetId,
+            level + 1
+          )
+      );
+    };
+
+    walk(
+      root.id,
+      0
+    );
+
+    return results;
+  }
+}
+
+FILE: src/services/EntityService.ts
+----------------------------------------
+import { EntityRepository } from "../repositories/EntityRepository";
+import { AfriseekEntity } from "../types/entity";
+
+export class EntityService {
+
+  constructor(
+    private repository: EntityRepository
+  ) {}
+
+  async getAll() {
+    return this.repository.findAll();
+  }
+
+  async getBySlug(
+    slug: string
+  ) {
+    return this.repository.findBySlug(
+      slug
+    );
+  }
+
+  async getById(
+    id: string
+  ) {
+    return this.repository.findById(
+      id
+    );
+  }
+
+  async create(
+    entity: AfriseekEntity
+  ) {
+    return this.repository.create(
+      entity
+    );
+  }
+
+  async update(
+    entity: AfriseekEntity
+  ) {
+    return this.repository.update(
+      entity
+    );
+  }
+
+  async delete(
+    id: string
+  ) {
+    return this.repository.delete(
+      id
+    );
+  }
+}
+
+FILE: src/services/EventService.ts
+----------------------------------------
+import { Event }
+from "../types/event";
+
+import { EventRepository }
+from "../repositories/EventRepository";
+
+export class EventService {
+
+  constructor(
+    private repository:
+      EventRepository
+  ) {}
+
+  async getAll() {
+
+    return this.repository.findAll();
+  }
+
+  async getBySlug(
+    slug: string
+  ) {
+
+    return this.repository.findBySlug(
+      slug
+    );
+  }
+
+  async create(
+    event: Event
+  ) {
+
+    await this.repository.create(
+      event
+    );
+  }
+
+  async update(
+    event: Event
+  ) {
+
+    await this.repository.update(
+      event
+    );
+  }
+}
+
+FILE: src/services/GraphExplorerService.ts
+----------------------------------------
+import { EntityService }
+from "./EntityService";
+
+export class GraphExplorerService {
+
+  constructor(
+    private entities:
+      EntityService
+  ) {}
+
+  async explore(
+    slug: string
+  ) {
+
+    const root =
+      await this.entities.getBySlug(
+        slug
+      );
+
+    if (!root) {
+      return null;
+    }
+
+    const all =
+      await this.entities.getAll();
+
+    const children =
+      root.relationships.map(
+        relation => {
+
+          const target =
+            all.find(
+              e =>
+                e.id ===
+                relation.targetId
+            );
+
+          return {
+            relation:
+              relation.type,
+            entity:
+              target || null
+          };
+        }
+      );
+
+    return {
+      root,
+      children
+    };
+  }
+}
+
+FILE: src/services/IntelligentContextService.ts
+----------------------------------------
+import { EntityService } from "./EntityService";
+
+import { DiscoveryEngine }
+from "../core/intelligence/DiscoveryEngine";
+
+import { GeoContextEngine }
+from "../core/intelligence/GeoContextEngine";
+
+import { NarrativeEngine }
+from "../core/intelligence/NarrativeEngine";
+
+export class IntelligentContextService {
+
+  constructor(
+    private entities: EntityService
+  ) {}
+
+  async build(
+    slug: string
+  ) {
+
+    const root =
+      await this.entities.getBySlug(
+        slug
+      );
+
+    if (!root) {
+      return null;
+    }
+
+    const all =
+      await this.entities.getAll();
+
+    const discovery =
+      new DiscoveryEngine();
+
+    const geo =
+      new GeoContextEngine();
+
+    const narrative =
+      new NarrativeEngine();
+
+    const candidates =
+      all.filter(
+        e => e.id !== root.id
+      );
+
+    const discoveries =
+      discovery.discover(
+        root,
+        candidates
+      );
+
+    const geoRelated =
+      geo.sortByGeoPriority(
+        root,
+        [...candidates]
+      ).slice(0, 20);
+
+    const story =
+      narrative.generate(
+        root,
+        geoRelated
+      );
+
+    return {
+
+      root,
+
+      discoveries:
+        discoveries.slice(0, 20),
+
+      geoContext:
+        geoRelated,
+
+      narrative:
+        story
+    };
+  }
+}
+
+FILE: src/services/PasswordService.ts
+----------------------------------------
+import { scrypt, randomBytes, timingSafeEqual } from "crypto";
+import { promisify } from "util";
+
+const scryptAsync = promisify(scrypt);
+
+export class PasswordService {
+  /**
+   * Hashes a plain-text password using a secure unique salt and scrypt
+   */
+  async hash(password: string): Promise<string> {
+    // Generate a secure 16-byte random salt
+    const salt = randomBytes(16).toString("hex");
+    
+    // Hash using scrypt (64-byte key length)
+    const derivedKey = (await scryptAsync(password, salt, 64)) as Buffer;
+    
+    // Store salt and hash together split by a delimiter
+    return `${salt}:${derivedKey.toString("hex")}`;
+  }
+
+  /**
+   * Verifies a password against an existing cryptographic hash in constant time
+   */
+  async verify(password: string, hash: string): Promise<boolean> {
+    const [salt, storedKeyHex] = hash.split(":");
+    if (!salt || !storedKeyHex) return false;
+    
+    // Hash the incoming password with the original salt
+    const derivedKey = (await scryptAsync(password, salt, 64)) as Buffer;
+    const storedKeyBuffer = Buffer.from(storedKeyHex, "hex");
+    
+    // Use constant-time comparison to completely prevent timing analysis attacks
+    return timingSafeEqual(derivedKey, storedKeyBuffer);
+  }
+}
+
+FILE: src/services/SearchService.ts
+----------------------------------------
+import { EntityService }
+from "./EntityService";
+
+import { ArticleService }
+from "./ArticleService";
+
+export class SearchService {
+
+  constructor(
+    private entities:
+      EntityService,
+
+    private articles:
+      ArticleService
+  ) {}
+
+  async search(
+    query: string
+  ) {
+
+    const q =
+      query.toLowerCase();
+
+    const entities =
+      (await this.entities.getAll())
+      .filter(
+        e =>
+          e.name
+            .toLowerCase()
+            .includes(q)
+      );
+
+    const articles =
+      (await this.articles.getAll())
+      .filter(
+        a =>
+          a.title
+            .toLowerCase()
+            .includes(q)
+      );
+
+    return {
+      entities,
+      articles
+    };
+  }
+}
+
+FILE: src/services/UserService.ts
+----------------------------------------
+import { User } from "../types/user";
+import { UserRepository } from "../repositories/UserRepository";
+
+export class UserService {
+
+  constructor(
+    private repository: UserRepository
+  ) {}
+
+  async getAll() {
+    return this.repository.findAll();
+  }
+
+  async getById(
+    id: string
+  ) {
+    return this.repository.findById(
+      id
+    );
+  }
+
+  async getByEmail(
+    email: string
+  ) {
+    return this.repository.findByEmail(
+      email
+    );
+  }
+
+  async create(
+    user: User
+  ) {
+    return this.repository.create(
+      user
+    );
+  }
+
+  async update(
+    user: User
+  ) {
+    return this.repository.update(
+      user
+    );
+  }
+
+  async delete(
+    id: string
+  ) {
+    return this.repository.delete(
+      id
+    );
+  }
+}
+
+FILE: src/types/activityLog.ts
+----------------------------------------
+export interface ActivityLog {
+
+  id: string;
+
+  userId: string;
+
+  action: string;
+
+  targetType: string;
+
+  targetId: string;
+
+  details?: Record<string, unknown>;
+
+  createdAt: string;
+}
+
+FILE: src/types/api/ExpansionResponse.ts
+----------------------------------------
+export interface ExpansionLayer {
+  depth: number;
+  entities: {
+    id: string;
+    name: string;
+    type: string;
+  }[];
+}
+
+export interface ExpansionResponse {
+  root: string;
+  layers: ExpansionLayer[];
+}
+
+FILE: src/types/api/GraphResponse.ts
+----------------------------------------
+import type { NarrativeResult } from "../../core/intelligence/NarrativeEngine";
+export interface GraphRelatedItem {
+  name: string;
+  type: string;
+  score: number;
+  reasoning: string[];
+}
+
+export interface GraphResponse {
+  entity: {
+    id: string;
+    name: string;
+    type: string;
+  };
+  narrative?: NarrativeResult; // FIX: Added capability to pass narrative upstream to the client
+  related: GraphRelatedItem[];
+}
+FILE: src/types/api/RecommendationResponse.ts
+----------------------------------------
+export interface RecommendationItem {
+  id: string;
+  slug: string;
+  name: string;
+  type: string;
+  score: number;
+  reasons: string[];
+}
+
+export interface RecommendationResponse {
+  entity: {
+    id: string;
+    name: string;
+    type: string;
+  };
+
+  recommendations:
+    RecommendationItem[];
+}
+
+FILE: src/types/article.ts
+----------------------------------------
+export interface ArticleVersion {
+
+  version: number;
+
+  content: string;
+
+  editorId: string;
+
+  createdAt: string;
+}
+
+export interface Article {
+
+  id: string;
+
+  slug: string;
+
+  title: string;
+
+  summary: string;
+
+  entityIds: string[];
+
+  published: boolean;
+
+  versions: ArticleVersion[];
+
+  metadata: {
+
+    createdAt: string;
+
+    updatedAt: string;
+  };
+}
+
+FILE: src/types/audit.ts
+----------------------------------------
+export interface AuditLog {
+
+  id: string;
+
+  actorId: string;
+
+  action: string;
+
+  targetType: string;
+
+  targetId: string;
+
+  timestamp: string;
+
+  metadata?: Record<string, unknown>;
+}
+
+FILE: src/types/entity.ts
+----------------------------------------
+import { EntityType } from "./enums/EntityType";
+import { EntityImportance } from "./importance";
+
+import { Trait } from "./trait";
+
+import { Fact } from "./fact";
+
+import { Source } from "./source";
+
+import { Relationship } from "./relationship";
+import { EntityMetadataField } from "./entityMetadata";
+import { EntityMetadataField } from "./entityMetadata";
+
+export interface Alias {
+
+  name: string;
+
+  language?: string;
+
+  type?: string;
+}
+
+export interface EntityMetadata {
+
+  createdAt: string;
+
+  updatedAt: string;
+
+  verified: boolean;
+
+  featured?: boolean;
+
+  popularityScore?: number;
+}
+
+export interface EntityMedia {
+
+  coverImage?: string;
+
+  thumbnailImage?: string;
+
+  gallery?: string[];
+}
+
+export interface AfriseekEntity {
+
+  id: string;
+
+  slug: string;
+
+  name: string;
+
+  entityType: EntityType;
+
+  importance?: EntityImportance;
+
+  summary: string;
+
+  aliases?: Alias[];
+
+  endonyms?: string[];
+
+  exonyms?: string[];
+
+  traits: Trait[];
+
+  facts: Fact[];
+
+  relationships: Relationship[];
+
+  sources: Source[];
+
+  metadataFields?: EntityMetadataField[];
+
+  media?: EntityMedia;
+
+  metadata: EntityMetadata;
+}
+FILE: src/types/entityMetadata.ts
+----------------------------------------
+export interface EntityMetadataField {
+  key: string;
+  label: string;
+  value: string | number | boolean;
+}
+
+FILE: src/types/enums/EntityType.ts
+----------------------------------------
+export enum EntityType {
+
+  // Geography
+  CONTINENT = "continent",
+  REGION = "region",
+  COUNTRY = "country",
+  TERRITORY = "territory",
+  STATE = "state",
+  PROVINCE = "province",
+  DISTRICT = "district",
+  LOCAL_GOVERNMENT = "local_government",
+  CITY = "city",
+  TOWN = "town",
+  VILLAGE = "village",
+
+  // Peoples & Identity
+  PERSON = "person",
+  ETHNIC_GROUP = "ethnic_group",
+  TRIBE = "tribe",
+  CLAN = "clan",
+  DYNASTY = "dynasty",
+  ROYAL_HOUSE = "royal_house",
+  CIVILIZATION = "civilization",
+  CULTURE = "culture",
+  DIASPORA_COMMUNITY = "diaspora_community",
+
+  // Governance
+  EMPIRE = "empire",
+  KINGDOM = "kingdom",
+  REPUBLIC = "republic",
+  GOVERNMENT = "government",
+  POLITICAL_PARTY = "political_party",
+  MINISTRY = "ministry",
+  TRADITIONAL_INSTITUTION = "traditional_institution",
+  MILITARY_UNIT = "military_unit",
+
+  // Language & Belief
+  LANGUAGE = "language",
+  LANGUAGE_FAMILY = "language_family",
+  RELIGION = "religion",
+  BELIEF_SYSTEM = "belief_system",
+  DEITY = "deity",
+  SPIRIT = "spirit",
+  MYTHOLOGY = "mythology",
+
+  // Culture
+  FESTIVAL = "festival",
+  CEREMONY = "ceremony",
+  CUSTOM = "custom",
+  RITUAL = "ritual",
+  PROVERB = "proverb",
+  LEGEND = "legend",
+  FOLKTALE = "folktale",
+  ORAL_TRADITION = "oral_tradition",
+
+  // Arts
+  ARTWORK = "artwork",
+  ART_STYLE = "art_style",
+  PAINTING = "painting",
+  SCULPTURE = "sculpture",
+  MASK = "mask",
+  TEXTILE = "textile",
+  CLOTHING = "clothing",
+
+  MUSIC_GENRE = "music_genre",
+  SONG = "song",
+  DANCE = "dance",
+  MUSICAL_INSTRUMENT = "musical_instrument",
+
+  FILM = "film",
+  BOOK = "book",
+  MANUSCRIPT = "manuscript",
+  DOCUMENT = "document",
+
+  // Architecture
+  PALACE = "palace",
+  MONUMENT = "monument",
+  LANDMARK = "landmark",
+  ARCHAEOLOGICAL_SITE = "archaeological_site",
+  SACRED_SITE = "sacred_site",
+  ARCHITECTURAL_STYLE = "architectural_style",
+
+  // Education
+  UNIVERSITY = "university",
+  SCHOOL = "school",
+  LIBRARY = "library",
+  RESEARCH_CENTER = "research_center",
+
+  // Health
+  HOSPITAL = "hospital",
+  DISEASE = "disease",
+  PANDEMIC = "pandemic",
+
+  // Environment
+  RIVER = "river",
+  LAKE = "lake",
+  MOUNTAIN = "mountain",
+  FOREST = "forest",
+  DESERT = "desert",
+  ISLAND = "island",
+  ECOZONE = "ecozone",
+  CLIMATE_ZONE = "climate_zone",
+  FLORA = "flora",
+  FAUNA = "fauna",
+  NATURAL_RESOURCE = "natural_resource",
+
+  // Economy
+  CURRENCY = "currency",
+  COMMODITY = "commodity",
+  INDUSTRY = "industry",
+  MARKET = "market",
+  COMPANY = "company",
+  TRADE_ROUTE = "trade_route",
+
+  // Infrastructure
+  ROAD = "road",
+  RAILWAY = "railway",
+  BRIDGE = "bridge",
+  AIRPORT = "airport",
+  SEAPORT = "seaport",
+  DAM = "dam",
+
+  // History
+  HISTORICAL_EVENT = "historical_event",
+  BATTLE = "battle",
+  WAR = "war",
+  MIGRATION = "migration",
+  CORONATION = "coronation",
+  REVOLUTION = "revolution",
+  ELECTION = "election",
+
+  // Law
+  TREATY = "treaty",
+  CONSTITUTION = "constitution",
+  LEGAL_CODE = "legal_code",
+
+  // Technology
+  TECHNOLOGY = "technology",
+  INVENTION = "invention",
+  TECH_HUB = "tech_hub"
+}
+FILE: src/types/enums/RelationshipType.ts
+----------------------------------------
+export enum RelationshipType {
+
+  // =====================
+  // Geography
+  // =====================
+
+  LOCATED_IN = "located_in",
+  CONTAINS = "contains",
+  PART_OF = "part_of",
+
+  NEIGHBOR_OF = "neighbor_of",
+  BORDERS = "borders",
+
+  CAPITAL_OF = "capital_of",
+  HAS_CAPITAL = "has_capital",
+
+  FLOWS_THROUGH = "flows_through",
+  ORIGINATES_IN = "originates_in",
+  ENDS_IN = "ends_in",
+
+  NEAR = "near",
+  CROSSES = "crosses",
+
+  CONNECTED_TO = "connected_to",
+
+  // =====================
+  // Governance
+  // =====================
+
+  RULED_BY = "ruled_by",
+  RULED = "ruled",
+
+  GOVERNED_BY = "governed_by",
+
+  HAS_RULER = "has_ruler",
+  HAS_GOVERNOR = "has_governor",
+  HAS_PRESIDENT = "has_president",
+
+  ADMINISTERS = "administers",
+
+  MEMBER_OF = "member_of",
+
+  // =====================
+  // Family & Lineage
+  // =====================
+
+  PARENT_OF = "parent_of",
+  CHILD_OF = "child_of",
+
+  ANCESTOR_OF = "ancestor_of",
+  DESCENDANT_OF = "descendant_of",
+
+  SPOUSE_OF = "spouse_of",
+
+  SUCCEEDED = "succeeded",
+  SUCCEEDED_BY = "succeeded_by",
+
+  PRECEDED = "preceded",
+  PRECEDED_BY = "preceded_by",
+
+  // =====================
+  // Foundation
+  // =====================
+
+  FOUNDED = "founded",
+  FOUNDED_BY = "founded_by",
+
+  CREATED = "created",
+  CREATED_BY = "created_by",
+
+  BUILT = "built",
+  BUILT_BY = "built_by",
+
+  DISCOVERED_BY = "discovered_by",
+
+  // =====================
+  // Culture
+  // =====================
+
+  SPEAKS = "speaks",
+  SPOKEN_BY = "spoken_by",
+
+  PRACTICES = "practices",
+  PRACTICED_BY = "practiced_by",
+
+  WORSHIPS = "worships",
+  WORSHIPPED_BY = "worshipped_by",
+
+  CELEBRATES = "celebrates",
+
+  BELONGS_TO_CULTURE = "belongs_to_culture",
+  BELONGS_TO_ETHNIC_GROUP = "belongs_to_ethnic_group",
+
+  ASSOCIATED_WITH = "associated_with",
+
+  // =====================
+  // Historical
+  // =====================
+
+  PARTICIPATED_IN = "participated_in",
+
+  OCCURRED_IN = "occurred_in",
+
+  FOUGHT_IN = "fought_in",
+
+  LED = "led",
+
+  INFLUENCED = "influenced",
+  INFLUENCED_BY = "influenced_by",
+
+  INSPIRED = "inspired",
+  INSPIRED_BY = "inspired_by",
+
+  // =====================
+  // Economy
+  // =====================
+
+  TRADES_WITH = "trades_with",
+
+  IMPORTS = "imports",
+  EXPORTS = "exports",
+
+  PRODUCES = "produces",
+  CONSUMES = "consumes",
+
+  USES_CURRENCY = "uses_currency",
+
+  // =====================
+  // Infrastructure
+  // =====================
+
+  CONNECTS_TO = "connects_to",
+
+  PASSES_THROUGH = "passes_through",
+
+  SERVES = "serves",
+
+  // =====================
+  // Arts & Media
+  // =====================
+
+  AUTHORED_BY = "authored_by",
+
+  COMPOSED_BY = "composed_by",
+
+  PERFORMED_BY = "performed_by",
+
+  DEPICTS = "depicts",
+
+  FEATURES = "features",
+
+  // =====================
+  // Knowledge
+  // =====================
+
+  MENTIONED_IN = "mentioned_in",
+
+  REFERENCES = "references",
+
+  DOCUMENTED_IN = "documented_in",
+
+  SOURCED_FROM = "sourced_from",
+
+  SOURCE_FOR = "source_for",
+
+  // =====================
+  // Nature
+  // =====================
+
+  NATIVE_TO = "native_to",
+
+  PROTECTED_BY = "protected_by",
+
+  ENDANGERED_BY = "endangered_by",
+
+  // =====================
+  // Discovery
+  // =====================
+
+  RELATED_TO = "related_to"
+}
+
+FILE: src/types/event.ts
+----------------------------------------
+export interface Event {
+
+  id: string;
+
+  slug: string;
+
+  name: string;
+
+  description: string;
+
+  eventType:
+    | "festival"
+    | "historical"
+    | "political"
+    | "cultural"
+    | "religious"
+    | "educational";
+
+  entityId: string;
+
+  startDate: string;
+
+  endDate: string;
+
+  metadata: {
+
+    createdAt: string;
+
+    updatedAt: string;
+  };
+}
+
+FILE: src/types/fact.ts
+----------------------------------------
+import { Source } from "./source";
+import { TraitType } from "./traits";
+
+export enum FactType {
+
+  TEXT = "text",
+
+  NUMBER = "number",
+
+  BOOLEAN = "boolean",
+
+  DATE = "date",
+
+  DATE_RANGE = "date_range",
+
+  PERCENTAGE = "percentage",
+
+  CURRENCY = "currency",
+
+  COORDINATES = "coordinates",
+
+  REFERENCE = "reference",
+
+  LIST = "list"
+}
+
+export enum FactConfidence {
+
+  CONFIRMED = "confirmed",
+
+  HIGH = "high",
+
+  MEDIUM = "medium",
+
+  LOW = "low",
+
+  DISPUTED = "disputed",
+
+  LEGENDARY = "legendary"
+}
+
+export interface FactValue {
+
+  value: any;
+
+  unit?: string;
+}
+
+export interface Fact {
+
+  id: string;
+
+  key: string;
+
+  label: string;
+
+  traitType?: TraitType;
+
+  type: FactType;
+
+  value: FactValue;
+
+  confidence: FactConfidence;
+
+  verified?: boolean;
+
+  isDisputed?: boolean;
+
+  priority?: number;
+
+  description?: string;
+
+  validFrom?: string;
+
+  validTo?: string;
+
+  sources: Source[];
+
+  metadata?: Record<string, any>;
+}
+
+FILE: src/types/importance.ts
+----------------------------------------
+export enum EntityImportance {
+
+  GLOBAL = "global",
+
+  CONTINENTAL = "continental",
+
+  REGIONAL = "regional",
+
+  NATIONAL = "national",
+
+  LOCAL = "local"
+}
+
+FILE: src/types/permission.ts
+----------------------------------------
+export interface Permission {
+
+  createEntity: boolean;
+
+  updateEntity: boolean;
+
+  deleteEntity: boolean;
+
+  createArticle: boolean;
+
+  updateArticle: boolean;
+
+  deleteArticle: boolean;
+
+  manageUsers: boolean;
+
+  manageRoles: boolean;
+
+  manageSystem: boolean;
+}
+
+FILE: src/types/relationship.ts
+----------------------------------------
+import { RelationshipType }
+from "./enums/RelationshipType";
+
+export enum RelationshipStrength {
+
+  WEAK = "weak",
+
+  MODERATE = "moderate",
+
+  STRONG = "strong",
+
+  CORE = "core"
+}
+
+export { RelationshipType };
+
+export interface Relationship {
+
+  type: RelationshipType;
+
+  targetId: string;
+
+  strength: RelationshipStrength;
+
+  weight?: number;
+
+  description?: string;
+}
+
+FILE: src/types/role.ts
+----------------------------------------
+export type UserRole =
+  | "super_admin"
+  | "admin"
+  | "editor"
+  | "moderator"
+  | "user";
+
+FILE: src/types/source.ts
+----------------------------------------
+export enum SourceType {
+  BOOK = "book",
+  JOURNAL = "journal",
+  THESIS = "thesis",
+  MANUSCRIPT = "manuscript",
+  ARCHIVE = "archive",
+
+  GOVERNMENT_RECORD = "government_record",
+  CENSUS = "census",
+  LEGAL_DOCUMENT = "legal_document",
+
+  NEWSPAPER = "newspaper",
+  MAGAZINE = "magazine",
+
+  WEBSITE = "website",
+  DATABASE = "database",
+
+  INTERVIEW = "interview",
+  ORAL_TRADITION = "oral_tradition",
+  FIELD_RESEARCH = "field_research",
+
+  MUSEUM = "museum",
+  UNIVERSITY = "university",
+  ORGANIZATION = "organization",
+
+  MAP = "map",
+  IMAGE = "image",
+  AUDIO = "audio",
+  VIDEO = "video",
+
+  OTHER = "other",
+  INSCRIPTION = "inscription",
+  
+  ORAL_HISTORY = "oral_history",
+  ARTIFACT = "artifact",
+  ARCHAEOLOGICAL_REPORT = "archaeological_report",
+  MISSIONARY_RECORD = "missionary_record",
+  COLONIAL_RECORD = "colonial_record",
+  ROYAL_CHRONICLE = "royal_chronicle",
+  GENEALOGY = "genealogy"
+}
+
+export enum SourceReliability {
+  VERIFIED = "verified",
+  HIGH = "high",
+  MEDIUM = "medium",
+  LOW = "low",
+  UNVERIFIED = "unverified"
+}
+
+export interface SourceAuthor {
+  name: string;
+  role?: string;
+}
+
+export interface Source {
+  id: string;
+
+  type: SourceType;
+
+  title: string;
+
+  authors?: SourceAuthor[];
+
+  publisher?: string;
+
+  publicationDate?: string;
+
+  url?: string;
+
+  isbn?: string;
+
+  issn?: string;
+
+  language?: string;
+
+  region?: string;
+
+  archiveReference?: string;
+
+  reliability: SourceReliability;
+
+  notes?: string;
+
+  accessedAt?: string;
+}
+FILE: src/types/trait.ts
+----------------------------------------
+import { TraitType } from "./traits";
+
+export interface Trait {
+
+  type: TraitType;
+
+  title: string;
+
+  description?: string;
+
+  facts?: string[];
+
+  metadata?: Record<string, any>;
+}
+
+FILE: src/types/traits.ts
+----------------------------------------
+export enum TraitType {
+
+  OVERVIEW = "overview",
+
+  HISTORY = "history",
+  TIMELINE = "timeline",
+  BIOGRAPHY = "biography",
+
+  GEOGRAPHY = "geography",
+  CLIMATE = "climate",
+  ENVIRONMENT = "environment",
+  BIODIVERSITY = "biodiversity",
+
+  DEMOGRAPHICS = "demographics",
+
+  GOVERNANCE = "governance",
+  POLITICS = "politics",
+  LAW = "law",
+  DIPLOMACY = "diplomacy",
+  MILITARY = "military",
+
+  ECONOMY = "economy",
+  TRADE = "trade",
+  INDUSTRY = "industry",
+  AGRICULTURE = "agriculture",
+
+  INFRASTRUCTURE = "infrastructure",
+  TRANSPORT = "transport",
+
+  CULTURE = "culture",
+  LANGUAGE = "language",
+  RELIGION = "religion",
+
+  ARTS = "arts",
+  MUSIC = "music",
+  DANCE = "dance",
+  LITERATURE = "literature",
+  ARCHITECTURE = "architecture",
+
+  FOOD = "food",
+  CLOTHING = "clothing",
+  CUSTOMS = "customs",
+  FESTIVALS = "festivals",
+  MYTHOLOGY = "mythology",
+
+  EDUCATION = "education",
+  SCIENCE = "science",
+  TECHNOLOGY = "technology",
+  HEALTHCARE = "healthcare",
+
+  ARCHAEOLOGY = "archaeology",
+
+  LINEAGE = "lineage",
+  DYNASTY = "dynasty",
+
+  TERRITORY = "territory",
+  SETTLEMENTS = "settlements",
+
+  NATURAL_RESOURCES = "natural_resources",
+
+  MEDIA = "media",
+  SPORTS = "sports",
+
+  STATISTICS = "statistics",
+
+  RELATIONSHIPS = "relationships",
+
+  SOURCES = "sources"
+}
+FILE: src/types/user.ts
+----------------------------------------
+export { UserRole } from "./role";
+import { UserRole } from "./role";
+
+export interface User {
+
+  id: string;
+
+  username: string;
+
+  email: string;
+
+  passwordHash: string;
+
+  role: UserRole;
+
+  secretKeyHash?: string;
+
+  secretKeyVerified: boolean;
+
+  active: boolean;
+
+  metadata: {
+
+    createdAt: string;
+
+    updatedAt: string;
+  };
+}

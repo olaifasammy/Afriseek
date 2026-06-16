@@ -1,18 +1,36 @@
 import crypto from "crypto";
 import { Request, Response } from "express";
+
 import { getDependencies } from "../config/dependencies";
 import { createAuditService } from "../bootstrap/createAuditService";
+import { EntityOntologyValidator } from "../modules/ontology/EntityOntologyValidator";
 
 export class EntityController {
-  // Retain your established audit logger instantiation
-  private audit = createAuditService();
 
-  getEntityBySlug = async (req: Request, res: Response) => {
+  private audit =
+    createAuditService();
+
+  private ontologyValidator =
+    new EntityOntologyValidator();
+
+  getEntityBySlug = async (
+    req: Request,
+    res: Response
+  ) => {
+
     try {
-      const slug = String(req.params.slug);
-      const { entityRepository } = getDependencies();
-      
-      const entity = await entityRepository.findBySlug(slug);
+
+      const slug =
+        String(req.params.slug);
+
+      const {
+        entityRepository
+      } = getDependencies();
+
+      const entity =
+        await entityRepository.findBySlug(
+          slug
+        );
 
       if (!entity) {
         return res.status(404).json({
@@ -25,8 +43,14 @@ export class EntityController {
         success: true,
         data: entity
       });
+
     } catch (error) {
-      console.error("❌ Get Entity By Slug Error:", error);
+
+      console.error(
+        "❌ Get Entity By Slug Error:",
+        error
+      );
+
       return res.status(500).json({
         success: false,
         message: "Internal server error"
@@ -34,17 +58,32 @@ export class EntityController {
     }
   };
 
-  getAllEntities = async (req: Request, res: Response) => {
+  getAllEntities = async (
+    req: Request,
+    res: Response
+  ) => {
+
     try {
-      const { entityRepository } = getDependencies();
-      const entities = await entityRepository.findAll();
+
+      const {
+        entityRepository
+      } = getDependencies();
+
+      const entities =
+        await entityRepository.findAll();
 
       return res.json({
         success: true,
         data: entities
       });
+
     } catch (error) {
-      console.error("❌ Get All Entities Error:", error);
+
+      console.error(
+        "❌ Get All Entities Error:",
+        error
+      );
+
       return res.status(500).json({
         success: false,
         message: "Internal server error"
@@ -52,84 +91,168 @@ export class EntityController {
     }
   };
 
-  createEntity = async (req: Request, res: Response) => {
-    try {
-      const { entityRepository } = getDependencies();
-      await entityRepository.create(req.body);
+  createEntity = async (
+    req: Request,
+    res: Response
+  ) => {
 
-      // Persist the administrative action tracking footprint
+    try {
+
+      const {
+        entityRepository
+      } = getDependencies();
+
+      this.ontologyValidator.validate(
+        req.body
+      );
+
+      await entityRepository.create(
+        req.body
+      );
+
       await this.audit.log({
         id: crypto.randomUUID(),
-        actorId: String(req.headers["x-user-id"] || "unknown"),
+        actorId: String(
+          req.headers["x-user-id"]
+          || "unknown"
+        ),
         action: "create_entity",
         targetType: "entity",
-        targetId: String(req.body.id || "unknown"),
-        timestamp: new Date().toISOString()
+        targetId: String(
+          req.body.id
+          || "unknown"
+        ),
+        timestamp:
+          new Date().toISOString()
       });
 
       return res.status(201).json({
         success: true
       });
+
     } catch (error) {
-      console.error("❌ Create Entity Error:", error);
+
+      console.error(
+        "❌ Create Entity Error:",
+        error
+      );
+
       return res.status(500).json({
         success: false,
-        message: "Failed to create entity"
+        message:
+          error instanceof Error
+            ? error.message
+            : "Failed to create entity"
       });
     }
   };
 
-  updateEntity = async (req: Request, res: Response) => {
-    try {
-      const { entityRepository } = getDependencies();
-      // Ensure the id variable is parsed cleanly or resolved against domain attributes
-      const id = String(req.params.id || req.body.id || "unknown");
-      // Merge the URL id into the body object to match your Repository signature
-await entityRepository.update({ ...req.body, id });
+  updateEntity = async (
+    req: Request,
+    res: Response
+  ) => {
 
+    try {
+
+      const {
+        entityRepository
+      } = getDependencies();
+
+      const id = String(
+        req.params.id
+        || req.body.id
+        || "unknown"
+      );
+
+      const entity = {
+        ...req.body,
+        id
+      };
+
+      this.ontologyValidator.validate(
+        entity
+      );
+
+      await entityRepository.update(
+        entity
+      );
 
       await this.audit.log({
         id: crypto.randomUUID(),
-        actorId: String(req.headers["x-user-id"] || "unknown"),
+        actorId: String(
+          req.headers["x-user-id"]
+          || "unknown"
+        ),
         action: "update_entity",
         targetType: "entity",
         targetId: id,
-        timestamp: new Date().toISOString()
+        timestamp:
+          new Date().toISOString()
       });
 
       return res.json({
         success: true
       });
+
     } catch (error) {
-      console.error("❌ Update Entity Error:", error);
+
+      console.error(
+        "❌ Update Entity Error:",
+        error
+      );
+
       return res.status(500).json({
         success: false,
-        message: "Failed to update entity"
+        message:
+          error instanceof Error
+            ? error.message
+            : "Failed to update entity"
       });
     }
   };
 
-  deleteEntity = async (req: Request, res: Response) => {
+  deleteEntity = async (
+    req: Request,
+    res: Response
+  ) => {
+
     try {
-      const id = String(req.params.id);
-      const { entityRepository } = getDependencies();
-      
-      await entityRepository.delete(id);
+
+      const id =
+        String(req.params.id);
+
+      const {
+        entityRepository
+      } = getDependencies();
+
+      await entityRepository.delete(
+        id
+      );
 
       await this.audit.log({
         id: crypto.randomUUID(),
-        actorId: String(req.headers["x-user-id"] || "unknown"),
+        actorId: String(
+          req.headers["x-user-id"]
+          || "unknown"
+        ),
         action: "delete_entity",
         targetType: "entity",
         targetId: id,
-        timestamp: new Date().toISOString()
+        timestamp:
+          new Date().toISOString()
       });
 
       return res.json({
         success: true
       });
+
     } catch (error) {
-      console.error("❌ Delete Entity Error:", error);
+
+      console.error(
+        "❌ Delete Entity Error:",
+        error
+      );
+
       return res.status(500).json({
         success: false,
         message: "Failed to delete entity"

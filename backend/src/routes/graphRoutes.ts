@@ -13,16 +13,13 @@ import { NarrativeEngine } from "../core/intelligence/NarrativeEngine";
 
 const router = Router();
 
-// 1. Re-instantiate stateful graph structure
 const graph = createKnowledgeGraph();
 
-// 2. Initialize analysis engines
 const discovery = new DiscoveryEngine();
 const pathFinder = new GraphPathFinder(graph);
 const recommender = new GraphRecommendationEngine(graph);
 const narrativeEngine = new NarrativeEngine();
 
-// 3. Mount foundational orchestration engine
 const engine = new GraphEngine(
   graph,
   discovery,
@@ -30,19 +27,28 @@ const engine = new GraphEngine(
   recommender
 );
 
-// 4. Wrap the injected Repository back into the required EntityService class
-const entityServiceWrapper = new EntityService(getDependencies().entityRepository);
+function createController() {
+  const entityService = new EntityService(
+    getDependencies().entityRepository
+  );
 
-// 5. Construct the Controller with the correctly typed service wrapper
-const controller = new GraphController(
-  engine,
-  entityServiceWrapper,
-  narrativeEngine
+  return new GraphController(
+    engine,
+    entityService,
+    narrativeEngine
+  );
+}
+
+router.get("/path", (req, res) =>
+  createController().getPath(req, res)
 );
 
-// 6. Establish API network route mappings
-router.get("/path", controller.getPath);
-router.get("/recommend/:slug", controller.getRecommendations);
-router.get("/:slug", controller.getGraph);
+router.get("/recommend/:slug", (req, res) =>
+  createController().getRecommendations(req, res)
+);
+
+router.get("/:slug", (req, res) =>
+  createController().getGraph(req, res)
+);
 
 export default router;
