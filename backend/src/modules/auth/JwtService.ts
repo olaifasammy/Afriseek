@@ -1,18 +1,35 @@
+import jwt from "jsonwebtoken";
+import { AUTH_CONFIG } from "../../config/auth";
+
+export interface JwtPayload {
+  userId: string;
+  role: string;
+}
+
 export class JwtService {
-
   generateToken(
-    userId: string
+    payload: JwtPayload
   ): string {
-
-    return `token-${userId}`;
+    return jwt.sign(
+      payload,
+      AUTH_CONFIG.jwtSecret,
+      {
+        expiresIn:
+          AUTH_CONFIG.accessTokenExpiresIn
+      }
+    );
   }
 
   verifyToken(
     token: string
-  ): boolean {
-
-    return token.startsWith(
-      "token-"
-    );
+  ): JwtPayload | null {
+    try {
+      return jwt.verify(
+        token,
+        AUTH_CONFIG.jwtSecret
+      ) as JwtPayload;
+    } catch {
+      return null;
+    }
   }
 }

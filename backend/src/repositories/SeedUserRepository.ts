@@ -1,5 +1,6 @@
 import { UserRepository } from "./UserRepository";
 import { User } from "../types/user";
+import { UserRole } from "../types/role";
 
 export class SeedUserRepository
 implements UserRepository {
@@ -15,7 +16,7 @@ implements UserRepository {
 
       passwordHash: "admin123",
 
-      role: "super_admin",
+      role: UserRole.HEAD_ADMIN,
 
       secretKeyVerified: false,
       

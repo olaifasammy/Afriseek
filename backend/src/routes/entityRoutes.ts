@@ -1,17 +1,42 @@
 import { Router } from "express";
 import { EntityController } from "../controllers/EntityController";
-import { requireSecretKey } from "../middleware/requireSecretKey";
+import { requireAuth } from "../middleware/requireAuth";
+import { requireRole } from "../middleware/requireRole";
+import { UserRole } from "../types/role";
 
 const router = Router();
 const controller = new EntityController();
 
-// Core public read endpoints
 router.get("/", controller.getAllEntities);
 router.get("/:slug", controller.getEntityBySlug);
 
-// Mutating endpoints protected via secret key middleware
-router.post("/", requireSecretKey, controller.createEntity);
-router.put("/:id", requireSecretKey, controller.updateEntity);
-router.delete("/:id", requireSecretKey, controller.deleteEntity);
+router.post(
+  "/",
+  requireAuth,
+  requireRole(
+    UserRole.HEAD_ADMIN,
+    UserRole.ADMIN,
+    UserRole.EDITOR
+  ),
+  controller.createEntity
+);
+
+router.put(
+  "/:id",
+  requireAuth,
+  requireRole(
+    UserRole.HEAD_ADMIN,
+    UserRole.ADMIN,
+    UserRole.EDITOR
+  ),
+  controller.updateEntity
+);
+
+router.delete(
+  "/:id",
+  requireAuth,
+  requireRole(UserRole.HEAD_ADMIN),
+  controller.deleteEntity
+);
 
 export default router;

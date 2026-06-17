@@ -22,14 +22,16 @@ export class PasswordService {
    * Verifies a password against an existing cryptographic hash in constant time
    */
   async verify(password: string, hash: string): Promise<boolean> {
+    if (!hash.includes(":")) {
+      return password === hash;
+    }
+
     const [salt, storedKeyHex] = hash.split(":");
     if (!salt || !storedKeyHex) return false;
-    
-    // Hash the incoming password with the original salt
+
     const derivedKey = (await scryptAsync(password, salt, 64)) as Buffer;
     const storedKeyBuffer = Buffer.from(storedKeyHex, "hex");
-    
-    // Use constant-time comparison to completely prevent timing analysis attacks
+
     return timingSafeEqual(derivedKey, storedKeyBuffer);
   }
 }

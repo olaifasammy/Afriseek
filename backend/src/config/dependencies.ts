@@ -1,5 +1,5 @@
 import { createEntityRepository } from "../bootstrap/createEntityRepository";
-import { SupabaseUserRepository } from "../repositories/SupabaseUserRepository";
+import { SeedUserRepository } from "../repositories/SeedUserRepository";
 import { PasswordService } from "../services/PasswordService";
 import { EntityRepository } from "../repositories/EntityRepository";
 import { UserRepository } from "../repositories/UserRepository";
@@ -20,7 +20,7 @@ export function initializeDependencies(): AppDependencies {
   const entityRepository = createEntityRepository();
 
   const userRepository =
-    new SupabaseUserRepository();
+    new SeedUserRepository();
 
   const passwordService =
     new PasswordService();

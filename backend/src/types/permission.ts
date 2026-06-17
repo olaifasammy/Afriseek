@@ -1,20 +1,41 @@
-export interface Permission {
+export enum Permission {
+  ENTITY_CREATE = "entity.create",
+  ENTITY_UPDATE = "entity.update",
+  ENTITY_DELETE = "entity.delete",
 
-  createEntity: boolean;
+  ONTOLOGY_CREATE = "ontology.create",
+  ONTOLOGY_UPDATE = "ontology.update",
+  ONTOLOGY_DELETE = "ontology.delete",
 
-  updateEntity: boolean;
+  RELATIONSHIP_CREATE = "relationship.create",
+  RELATIONSHIP_UPDATE = "relationship.update",
+  RELATIONSHIP_DELETE = "relationship.delete",
 
-  deleteEntity: boolean;
+  ARTICLE_CREATE = "article.create",
+  ARTICLE_UPDATE = "article.update",
+  ARTICLE_DELETE = "article.delete",
+  ARTICLE_PUBLISH = "article.publish",
 
-  createArticle: boolean;
+  PAGE_CREATE = "page.create",
+  PAGE_UPDATE = "page.update",
+  PAGE_DELETE = "page.delete",
+  PAGE_PUBLISH = "page.publish",
 
-  updateArticle: boolean;
+  USER_CREATE = "user.create",
+  USER_UPDATE = "user.update",
+  USER_DELETE = "user.delete",
 
-  deleteArticle: boolean;
+  ROLE_MANAGE = "role.manage",
 
-  manageUsers: boolean;
+  AI_GENERATE = "ai.generate",
+  AI_REVIEW = "ai.review",
+  AI_PUBLISH = "ai.publish",
 
-  manageRoles: boolean;
+  CRAWLER_MANAGE = "crawler.manage",
+  SOURCE_MANAGE = "source.manage",
+  IMPORT_APPROVE = "import.approve",
 
-  manageSystem: boolean;
+  AUDIT_VIEW = "audit.view",
+
+  SYSTEM_MANAGE = "system.manage"
 }

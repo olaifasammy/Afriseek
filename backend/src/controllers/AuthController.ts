@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import { getDependencies } from "../config/dependencies";
 import crypto from "crypto";
+import { JwtService } from "../modules/auth/JwtService";
 import { UserRole } from "../types/role";
 
 export class AuthController {
@@ -78,9 +79,19 @@ export class AuthController {
       // 3. Strip sensitive data before sending back to the client
       const { passwordHash, secretKeyHash, ...safeUser } = user;
 
+        const jwtService =
+  new JwtService();
+
+const token =
+  jwtService.generateToken({
+    userId: user.id,
+    role: user.role
+  });
+
       return res.json({ 
         success: true, 
         message: "Login successful.",
+        token,
         user: safeUser 
       });
 
