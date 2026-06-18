@@ -6,28 +6,20 @@ dotenv.config();
 let client: ReturnType<typeof createClient> | null = null;
 
 export function getDatabase() {
+  if (client) return client;
 
-  if (client) {
-    return client;
+  const url = process.env.SUPABASE_URL;
+  const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+
+  if (!url || !serviceKey) {
+    throw new Error("Supabase service configuration missing (URL or SERVICE_ROLE_KEY)");
   }
 
-  const url =
-    process.env.SUPABASE_URL;
-
-  const key =
-    process.env.SUPABASE_ANON_KEY;
-
-  if (!url || !key) {
-    throw new Error(
-      "Database configuration missing"
-    );
-  }
-
-  client =
-    createClient(
-      url,
-      key
-    );
+  client = createClient(url, serviceKey, {
+    auth: {
+      persistSession: false
+    }
+  });
 
   return client;
 }

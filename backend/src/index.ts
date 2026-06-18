@@ -1,10 +1,11 @@
+import dotenv from "dotenv";
+dotenv.config();
+
 import express from "express";
 import helmet from "helmet";
 import { initializeDependencies } from "./config/dependencies";
-import { ontologyService }
-from "./modules/ontology/OntologyService";
+import { ontologyService } from "./modules/ontology/OntologyService";
 
-// Core Routing Architecture Components
 import entityRoutes from "./routes/entityRoutes";
 import graphRoutes from "./routes/graphRoutes";
 import userRoutes from "./routes/userRoutes";
@@ -20,51 +21,30 @@ import dashboardRoutes from "./routes/dashboardRoutes";
 import timelineRoutes from "./routes/timelineRoutes";
 import relationshipRoutes from "./routes/relationshipRoutes";
 
-/**
- * Orchestrates the secure asynchronous bootstrap sequence of the Afriseek application engine.
- */
+import { errorHandler } from "./middleware/errorHandler";
+
 async function bootstrap() {
   const app = express();
 
   app.use(helmet());
-  
-  // Honor runtime hosting environments (e.g., Docker, Render, VPS) while preserving local 3000 fallback
+  app.use(express.json());
+
   const PORT = process.env.PORT || 3000;
 
-  // =========================================================================
-  
-  // 1. CORE LIFECYCLE INITIALIZATION
-  // =========================================================================
   try {
     initializeDependencies();
-
     await ontologyService.load();
-    console.log("⚡ [Afriseek Engine]: Graph & Auth relational repositories securely bound to Supabase.");
+
+    console.log("⚡ Afriseek Engine ready");
   } catch (error) {
-    console.error("❌ [Fatal Bootstrap Error]: Core dependency injection sequence failed:", error);
-    // Explicit non-zero status exit guarantees task runner/orchestrators know the app is broken
+    console.error("❌ Fatal bootstrap error:", error);
     process.exit(1);
   }
 
-  // =========================================================================
-  // 2. GLOBAL ROUTING MIDDLEWARE
-  // =========================================================================
-  app.use(express.json());
-
-  // =========================================================================
-  // 3. TELEMETRY & HEALTH SYSTEM
-  // =========================================================================
   app.get("/health", (_req, res) => {
-    res.status(200).json({
-      status: "healthy",
-      timestamp: new Date().toISOString(),
-      environment: process.env.NODE_ENV || "development"
-    });
+    res.json({ status: "ok" });
   });
 
-  // =========================================================================
-  // 4. API SUBSYSTEM ROUTING MOUNTS
-  // =========================================================================
   app.use("/api/entities", entityRoutes);
   app.use("/api/graph", graphRoutes);
   app.use("/api/relationships", relationshipRoutes);
@@ -73,7 +53,6 @@ async function bootstrap() {
   app.use("/api/audit", auditRoutes);
   app.use("/api/dashboard", dashboardRoutes);
   app.use("/api/timeline", timelineRoutes);
-
   app.use("/api/settings", settingsRoutes);
   app.use("/api/articles", articleRoutes);
   app.use("/api/search", searchRoutes);
@@ -81,16 +60,13 @@ async function bootstrap() {
   app.use("/api/events", eventRoutes);
   app.use("/api/ontology", ontologyRoutes);
 
-  // =========================================================================
-  // 5. PORTS & INTERFACE EXECUTION
-  // =========================================================================
+  app.use(errorHandler);
+
   app.listen(PORT, () => {
-    console.log(`🚀 [Afriseek Server Live]: Operating smoothly on port http://localhost:${PORT}`);
+    console.log(`🚀 Server running on http://localhost:${PORT}`);
   });
 }
 
-// Intercept unhandled promise runtime exceptions across the main initialization loop
-bootstrap().catch((error) => {
-  console.error("❌ [Fatal Async Crash]: Unhandled exception caught inside engine lifecycle root:", error);
-  process.exit(1);
+bootstrap().catch((err) => {
+  console.error("❌ Fatal crash:", err);
 });

@@ -9,44 +9,38 @@ export class SupabaseUserRepository implements UserRepository {
   }
 
   async findAll(): Promise<User[]> {
-    const { data, error } = await (((this.getClient() as any)) as any)
+    const { data, error } = await (this.getClient() as any)
       .from("users")
       .select("*");
 
     if (error || !data) return [];
-    return data.map(this.mapRowToUser);
+    return data.map((row: any) => this.mapRowToUser(row));
   }
 
   async findById(id: string): Promise<User | null> {
-    const { data, error } = await (((this.getClient() as any)) as any)
+    const { data, error } = await (this.getClient() as any)
       .from("users")
       .select("*")
       .eq("id", id)
       .single();
 
-
-    if (error || !data) {
-      return null;
-    }
+    if (error || !data) return null;
     return this.mapRowToUser(data);
   }
 
   async findByEmail(email: string): Promise<User | null> {
-    const { data, error } = await (((this.getClient() as any)) as any)
+    const { data, error } = await (this.getClient() as any)
       .from("users")
       .select("*")
       .eq("email", email)
       .single();
 
-
-    if (error || !data) {
-      return null;
-    }
+    if (error || !data) return null;
     return this.mapRowToUser(data);
   }
 
   async create(user: User): Promise<void> {
-    const { error } = await ((this.getClient() as any))
+    const { error } = await (this.getClient() as any)
       .from("users")
       .insert({
         id: user.id,
@@ -63,7 +57,7 @@ export class SupabaseUserRepository implements UserRepository {
   }
 
   async update(user: User): Promise<void> {
-    const { error } = await ((this.getClient() as any))
+    const { error } = await (this.getClient() as any)
       .from("users")
       .update({
         username: user.username,
@@ -79,7 +73,7 @@ export class SupabaseUserRepository implements UserRepository {
   }
 
   async delete(id: string): Promise<void> {
-    const { error } = await ((this.getClient() as any))
+    const { error } = await (this.getClient() as any)
       .from("users")
       .delete()
       .eq("id", id);
@@ -87,9 +81,6 @@ export class SupabaseUserRepository implements UserRepository {
     if (error) throw error;
   }
 
-  /**
-   * Maps database snake_case storage fields back to strict camelCase Domain Types
-   */
   private mapRowToUser(row: any): User {
     return {
       id: row.id,
