@@ -5,7 +5,6 @@ import { UserRole } from "../types/role";
 
 export class SupabaseUserRepository implements UserRepository {
   private getClient() {
-    console.log("SUPABASE_URL_RUNTIME", process.env.SUPABASE_URL);
     return getDatabase();
   }
 
@@ -23,14 +22,10 @@ export class SupabaseUserRepository implements UserRepository {
       .from("users")
       .select("*")
       .eq("id", id)
-      .limit(1);
+      .single();
 
-    console.log("EMAIL_RESULT_DATA", data);
-    console.log("EMAIL_RESULT_ERROR", error);
 
     if (error || !data) {
-      console.log("SUPABASE_FIND_EMAIL_ERROR", error);
-      console.log("SUPABASE_FIND_EMAIL_DATA", data);
       return null;
     }
     return this.mapRowToUser(data);
@@ -41,14 +36,10 @@ export class SupabaseUserRepository implements UserRepository {
       .from("users")
       .select("*")
       .eq("email", email)
-      .limit(1);
+      .single();
 
-    console.log("EMAIL_RESULT_DATA", data);
-    console.log("EMAIL_RESULT_ERROR", error);
 
     if (error || !data) {
-      console.log("SUPABASE_FIND_EMAIL_ERROR", error);
-      console.log("SUPABASE_FIND_EMAIL_DATA", data);
       return null;
     }
     return this.mapRowToUser(data);
