@@ -1,131 +1,77 @@
+import React from 'react';
 import {
   FileText,
   ChevronRight
-} from "lucide-react";
+} from 'lucide-react';
 
-const articles = [
+interface ArticleItem {
+  title: string;
+  meta: string;
+}
+
+const articles: ArticleItem[] = [
   {
-    title:"The Legacy of the Benin Empire",
-    meta:"History • 5 min read"
+    title: "The Legacy of the Benin Empire",
+    meta: "History • 5 min read"
   },
   {
-    title:"Understanding the Yoruba People",
-    meta:"Culture • 7 min read"
+    title: "Understanding the Yoruba People",
+    meta: "Culture • 7 min read"
   },
   {
-    title:"Ancient Trade Routes Across Africa",
-    meta:"History • 8 min read"
+    title: "Ancient Trade Routes Across Africa",
+    meta: "History • 8 min read"
   }
 ];
 
 export default function RecentArticles() {
   return (
-    <section
-      style={{
-        background:"var(--afri-surface)",
-        padding:"2rem 1rem"
-      }}
-    >
-      <div
-        style={{
-          display:"flex",
-          justifyContent:"space-between",
-          alignItems:"center",
-          marginBottom:"1rem"
-        }}
-      >
-        <h2
-          style={{
-            margin:0,
-            color:"var(--afri-text)"
-          }}
-        >
+    <section className="px-5 py-6 bg-[var(--afri-surface)]">
+      
+      {/* Section Header */}
+      <div className="flex justify-between items-center mb-4">
+        <h2 className="text-base font-bold text-[var(--afri-text)] tracking-tight">
           Recent Articles
         </h2>
-
-        <button
-          style={{
-            background:"none",
-            border:"none",
-            color:"var(--afri-gold)",
-            display:"flex",
-            alignItems:"center",
-            gap:"0.25rem",
-            fontWeight:600
-          }}
-        >
-          View all
-          <ChevronRight size={16}/>
+        <button className="flex items-center gap-0.5 text-xs font-bold text-[var(--afri-gold)] transition-opacity active:opacity-70">
+          <span>View all</span>
+          <ChevronRight size={14} className="mt-0.5" />
         </button>
       </div>
 
-      <div
-        style={{
-          display:"flex",
-          flexDirection:"column",
-          gap:"1rem"
-        }}
-      >
-        {articles.map((article)=>(
-          <div
+      {/* Vertical Article Stream */}
+      <div className="flex flex-col gap-3">
+        {articles.map((article) => (
+          <button
             key={article.title}
-            style={{
-              background:"var(--afri-surface)",
-              border:"1px solid var(--afri-border)",
-              borderRadius:"18px",
-              padding:"1rem",
-              boxShadow:
-                "0 8px 20px rgba(0,0,0,.04)"
-            }}
+            className="group w-full text-left flex items-start gap-3.5 p-3.5 bg-[var(--afri-surface)] border border-[var(--afri-border)] rounded-2xl shadow-sm transition-all duration-150 active:scale-[0.99] active:bg-slate-50/60 cursor-pointer focus:outline-none"
           >
+            
+            {/* Context Icon Container */}
             <div
-              style={{
-                display:"flex",
-                gap:"1rem",
-                alignItems:"flex-start"
-              }}
+              className="flex items-center justify-center w-11 h-11 rounded-xl shrink-0"
+              style={{ backgroundColor: '#E2A54012' }}
             >
-              <div
-                style={{
-                  width:"50px",
-                  height:"50px",
-                  borderRadius:"14px",
-                  background:"var(--afri-gold)15",
-                  display:"flex",
-                  justifyContent:"center",
-                  alignItems:"center"
-                }}
-              >
-                <FileText
-                  size={22}
-                  color="var(--afri-gold)"
-                />
-              </div>
-
-              <div>
-                <div
-                  style={{
-                    fontWeight:700,
-                    color:"var(--afri-text)",
-                    marginBottom:"0.4rem"
-                  }}
-                >
-                  {article.title}
-                </div>
-
-                <div
-                  style={{
-                    color:"var(--afri-text-muted)",
-                    fontSize:"0.9rem"
-                  }}
-                >
-                  {article.meta}
-                </div>
-              </div>
+              <FileText
+                size={20}
+                style={{ color: '#E2A540' }}
+              />
             </div>
-          </div>
+
+            {/* Typography Metadata Stack */}
+            <div className="flex flex-col flex-1 min-w-0 pt-0.5">
+              <span className="text-xs font-bold text-[var(--afri-text)] leading-snug mb-1 break-words group-hover:text-[var(--afri-gold)] transition-colors duration-150">
+                {article.title}
+              </span>
+              <span className="text-[11px] font-medium text-[var(--afri-text-muted)] tracking-wide">
+                {article.meta}
+              </span>
+            </div>
+
+          </button>
         ))}
       </div>
+
     </section>
   );
 }

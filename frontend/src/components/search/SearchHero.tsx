@@ -1,10 +1,5 @@
-import { useState, useEffect } from "react";
-import {
-  useNavigate,
-  useSearchParams
-} from "react-router-dom";
-
-import { Search } from "lucide-react";
+import React, { useState, useEffect } from "react";
+import { useNavigate, useSearchParams } from "react-router-dom";
 
 const suggestions = [
   "Yoruba People",
@@ -20,135 +15,64 @@ const suggestions = [
 ];
 
 export default function SearchHero() {
-
   const navigate = useNavigate();
-
   const [params] = useSearchParams();
+  const [query, setQuery] = useState("");
 
-  const [query,setQuery] = useState("");
+  useEffect(() => {
+    setQuery(params.get("q") || "");
+  }, [params]);
 
-  useEffect(()=>{
-    setQuery(
-      params.get("q") || ""
-    );
-  },[params]);
+  const filtered = query.length > 1
+    ? suggestions.filter(item => item.toLowerCase().includes(query.toLowerCase()))
+    : [];
 
-  const filtered =
-    query.length > 1
-      ? suggestions.filter(item =>
-          item
-            .toLowerCase()
-            .includes(
-              query.toLowerCase()
-            )
-        )
-      : [];
-
-  const search = (value:string) => {
-
-    navigate(
-      `/search?q=${encodeURIComponent(value)}`
-    );
+  const handleSearch = (value: string) => {
+    if (!value.trim()) return;
+    navigate(`/search?q=${encodeURIComponent(value.trim())}`);
   };
 
   return (
-    <section
-      style={{
-        padding:"2rem 1rem"
-      }}
-    >
-      <div
-        style={{
-          maxWidth:"900px",
-          margin:"0 auto"
-        }}
-      >
-        <h1
-          style={{
-            fontSize:"2.5rem",
-            marginBottom:"0.5rem"
-          }}
-        >
+    <section className="bg-white pt-12 pb-6 px-6 select-none">
+      <div className="max-w-xl mx-auto w-full">
+        <h1 className="text-2xl font-black text-neutral-900 tracking-tight leading-none mb-2">
           Africa's Living Knowledge Graph
         </h1>
-
-        <p
-          style={{
-            color:"var(--afri-text-muted)",
-            marginBottom:"1.5rem"
-          }}
-        >
-          Explore people, cultures,
-          kingdoms, languages and history.
+        <p className="text-xs font-medium text-neutral-500 tracking-wide mb-6">
+          Explore interconnected people, cultures, kingdoms, languages, and structural lineages.
         </p>
 
-        <div
-          style={{
-            position:"relative"
-          }}
-        >
-          <div
-            style={{
-              display:"flex",
-              background:
-                "var(--afri-surface)",
-              border:
-                "1px solid var(--afri-border)",
-              borderRadius:"18px",
-              overflow:"hidden"
-            }}
-          >
+        <div className="relative w-full">
+          <div className="flex bg-neutral-50 border border-neutral-200/70 rounded-2xl overflow-hidden focus-within:border-[var(--afri-gold)] transition-colors duration-150">
             <input
+              type="text"
               value={query}
-              onChange={(e)=>
-                setQuery(e.target.value)
-              }
-              placeholder="Search Afriseek..."
-              style={{
-                flex:1,
-                border:"none",
-                outline:"none",
-                padding:"1rem"
-              }}
+              onChange={(e) => setQuery(e.target.value)}
+              onKeyDown={(e) => e.key === 'Enter' && handleSearch(query)}
+              placeholder="Search ancestral paths, dynasties..."
+              className="flex-1 bg-transparent border-none outline-none py-3.5 px-4 text-xs font-semibold text-neutral-800 placeholder-neutral-400"
             />
-
             <button
-              onClick={() => search(query)}
-              style={{
-                background:
-                  "var(--afri-gold)",
-                border:"none",
-                padding:"0 1.2rem"
-              }}
+              type="button"
+              onClick={() => handleSearch(query)}
+              className="bg-[var(--afri-gold)] text-white px-5 flex items-center justify-center cursor-pointer hover:opacity-90 active:scale-95 transition-all"
             >
-              <Search size={20}/>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="w-4 h-4">
+                <circle cx="11" cy="11" r="8"/>
+                <path d="m21 21-4.3-4.3"/>
+              </svg>
             </button>
           </div>
 
+          {/* Auto-suggestions Box */}
           {filtered.length > 0 && (
-            <div
-              style={{
-                marginTop:"0.5rem",
-                background:
-                  "var(--afri-surface)",
-                border:
-                  "1px solid var(--afri-border)",
-                borderRadius:"18px",
-                overflow:"hidden"
-              }}
-            >
-              {filtered.slice(0,5).map(item => (
+            <div className="absolute left-0 right-0 mt-2 bg-white border border-neutral-100 shadow-xl shadow-neutral-200/30 rounded-2xl overflow-hidden z-50">
+              {filtered.slice(0, 5).map((item) => (
                 <button
                   key={item}
-                  onClick={() => search(item)}
-                  style={{
-                    width:"100%",
-                    textAlign:"left",
-                    padding:"0.9rem 1rem",
-                    border:"none",
-                    background:"transparent",
-                    cursor:"pointer"
-                  }}
+                  type="button"
+                  onClick={() => handleSearch(item)}
+                  className="w-full text-left py-3 px-4 text-xs font-bold text-neutral-700 hover:bg-neutral-50 hover:text-[var(--afri-gold)] border-b border-neutral-50 last:border-none transition-colors"
                 >
                   {item}
                 </button>

@@ -1,153 +1,101 @@
+import React from 'react';
 import {
   Building2,
   Users,
   Landmark,
-  ChevronRight
-} from "lucide-react";
+  ChevronRight,
+  LucideIcon
+} from 'lucide-react';
 
-const entities = [
+interface EntityItem {
+  name: string;
+  type: string;
+  icon: LucideIcon;
+  color: string;
+}
+
+const entities: EntityItem[] = [
   {
-    name:"Misrata",
-    type:"City • Libya",
-    icon:Building2,
-    color:"#4F7EF7"
+    name: "Misrata",
+    type: "City • Libya",
+    icon: Building2,
+    color: "#4F7EF7"
   },
   {
-    name:"Amazigh",
-    type:"Ethnic Group",
-    icon:Users,
-    color:"#57C785"
+    name: "Amazigh",
+    type: "Ethnic Group",
+    icon: Users,
+    color: "#57C785"
   },
   {
-    name:"Oyo Empire",
-    type:"Historical Kingdom",
-    icon:Landmark,
-    color:"var(--afri-gold)"
+    name: "Oyo Empire",
+    type: "Historical Kingdom",
+    icon: Landmark,
+    color: "#E2A540" // Swapped var string to hex to safely handle the transparent alpha mix
   }
 ];
 
 export default function RecentEntities() {
   return (
-    <section
-      style={{
-        background:"var(--afri-surface)",
-        padding:"2rem 1rem"
-      }}
-    >
-      <div
-        style={{
-          display:"flex",
-          justifyContent:"space-between",
-          alignItems:"center",
-          marginBottom:"1rem"
-        }}
-      >
-        <h2
-          style={{
-            margin:0,
-            color:"var(--afri-text)"
-          }}
-        >
+    <section className="px-5 py-6 bg-[var(--afri-surface)]">
+      
+      {/* Section Header */}
+      <div className="flex justify-between items-center mb-4">
+        <h2 className="text-base font-bold text-[var(--afri-text)] tracking-tight">
           Recently Added
         </h2>
-
-        <button
-          style={{
-            background:"none",
-            border:"none",
-            color:"var(--afri-gold)",
-            display:"flex",
-            alignItems:"center",
-            gap:"0.25rem",
-            fontWeight:600
-          }}
-        >
-          View all
-          <ChevronRight size={16}/>
+        <button className="flex items-center gap-0.5 text-xs font-bold text-[var(--afri-gold)] transition-opacity active:opacity-70">
+          <span>View all</span>
+          <ChevronRight size={14} className="mt-0.5" />
         </button>
       </div>
 
-      <div
-        style={{
-          display:"flex",
-          flexDirection:"column",
-          gap:"1rem"
-        }}
-      >
-        {entities.map((item)=>{
-
-          const Icon = item.icon;
+      {/* Vertical Interactive List */}
+      <div className="flex flex-col gap-3">
+        {entities.map((item) => {
+          const IconComponent = item.icon;
 
           return (
-            <div
+            <button
               key={item.name}
-              style={{
-                background:"var(--afri-surface)",
-                border:"1px solid var(--afri-border)",
-                borderRadius:"18px",
-                padding:"1rem",
-                display:"flex",
-                alignItems:"center",
-                justifyContent:"space-between",
-                boxShadow:
-                  "0 8px 20px rgba(0,0,0,.04)"
-              }}
+              className="group w-full text-left flex items-center justify-between p-3.5 bg-[var(--afri-surface)] border border-[var(--afri-border)] rounded-2xl shadow-sm transition-all duration-150 active:scale-[0.99] active:bg-slate-50/60 cursor-pointer focus:outline-none"
             >
-              <div
-                style={{
-                  display:"flex",
-                  alignItems:"center",
-                  gap:"1rem"
-                }}
-              >
+              {/* Left Content Cluster */}
+              <div className="flex items-center gap-3.5">
+                
+                {/* Icon Wrapper Frame */}
                 <div
-                  style={{
-                    width:"52px",
-                    height:"52px",
-                    borderRadius:"14px",
-                    background:
-                      `${item.color}15`,
-                    display:"flex",
-                    justifyContent:"center",
-                    alignItems:"center"
-                  }}
+                  className="flex items-center justify-center w-12 h-12 rounded-xl shrink-0"
+                  style={{ backgroundColor: `${item.color}12` }}
                 >
-                  <Icon
-                    size={24}
-                    color={item.color}
+                  <IconComponent
+                    size={22}
+                    style={{ color: item.color }}
                   />
                 </div>
 
-                <div>
-                  <div
-                    style={{
-                      fontWeight:700,
-                      color:"var(--afri-text)"
-                    }}
-                  >
+                {/* Typography Labels */}
+                <div className="flex flex-col">
+                  <span className="text-xs font-bold text-[var(--afri-text)] leading-tight mb-0.5">
                     {item.name}
-                  </div>
-
-                  <div
-                    style={{
-                      color:"var(--afri-text-muted)",
-                      marginTop:"0.2rem",
-                      fontSize:"0.9rem"
-                    }}
-                  >
+                  </span>
+                  <span className="text-[11px] font-medium text-[var(--afri-text-muted)]">
                     {item.type}
-                  </div>
+                  </span>
                 </div>
+
               </div>
 
+              {/* Traversal Chevron Indicator */}
               <ChevronRight
-                size={20}
-                color="#9ca3af"
+                size={16}
+                className="text-slate-400 group-active:translate-x-0.5 transition-transform duration-150"
               />
-            </div>
+            </button>
           );
         })}
       </div>
+
     </section>
   );
 }

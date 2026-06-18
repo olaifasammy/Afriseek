@@ -1,37 +1,25 @@
-const searches = [
-  "Yoruba",
-  "Hausa",
-  "Swahili",
-  "Timbuktu",
-  "Nile River",
-  "Songhai Empire"
-];
+import React from 'react';
+
+const searches = ["Yoruba", "Hausa", "Swahili", "Timbuktu", "Nile River", "Songhai Empire"];
 
 export default function PopularSearches() {
   return (
-    <section style={{padding:"1rem"}}>
-      <h2>Popular Searches</h2>
-
-      <div
-        style={{
-          display:"flex",
-          flexWrap:"wrap",
-          gap:"0.75rem"
-        }}
-      >
-        {searches.map((item)=>(
-          <button
-            key={item}
-            style={{
-              border:"1px solid var(--afri-border)",
-              background:"var(--afri-surface)",
-              padding:"0.75rem 1rem",
-              borderRadius:"999px"
-            }}
-          >
-            {item}
-          </button>
-        ))}
+    <section className="bg-white py-4 px-6 select-none">
+      <div className="max-w-xl mx-auto w-full">
+        <h2 className="text-[10px] font-black tracking-[0.2em] uppercase text-neutral-400 mb-3">
+          Frequent Inquiries
+        </h2>
+        <div className="flex flex-wrap gap-2">
+          {searches.map((item) => (
+            <button
+              key={item}
+              type="button"
+              className="border border-neutral-200/70 bg-white text-[11px] font-bold text-neutral-600 px-3.5 py-1.5 rounded-full cursor-pointer hover:border-[var(--afri-gold)] hover:text-[var(--afri-gold)] active:scale-95 transition-all"
+            >
+              {item}
+            </button>
+          ))}
+        </div>
       </div>
     </section>
   );

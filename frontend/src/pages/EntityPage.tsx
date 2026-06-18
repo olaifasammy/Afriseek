@@ -11,9 +11,11 @@ import EntityMetadataBar from "../components/entity/EntityMetadataBar";
 
 import { getEntity } from "../services/entity";
 
+
+
 export default function EntityPage() {
   const { slug } = useParams();
-import { MapPinned } from "lucide-react";
+
 console.log("PARAM SLUG:", slug);
 console.log("PARAM SLUG:", slug);
 
