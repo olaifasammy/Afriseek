@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import { getDependencies } from "../config/dependencies";
 import { UserService } from "../services/UserService";
+import { UserRole } from "../types/role";
 
 export class UserController {
 
@@ -17,7 +18,7 @@ export class UserController {
 
       const safeUsers =
         users.map(
-          ({ passwordHash, secretKeyHash, ...safe }) => safe
+          ({ passwordHash, ...safe }) => safe
         );
 
       return res.json({
@@ -37,5 +38,129 @@ export class UserController {
         message: "Internal server error"
       });
     }
+  };
+
+  getUserById = async (
+    req: Request,
+    res: Response
+  ) => {
+
+    const { userRepository } =
+      getDependencies();
+
+    const userService =
+      new UserService(userRepository);
+
+    const user =
+      await userService.getById(
+        String(req.params.id)
+      );
+
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: "User not found"
+      });
+    }
+
+    const { passwordHash, ...safeUser } =
+      user;
+
+    return res.json({
+      success: true,
+      data: safeUser
+    });
+  };
+
+  updateRole = async (
+    req: Request,
+    res: Response
+  ) => {
+
+    const { role } = req.body;
+
+    const { userRepository } =
+      getDependencies();
+
+    const userService =
+      new UserService(userRepository);
+
+    const user =
+      await userService.getById(
+        String(req.params.id)
+      );
+
+    if (!user) {
+      return res.status(404).json({
+        success: false
+      });
+    }
+
+    user.role =
+      role as UserRole;
+
+    await userService.update(
+      user
+    );
+
+    return res.json({
+      success: true
+    });
+  };
+
+  updateActive = async (
+    req: Request,
+    res: Response
+  ) => {
+
+    const { active } = req.body;
+
+    const { userRepository } =
+      getDependencies();
+
+    const userService =
+      new UserService(userRepository);
+
+    const user =
+      await userService.getById(
+        String(req.params.id)
+      );
+
+    if (!user) {
+      return res.status(404).json({
+        success: false
+      });
+    }
+
+    user.active =
+      Boolean(active);
+
+    await userService.update(
+      user
+    );
+
+    return res.json({
+      success: true
+    });
+  };
+
+  deleteUser = async (
+    req: Request,
+    res: Response
+  ) => {
+
+    const { userRepository } =
+      getDependencies();
+
+    const userService =
+      new UserService(userRepository);
+
+    await userService.delete(
+      String(req.params.id)
+    );
+
+    return res.json({
+      success: true
+    });
   };
 }

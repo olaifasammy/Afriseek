@@ -1,5 +1,8 @@
 import { Router } from "express";
 import { AuthController } from "../controllers/AuthController";
+import { authRateLimiter } from "../middleware/authRateLimiter";
+import { validate } from "../middleware/validate";
+import { LoginSchema } from "../validation/authSchemas";
 
 const router = Router();
 
@@ -9,6 +12,6 @@ const controller = new AuthController();
 
 // Map POST requests to the controller logic
 router.post("/register", controller.register);
-router.post("/login", controller.login);
+router.post("/login", authRateLimiter, validate(LoginSchema), controller.login);
 
 export default router;

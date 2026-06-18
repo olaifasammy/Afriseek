@@ -117,8 +117,8 @@ export class EntityController {
           || "unknown"
         ),
         action: "create_entity",
-        targetType: "entity",
-        targetId: String(
+        entityType: "entity",
+        entityId: String(
           req.body.id
           || "unknown"
         ),
@@ -184,8 +184,8 @@ export class EntityController {
           || "unknown"
         ),
         action: "update_entity",
-        targetType: "entity",
-        targetId: id,
+        entityType: "entity",
+        entityId: id,
         timestamp:
           new Date().toISOString()
       });
@@ -236,8 +236,8 @@ export class EntityController {
           || "unknown"
         ),
         action: "delete_entity",
-        targetType: "entity",
-        targetId: id,
+        entityType: "entity",
+        entityId: id,
         timestamp:
           new Date().toISOString()
       });

@@ -1,18 +1,18 @@
-import { getSupabase } from "../config/supabase";
+import { getDatabase } from "../config/supabase";
 import { EntityRepository } from "./EntityRepository";
 import { AfriseekEntity } from "../types/entity";
 import { Relationship } from "../types/relationship";
 
 export class SupabaseEntityRepository implements EntityRepository {
   private getClient() { 
-    return getSupabase(); 
+    return getDatabase(); 
   }
 
   /**
    * Hydrates an entity with its structural graph relationships
    */
   async findById(id: string): Promise<AfriseekEntity | null> {
-    const client = this.getClient();
+    const client = this.getClient() as any;
 
     // 1. Fetch core entity details
     const { data: entity, error: entityError } = await client
@@ -29,7 +29,7 @@ export class SupabaseEntityRepository implements EntityRepository {
       .select("relationship_type, target_id, strength, weight, description")
       .eq("source_id", id);
 
-    const relationships: Relationship[] = relError || !relations ? [] : relations.map(r => ({
+    const relationships: Relationship[] = relError || !relations ? [] : relations.map((r: any) => ({
       type: r.relationship_type,
       targetId: r.target_id,
       strength: r.strength,
@@ -62,7 +62,7 @@ export class SupabaseEntityRepository implements EntityRepository {
   }
 
   async findBySlug(slug: string): Promise<AfriseekEntity | null> {
-    const client = this.getClient();
+    const client = this.getClient() as any;
     const { data, error } = await client
       .from("entities")
       .select("id")
@@ -77,7 +77,7 @@ export class SupabaseEntityRepository implements EntityRepository {
    * Prevents full-table memory pollution. Replaces full system loads with light streaming keys.
    */
   async findAll(): Promise<AfriseekEntity[]> {
-    const client = this.getClient();
+    const client = this.getClient() as any;
     const { data, error } = await client
       .from("entities")
       .select("id");
@@ -85,12 +85,12 @@ export class SupabaseEntityRepository implements EntityRepository {
     if (error || !data) return [];
     
     // Resolve entities safely. For heavy production pipelines, this will use paginated streams.
-    const results = await Promise.all(data.map(item => this.findById(item.id)));
+    const results = await Promise.all(data.map((item: any) => this.findById(item.id)));
     return results.filter((e): e is AfriseekEntity => e !== null);
   }
 
   async create(entity: AfriseekEntity): Promise<void> {
-    const client = this.getClient();
+    const client = this.getClient() as any;
 
     // 1. Persist Normalized Node
     const { error: entityError } = await client.from("entities").insert({
@@ -127,7 +127,7 @@ export class SupabaseEntityRepository implements EntityRepository {
   }
 
   async update(entity: AfriseekEntity): Promise<void> {
-    const client = this.getClient();
+    const client = this.getClient() as any;
 
     const { error } = await client
       .from("entities")

@@ -1,13 +1,15 @@
-import { createClient }
-from "@supabase/supabase-js";
-
-import dotenv
-from "dotenv";
+import { createClient } from "@supabase/supabase-js";
+import dotenv from "dotenv";
 
 dotenv.config();
 
-export function
-getSupabase() {
+let client: ReturnType<typeof createClient> | null = null;
+
+export function getDatabase() {
+
+  if (client) {
+    return client;
+  }
 
   const url =
     process.env.SUPABASE_URL;
@@ -16,14 +18,16 @@ getSupabase() {
     process.env.SUPABASE_ANON_KEY;
 
   if (!url || !key) {
-
     throw new Error(
-      "Supabase configuration missing"
+      "Database configuration missing"
     );
   }
 
-  return createClient(
-    url,
-    key
-  );
+  client =
+    createClient(
+      url,
+      key
+    );
+
+  return client;
 }

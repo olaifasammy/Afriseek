@@ -17,4 +17,41 @@ router.get(
   controller.getAllUsers
 );
 
+router.get(
+  "/:id",
+  requireAuth,
+  requireRole(
+    UserRole.HEAD_ADMIN,
+    UserRole.ADMIN
+  ),
+  controller.getUserById
+);
+
+router.patch(
+  "/:id/role",
+  requireAuth,
+  requireRole(
+    UserRole.HEAD_ADMIN
+  ),
+  controller.updateRole
+);
+
+router.patch(
+  "/:id/active",
+  requireAuth,
+  requireRole(
+    UserRole.HEAD_ADMIN
+  ),
+  controller.updateActive
+);
+
+router.delete(
+  "/:id",
+  requireAuth,
+  requireRole(
+    UserRole.HEAD_ADMIN
+  ),
+  controller.deleteUser
+);
+
 export default router;

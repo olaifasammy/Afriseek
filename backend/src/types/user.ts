@@ -13,9 +13,7 @@ export interface User {
 
   role: UserRole;
 
-  secretKeyHash?: string;
 
-  secretKeyVerified: boolean;
 
   active: boolean;
 

@@ -1,11 +1,11 @@
 import { ArticleService }
 from "../services/ArticleService";
 
-import { InMemoryArticleRepository }
-from "../repositories/InMemoryArticleRepository";
+import { DatabaseArticleRepository }
+from "../repositories/DatabaseArticleRepository";
 
 const repository =
-  new InMemoryArticleRepository();
+  new DatabaseArticleRepository();
 
 const service =
   new ArticleService(

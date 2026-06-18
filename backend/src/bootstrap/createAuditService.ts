@@ -1,11 +1,11 @@
 import { AuditService }
 from "../services/AuditService";
 
-import { InMemoryAuditRepository }
-from "../repositories/InMemoryAuditRepository";
+import { AuditStoreRepository }
+from "../repositories/AuditStoreRepository";
 
 const repository =
-  new InMemoryAuditRepository();
+  new AuditStoreRepository();
 
 const service =
   new AuditService(

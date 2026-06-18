@@ -1,7 +1,13 @@
-export const AUTH_CONFIG = {
-  jwtSecret:
-    process.env.JWT_SECRET ||
-    "CHANGE_THIS_IN_PRODUCTION",
+const jwtSecret =
+  process.env.JWT_SECRET;
 
-  accessTokenExpiresIn: "7d" as const
+if (!jwtSecret) {
+  throw new Error(
+    "JWT_SECRET missing"
+  );
+}
+
+export const AUTH_CONFIG = {
+  jwtSecret,
+  accessTokenExpiresIn: "15m" as const
 };

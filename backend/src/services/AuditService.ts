@@ -1,12 +1,11 @@
 import { AuditLog } from "../types/audit";
-import { InMemoryAuditRepository }
-from "../repositories/InMemoryAuditRepository";
+import { AuditRepository } from "../repositories/AuditRepository";
 
 export class AuditService {
 
   constructor(
     private repository:
-      InMemoryAuditRepository
+      AuditRepository
   ) {}
 
   async log(

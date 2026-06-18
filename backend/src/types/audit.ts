@@ -1,14 +1,13 @@
 export interface AuditLog {
-
   id: string;
 
   actorId: string;
 
   action: string;
 
-  targetType: string;
+  entityType: string;
 
-  targetId: string;
+  entityId: string;
 
   timestamp: string;
 

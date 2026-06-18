@@ -14,14 +14,11 @@ implements UserRepository {
 
       email: "admin@afriseek.local",
 
-      passwordHash: "admin123",
+      passwordHash: "$2b$12$f2lPCaCE9eLmgrcdmOwXG.n2lkbK8.knBj334SyFOV7myPOoIyw2q",
 
       role: UserRole.HEAD_ADMIN,
 
-      secretKeyVerified: false,
       
-      secretKeyHash:
-      "AFRISEEK-MASTER-001",
       
       active: true,
 

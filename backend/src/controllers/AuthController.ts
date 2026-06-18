@@ -32,7 +32,6 @@ export class AuthController {
         email,
         passwordHash,
         role: "user" as UserRole, // Default role
-        secretKeyVerified: false,
         active: true,
         metadata: {
           createdAt: new Date().toISOString(),
@@ -66,18 +65,20 @@ export class AuthController {
 
       // 1. Fetch user from Supabase
       const user = await userRepository.findByEmail(email);
+      console.log("LOGIN_USER", user);
       if (!user) {
         return res.status(401).json({ success: false, message: "Invalid credentials." });
       }
 
       // 2. Constant-time secure verification
       const isValid = await passwordService.verify(password, user.passwordHash);
+      console.log("PASSWORD_VALID", isValid);
       if (!isValid) {
         return res.status(401).json({ success: false, message: "Invalid credentials." });
       }
 
       // 3. Strip sensitive data before sending back to the client
-      const { passwordHash, secretKeyHash, ...safeUser } = user;
+      const { passwordHash, ...safeUser } = user;
 
         const jwtService =
   new JwtService();

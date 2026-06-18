@@ -1,4 +1,5 @@
 import express from "express";
+import helmet from "helmet";
 import { initializeDependencies } from "./config/dependencies";
 import { ontologyService }
 from "./modules/ontology/OntologyService";
@@ -8,19 +9,24 @@ import entityRoutes from "./routes/entityRoutes";
 import graphRoutes from "./routes/graphRoutes";
 import userRoutes from "./routes/userRoutes";
 import authRoutes from "./routes/authRoutes";
-import secretKeyRoutes from "./routes/secretKeyRoutes";
 import auditRoutes from "./routes/auditRoutes";
+import settingsRoutes from "./routes/settingsRoutes";
 import articleRoutes from "./routes/articleRoutes";
 import searchRoutes from "./routes/searchRoutes";
 import contextRoutes from "./routes/contextRoutes";
 import eventRoutes from "./routes/eventRoutes";
 import ontologyRoutes from "./routes/ontologyRoutes";
+import dashboardRoutes from "./routes/dashboardRoutes";
+import timelineRoutes from "./routes/timelineRoutes";
+import relationshipRoutes from "./routes/relationshipRoutes";
 
 /**
  * Orchestrates the secure asynchronous bootstrap sequence of the Afriseek application engine.
  */
 async function bootstrap() {
   const app = express();
+
+  app.use(helmet());
   
   // Honor runtime hosting environments (e.g., Docker, Render, VPS) while preserving local 3000 fallback
   const PORT = process.env.PORT || 3000;
@@ -31,6 +37,7 @@ async function bootstrap() {
   // =========================================================================
   try {
     initializeDependencies();
+
     await ontologyService.load();
     console.log("⚡ [Afriseek Engine]: Graph & Auth relational repositories securely bound to Supabase.");
   } catch (error) {
@@ -60,10 +67,14 @@ async function bootstrap() {
   // =========================================================================
   app.use("/api/entities", entityRoutes);
   app.use("/api/graph", graphRoutes);
+  app.use("/api/relationships", relationshipRoutes);
   app.use("/api/users", userRoutes);
   app.use("/api/auth", authRoutes);
-  app.use("/api/secret-key", secretKeyRoutes);
   app.use("/api/audit", auditRoutes);
+  app.use("/api/dashboard", dashboardRoutes);
+  app.use("/api/timeline", timelineRoutes);
+
+  app.use("/api/settings", settingsRoutes);
   app.use("/api/articles", articleRoutes);
   app.use("/api/search", searchRoutes);
   app.use("/api/context", contextRoutes);

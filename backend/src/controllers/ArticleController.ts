@@ -77,10 +77,10 @@ export class ArticleController {
       action:
         "create_article",
 
-      targetType:
+      entityType:
         "article",
 
-      targetId:
+      entityId:
         String(
           req.body.id
         ),
@@ -153,10 +153,10 @@ export class ArticleController {
       action:
         "update_article",
 
-      targetType:
+      entityType:
         "article",
 
-      targetId:
+      entityId:
         article.id,
 
       timestamp:

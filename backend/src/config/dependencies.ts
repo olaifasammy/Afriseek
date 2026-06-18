@@ -1,6 +1,6 @@
 import { createEntityRepository } from "../bootstrap/createEntityRepository";
-import { SeedUserRepository } from "../repositories/SeedUserRepository";
-import { PasswordService } from "../services/PasswordService";
+import { createUserRepository } from "../bootstrap/createUserRepository";
+import { PasswordService } from "../modules/auth/PasswordService";
 import { EntityRepository } from "../repositories/EntityRepository";
 import { UserRepository } from "../repositories/UserRepository";
 
@@ -17,10 +17,11 @@ export function initializeDependencies(): AppDependencies {
     return container;
   }
 
-  const entityRepository = createEntityRepository();
+  const entityRepository =
+    createEntityRepository();
 
   const userRepository =
-    new SeedUserRepository();
+    createUserRepository();
 
   const passwordService =
     new PasswordService();
