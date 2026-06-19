@@ -23,11 +23,16 @@ import relationshipRoutes from "./routes/relationshipRoutes";
 import studioRelationshipRoutes from "./routes/studioRelationshipRoutes";
 import studioValidationRuleRoutes from "./routes/studioValidationRuleRoutes";
 import studioOntologyAuditRoutes from "./routes/studioOntologyAuditRoutes";
+import studioOntologyDefinitionRoutes from "./routes/studioOntologyDefinitionRoutes";
 import studioOntologyTestingRoutes from "./routes/studioOntologyTestingRoutes";
 import studioRequiredRelationshipRoutes from "./routes/studioRequiredRelationshipRoutes";
 import studioInverseRelationshipRoutes from "./routes/studioInverseRelationshipRoutes";
 import studioOntologyVersioningRoutes from "./routes/studioOntologyVersioningRoutes";
 import studioGraphIntegrityRoutes from "./routes/studioGraphIntegrityRoutes";
+import studioOrphanEntityRoutes from "./routes/studioOrphanEntityRoutes";
+import studioBrokenLinkRoutes from "./routes/studioBrokenLinkRoutes";
+import studioDuplicateNodeRoutes from "./routes/studioDuplicateNodeRoutes";
+import studioGraphMetricsRoutes from "./routes/studioGraphMetricsRoutes";
 import studioMetadataDefinitionRoutes from "./routes/studioMetadataDefinitionRoutes";
 import studioRequiredFieldRoutes from "./routes/studioRequiredFieldRoutes";
 
@@ -72,12 +77,17 @@ async function bootstrap() {
 
   app.use("/api/studio/relationships", studioRelationshipRoutes);
   app.use("/api/studio/validation-rules", studioValidationRuleRoutes);
+  app.use("/api/studio/ontology-definitions", studioOntologyDefinitionRoutes);
   app.use("/api/studio/ontology-audit", studioOntologyAuditRoutes);
   app.use("/api/studio/ontology-testing", studioOntologyTestingRoutes);
   app.use("/api/studio/required-relationships", studioRequiredRelationshipRoutes);
   app.use("/api/studio/inverse-relationships", studioInverseRelationshipRoutes);
   app.use("/api/studio/ontology-versioning", studioOntologyVersioningRoutes);
   app.use("/api/studio/graph-integrity", studioGraphIntegrityRoutes);
+  app.use("/api/studio/orphan-entities", studioOrphanEntityRoutes);
+  app.use("/api/studio/broken-links", studioBrokenLinkRoutes);
+  app.use("/api/studio/duplicate-nodes", studioDuplicateNodeRoutes);
+  app.use("/api/studio/graph-metrics", studioGraphMetricsRoutes);
   app.use("/api/studio/metadata-definitions", studioMetadataDefinitionRoutes);
   app.use("/api/studio/required-fields", studioRequiredFieldRoutes);
 

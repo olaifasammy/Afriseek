@@ -1,15 +1,14 @@
 import { Request, Response } from "express";
 
 import { getDependencies } from "../config/dependencies";
-import { ValidationRuleService } from "../services/ValidationRuleService";
-import { ValidationRuleRecord } from "../types/studio/ValidationRuleRecord";
+import { OntologyDefinitionService } from "../services/OntologyDefinitionService";
 
-export class StudioValidationRuleController {
+export class StudioOntologyDefinitionController {
 
   private service =
-    new ValidationRuleService(
+    new OntologyDefinitionService(
       getDependencies()
-        .validationRuleRepository
+        .ontologyDefinitionRepository
     );
 
   getAll = async (
@@ -23,16 +22,39 @@ export class StudioValidationRuleController {
     });
   };
 
-  create = async (
+  getByEntityType = async (
     req: Request,
     res: Response
   ) => {
 
     const record =
-      req.body as ValidationRuleRecord;
+      await this.service.getByEntityType(
+        String(
+          req.params.entityType
+        )
+      );
+
+    if (!record) {
+
+      return res.status(404).json({
+        success: false,
+        message: "Ontology not found"
+      });
+    }
+
+    return res.json({
+      success: true,
+      data: record
+    });
+  };
+
+  create = async (
+    req: Request,
+    res: Response
+  ) => {
 
     await this.service.create(
-      record
+      req.body
     );
 
     return res.status(201).json({
@@ -45,14 +67,8 @@ export class StudioValidationRuleController {
     res: Response
   ) => {
 
-    const record =
-      {
-        ...req.body,
-        id: String(req.params.id)
-      } as ValidationRuleRecord;
-
     await this.service.update(
-      record
+      req.body
     );
 
     return res.json({

@@ -1,3 +1,4 @@
+import { MetadataDefinitionRecord } from "../types/studio/MetadataDefinitionRecord";
 import { ontologyRegistry } from "../modules/ontology/OntologyRegistry";
 
 export class MetadataDefinitionService {
@@ -6,10 +7,12 @@ export class MetadataDefinitionService {
 
     return ontologyRegistry
       .getAll()
-      .map(ontology => ({
-        entityType: ontology.entityType,
-        metadata: ontology.metadata || []
-      }));
+      .map(
+        ontology => ({
+          entityType: ontology.entityType,
+          metadata: ontology.metadata ?? []
+        })
+      );
   }
 
   getByEntityType(
@@ -17,7 +20,9 @@ export class MetadataDefinitionService {
   ) {
 
     const ontology =
-      ontologyRegistry.get(entityType);
+      ontologyRegistry.get(
+        entityType
+      );
 
     if (!ontology) {
       return null;
@@ -25,7 +30,34 @@ export class MetadataDefinitionService {
 
     return {
       entityType: ontology.entityType,
-      metadata: ontology.metadata || []
+      metadata: ontology.metadata ?? []
     };
+  }
+
+  async create(
+    _record: MetadataDefinitionRecord
+  ): Promise<void> {
+
+    throw new Error(
+      "Metadata definition persistence not wired yet"
+    );
+  }
+
+  async update(
+    _record: MetadataDefinitionRecord
+  ): Promise<void> {
+
+    throw new Error(
+      "Metadata definition persistence not wired yet"
+    );
+  }
+
+  async delete(
+    _id: string
+  ): Promise<void> {
+
+    throw new Error(
+      "Metadata definition persistence not wired yet"
+    );
   }
 }

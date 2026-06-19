@@ -2,6 +2,7 @@ import { createEntityRepository } from "../bootstrap/createEntityRepository";
 import { createUserRepository } from "../bootstrap/createUserRepository";
 import { createRelationshipTypeRepository } from "../bootstrap/createRelationshipTypeRepository";
 import { createValidationRuleRepository } from "../bootstrap/createValidationRuleRepository";
+import { createOntologyDefinitionRepository } from "../bootstrap/createOntologyDefinitionRepository";
 
 import { PasswordService } from "../modules/auth/PasswordService";
 
@@ -10,6 +11,7 @@ import { UserRepository } from "../repositories/UserRepository";
 
 import { RelationshipTypeRepository } from "../repositories/ontology/RelationshipTypeRepository";
 import { ValidationRuleRepository } from "../repositories/ontology/ValidationRuleRepository";
+import { OntologyDefinitionRepository } from "../repositories/ontology/OntologyDefinitionRepository";
 
 export interface AppDependencies {
   entityRepository: EntityRepository;
@@ -21,6 +23,9 @@ export interface AppDependencies {
 
   validationRuleRepository:
     ValidationRuleRepository;
+
+  ontologyDefinitionRepository:
+    OntologyDefinitionRepository;
 
   passwordService: PasswordService;
 }
@@ -47,6 +52,9 @@ export function initializeDependencies():
   const validationRuleRepository =
     createValidationRuleRepository();
 
+  const ontologyDefinitionRepository =
+    createOntologyDefinitionRepository();
+
   const passwordService =
     new PasswordService();
 
@@ -55,6 +63,7 @@ export function initializeDependencies():
     userRepository,
     relationshipTypeRepository,
     validationRuleRepository,
+    ontologyDefinitionRepository,
     passwordService
   };
 

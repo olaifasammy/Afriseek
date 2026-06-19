@@ -3,24 +3,32 @@ import { StudioMetadataDefinitionController } from "../controllers/StudioMetadat
 
 const router = Router();
 
-router.get("/", async (req, res) => {
-  const controller =
-    new StudioMetadataDefinitionController();
+const controller =
+  new StudioMetadataDefinitionController();
 
-  return controller.getAll(
-    req,
-    res
-  );
-});
+router.get(
+  "/",
+  controller.getAll
+);
 
-router.get("/:entityType", async (req, res) => {
-  const controller =
-    new StudioMetadataDefinitionController();
+router.get(
+  "/:entityType",
+  controller.getByEntityType
+);
 
-  return controller.getByEntityType(
-    req,
-    res
-  );
-});
+router.post(
+  "/",
+  controller.create
+);
+
+router.put(
+  "/",
+  controller.update
+);
+
+router.delete(
+  "/:id",
+  controller.delete
+);
 
 export default router;

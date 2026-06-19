@@ -1,5 +1,4 @@
 import { Request, Response } from "express";
-
 import { getDependencies } from "../config/dependencies";
 import { RelationshipTypeService } from "../services/RelationshipTypeService";
 
@@ -35,14 +34,55 @@ export class StudioRelationshipController {
     if (!record) {
       return res.status(404).json({
         success: false,
-        message:
-          "Relationship type not found"
+        message: "Relationship type not found"
       });
     }
 
     return res.json({
       success: true,
       data: record
+    });
+  };
+
+  create = async (
+    req: Request,
+    res: Response
+  ) => {
+
+    await this.service.create(
+      req.body
+    );
+
+    return res.status(201).json({
+      success: true
+    });
+  };
+
+  update = async (
+    req: Request,
+    res: Response
+  ) => {
+
+    await this.service.update(
+      req.body
+    );
+
+    return res.json({
+      success: true
+    });
+  };
+
+  delete = async (
+    req: Request,
+    res: Response
+  ) => {
+
+    await this.service.delete(
+      String(req.params.id)
+    );
+
+    return res.json({
+      success: true
     });
   };
 }

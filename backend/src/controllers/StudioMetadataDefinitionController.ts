@@ -1,24 +1,19 @@
 import { Request, Response } from "express";
-import { ontologyRegistry } from "../modules/ontology/OntologyRegistry";
+import { MetadataDefinitionService } from "../services/MetadataDefinitionService";
 
 export class StudioMetadataDefinitionController {
+
+  private service =
+    new MetadataDefinitionService();
 
   getAll = async (
     _req: Request,
     res: Response
   ) => {
 
-    const ontologies =
-      ontologyRegistry.getAll();
-
     return res.json({
       success: true,
-      data: ontologies.map(
-        ontology => ({
-          entityType: ontology.entityType,
-          metadata: ontology.metadata ?? []
-        })
-      )
+      data: this.service.getAll()
     });
   };
 
@@ -27,13 +22,14 @@ export class StudioMetadataDefinitionController {
     res: Response
   ) => {
 
-    const entityType =
-      String(req.params.entityType);
+    const data =
+      this.service.getByEntityType(
+        String(
+          req.params.entityType
+        )
+      );
 
-    const ontology =
-      ontologyRegistry.get(entityType);
-
-    if (!ontology) {
+    if (!data) {
 
       return res.status(404).json({
         success: false,
@@ -43,10 +39,49 @@ export class StudioMetadataDefinitionController {
 
     return res.json({
       success: true,
-      data: {
-        entityType: ontology.entityType,
-        metadata: ontology.metadata ?? []
-      }
+      data
+    });
+  };
+
+  create = async (
+    req: Request,
+    res: Response
+  ) => {
+
+    await this.service.create(
+      req.body
+    );
+
+    return res.status(201).json({
+      success: true
+    });
+  };
+
+  update = async (
+    req: Request,
+    res: Response
+  ) => {
+
+    await this.service.update(
+      req.body
+    );
+
+    return res.json({
+      success: true
+    });
+  };
+
+  delete = async (
+    req: Request,
+    res: Response
+  ) => {
+
+    await this.service.delete(
+      String(req.params.id)
+    );
+
+    return res.json({
+      success: true
     });
   };
 }
