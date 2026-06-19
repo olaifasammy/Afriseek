@@ -3,7 +3,16 @@ import path from "path";
 import { OntologyDefinition } from "../../types/ontology/OntologyDefinition";
 
 export function loadOntologyDefinitions(): OntologyDefinition[] {
-  const root = path.resolve(process.cwd(), "src/ontology");
+  const isTsRuntime =
+  process.argv.some(arg => arg.includes("tsx")) ||
+  process.argv.some(arg => arg.includes("ts-node"));
+
+const root = path.resolve(
+  process.cwd(),
+  isTsRuntime ? "src/ontology" : "dist/ontology"
+);
+
+const extension = isTsRuntime ? ".ts" : ".js";
   const map = new Map<string, OntologyDefinition>();
 
   const walk = (dir: string): void => {
@@ -16,7 +25,7 @@ export function loadOntologyDefinitions(): OntologyDefinition[] {
         continue;
       }
 
-      if (!entry.name.endsWith(".ts")) continue;
+      if (!entry.name.endsWith(extension)) continue;
       if (entry.name.includes(".helper.")) continue;
       if (entry.name.startsWith("Abstract")) continue;
       if (entry.name.endsWith(".d.ts")) continue;
