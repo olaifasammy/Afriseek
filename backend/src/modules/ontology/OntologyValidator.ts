@@ -141,21 +141,26 @@ export class OntologyValidator {
       }
 
       if (
-        orders.has(
-          section.order
-        )
+        section.order !== undefined
       ) {
-        throw new Error(
-          `${definition.entityType}: duplicate section order '${section.order}'.`
+
+        if (
+          orders.has(
+            section.order
+          )
+        ) {
+          throw new Error(
+            `${definition.entityType}: duplicate section order '${section.order}'.`
+          );
+        }
+
+        orders.add(
+          section.order
         );
       }
 
       keys.add(
         section.key
-      );
-
-      orders.add(
-        section.order
       );
     }
   }

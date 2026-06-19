@@ -20,6 +20,16 @@ import ontologyRoutes from "./routes/ontologyRoutes";
 import dashboardRoutes from "./routes/dashboardRoutes";
 import timelineRoutes from "./routes/timelineRoutes";
 import relationshipRoutes from "./routes/relationshipRoutes";
+import studioRelationshipRoutes from "./routes/studioRelationshipRoutes";
+import studioValidationRuleRoutes from "./routes/studioValidationRuleRoutes";
+import studioOntologyAuditRoutes from "./routes/studioOntologyAuditRoutes";
+import studioOntologyTestingRoutes from "./routes/studioOntologyTestingRoutes";
+import studioRequiredRelationshipRoutes from "./routes/studioRequiredRelationshipRoutes";
+import studioInverseRelationshipRoutes from "./routes/studioInverseRelationshipRoutes";
+import studioOntologyVersioningRoutes from "./routes/studioOntologyVersioningRoutes";
+import studioGraphIntegrityRoutes from "./routes/studioGraphIntegrityRoutes";
+import studioMetadataDefinitionRoutes from "./routes/studioMetadataDefinitionRoutes";
+import studioRequiredFieldRoutes from "./routes/studioRequiredFieldRoutes";
 
 import { errorHandler } from "./middleware/errorHandler";
 
@@ -59,6 +69,17 @@ async function bootstrap() {
   app.use("/api/context", contextRoutes);
   app.use("/api/events", eventRoutes);
   app.use("/api/ontology", ontologyRoutes);
+
+  app.use("/api/studio/relationships", studioRelationshipRoutes);
+  app.use("/api/studio/validation-rules", studioValidationRuleRoutes);
+  app.use("/api/studio/ontology-audit", studioOntologyAuditRoutes);
+  app.use("/api/studio/ontology-testing", studioOntologyTestingRoutes);
+  app.use("/api/studio/required-relationships", studioRequiredRelationshipRoutes);
+  app.use("/api/studio/inverse-relationships", studioInverseRelationshipRoutes);
+  app.use("/api/studio/ontology-versioning", studioOntologyVersioningRoutes);
+  app.use("/api/studio/graph-integrity", studioGraphIntegrityRoutes);
+  app.use("/api/studio/metadata-definitions", studioMetadataDefinitionRoutes);
+  app.use("/api/studio/required-fields", studioRequiredFieldRoutes);
 
   app.use(errorHandler);
 

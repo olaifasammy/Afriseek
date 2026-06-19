@@ -4,13 +4,18 @@ import { SectionDefinition } from "./SectionDefinition";
 
 export interface OntologyDefinition {
   entityType: string;
+
   label: string;
+
   parentType?: string;
+
   domain: string;
+
   description?: string;
-  metadata: any[];
-  relationships: any[];
-  sections: any[];
+
+  metadata: MetadataDefinition[];
+
+  relationships: RelationshipDefinition[];
+
+  sections: SectionDefinition[];
 }
-
-
