@@ -1,4 +1,5 @@
 import { Request, Response } from "express";
+import { randomUUID } from "crypto";
 
 import { getDependencies } from "../config/dependencies";
 import { OntologyDefinitionService } from "../services/OntologyDefinitionService";
@@ -29,9 +30,7 @@ export class StudioOntologyDefinitionController {
 
     const record =
       await this.service.getByEntityType(
-        String(
-          req.params.entityType
-        )
+        String(req.params.entityType)
       );
 
     if (!record) {
@@ -53,9 +52,17 @@ export class StudioOntologyDefinitionController {
     res: Response
   ) => {
 
-    await this.service.create(
-      req.body
-    );
+    const now =
+      new Date().toISOString();
+
+    await this.service.create({
+      id: randomUUID(),
+      version: 1,
+      active: true,
+      createdAt: now,
+      updatedAt: now,
+      ...req.body
+    });
 
     return res.status(201).json({
       success: true
@@ -67,9 +74,11 @@ export class StudioOntologyDefinitionController {
     res: Response
   ) => {
 
-    await this.service.update(
-      req.body
-    );
+    await this.service.update({
+      ...req.body,
+      updatedAt:
+        new Date().toISOString()
+    });
 
     return res.json({
       success: true

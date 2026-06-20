@@ -30,6 +30,10 @@ export interface EntityMetadata {
   featured?: boolean;
 
   popularityScore?: number;
+
+  articleIds?: string[];
+
+  timelineIds?: string[];
 }
 
 export interface EntityMedia {

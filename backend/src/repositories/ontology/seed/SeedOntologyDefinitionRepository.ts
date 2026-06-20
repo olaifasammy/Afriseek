@@ -21,9 +21,8 @@ export class SeedOntologyDefinitionRepository
     Promise<OntologyDefinitionRecord | null> {
 
     return (
-      this.records.get(
-        entityType
-      ) ?? null
+      this.records.get(entityType)
+      ?? null
     );
   }
 
@@ -59,14 +58,9 @@ export class SeedOntologyDefinitionRepository
       of this.records.entries()
     ) {
 
-      if (
-        value.id === id
-      ) {
+      if (value.id === id) {
 
-        this.records.delete(
-          key
-        );
-
+        this.records.delete(key);
         return;
       }
     }

@@ -11,13 +11,9 @@ export interface OntologyDefinitionRecord {
 
   description?: string;
 
-  metadata: any[];
-
-  relationships: any[];
-
-  sections: any[];
-
   active: boolean;
+
+  version: number;
 
   createdAt: string;
 

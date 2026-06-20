@@ -8,17 +8,13 @@ export class OntologyDefinitionService {
       OntologyDefinitionRepository
   ) {}
 
-  async getAll():
-    Promise<OntologyDefinitionRecord[]> {
-
+  async getAll() {
     return this.repository.getAll();
   }
 
   async getByEntityType(
     entityType: string
-  ):
-    Promise<OntologyDefinitionRecord | null> {
-
+  ) {
     return this.repository.getByEntityType(
       entityType
     );
@@ -26,9 +22,7 @@ export class OntologyDefinitionService {
 
   async create(
     record: OntologyDefinitionRecord
-  ):
-    Promise<void> {
-
+  ) {
     await this.repository.create(
       record
     );
@@ -36,9 +30,7 @@ export class OntologyDefinitionService {
 
   async update(
     record: OntologyDefinitionRecord
-  ):
-    Promise<void> {
-
+  ) {
     await this.repository.update(
       record
     );
@@ -46,11 +38,7 @@ export class OntologyDefinitionService {
 
   async delete(
     id: string
-  ):
-    Promise<void> {
-
-    await this.repository.delete(
-      id
-    );
+  ) {
+    await this.repository.delete(id);
   }
 }

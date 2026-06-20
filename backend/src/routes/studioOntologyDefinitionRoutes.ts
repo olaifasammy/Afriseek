@@ -3,29 +3,29 @@ import { StudioOntologyDefinitionController } from "../controllers/StudioOntolog
 
 const router = Router();
 
-router.get("/", async (req, res) =>
+router.get("/", (req,res) =>
   new StudioOntologyDefinitionController()
-    .getAll(req, res)
+    .getAll(req,res)
 );
 
-router.get("/:entityType", async (req, res) =>
+router.get("/:entityType", (req,res) =>
   new StudioOntologyDefinitionController()
-    .getByEntityType(req, res)
+    .getByEntityType(req,res)
 );
 
-router.post("/", async (req, res) =>
+router.post("/", (req,res) =>
   new StudioOntologyDefinitionController()
-    .create(req, res)
+    .create(req,res)
 );
 
-router.put("/", async (req, res) =>
+router.put("/", (req,res) =>
   new StudioOntologyDefinitionController()
-    .update(req, res)
+    .update(req,res)
 );
 
-router.delete("/:id", async (req, res) =>
+router.delete("/:id", (req,res) =>
   new StudioOntologyDefinitionController()
-    .delete(req, res)
+    .delete(req,res)
 );
 
 export default router;
