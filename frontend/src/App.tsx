@@ -1,30 +1,42 @@
-import {
-  Routes,
-  Route
-} from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { useAuthStore } from './shared/store/authStore';
+import Home from './public/pages/Home';
+import Login from './public/pages/Login';
+import UserControlPanel from './public/pages/UserControlPanel';
+import SearchResults from './public/pages/SearchResults';
+import Dashboard from './admin/pages/Dashboard';
 
-import HomePage from "./pages/HomePage";
-import SearchPage from "./pages/SearchPage";
-import EntityPage from "./pages/EntityPage";
+// Simple Auth Guard
+const ProtectedRoute = ({ children, allowedRoles }: { children: JSX.Element, allowedRoles?: string[] }) => {
+  const { isAuthenticated, user } = useAuthStore();
+  
+  if (!isAuthenticated) return <Navigate to="/login" />;
+  if (allowedRoles && user && !allowedRoles.map(r => r.toUpperCase()).includes(user.role.toUpperCase())) return <Navigate to="/cp" />;
+  
+  return children;
+};
 
-export default function App() {
+export const App = () => {
   return (
-    <Routes>
-      <Route
-        path="/"
-        element={<HomePage />}
-      />
-
-      <Route
-        path="/search"
-        element={<SearchPage />}
-      />
-      
-      <Route path="/entity/:slug"
-  element={<EntityPage />}
-/>
-      
-      
-    </Routes>
+    <BrowserRouter>
+      <Routes>
+        <Route path="/" element={<Home />} />
+        <Route path="/search" element={<SearchResults />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/cp" element={
+          <ProtectedRoute>
+            <UserControlPanel />
+          </ProtectedRoute>
+        } />
+        <Route 
+          path="/admin" 
+          element={
+            <ProtectedRoute allowedRoles={['HEAD_ADMIN', 'ADMIN', 'EDITOR', 'RESEARCHER']}>
+              <Dashboard />
+            </ProtectedRoute>
+          } 
+        />
+      </Routes>
+    </BrowserRouter>
   );
-}
+};
