@@ -1,31 +1,18 @@
-import { Router } from "express";
-import { StudioOntologyDefinitionController } from "../controllers/StudioOntologyDefinitionController";
+import express from 'express';
+import { OntologyController } from '../modules/ontology/controller';
+import { requireAuth } from '../middleware/requireAuth';
+import { requireRole } from '../middleware/requireRole';
+import { UserRole } from '../types/role';
 
-const router = Router();
+const router = express.Router();
 
-router.get("/", (req,res) =>
-  new StudioOntologyDefinitionController()
-    .getAll(req,res)
-);
+// Publicly list ontologies (or you may want to require auth)
+router.get('/', OntologyController.list);
 
-router.get("/:entityType", (req,res) =>
-  new StudioOntologyDefinitionController()
-    .getByEntityType(req,res)
-);
-
-router.post("/", (req,res) =>
-  new StudioOntologyDefinitionController()
-    .create(req,res)
-);
-
-router.put("/", (req,res) =>
-  new StudioOntologyDefinitionController()
-    .update(req,res)
-);
-
-router.delete("/:id", (req,res) =>
-  new StudioOntologyDefinitionController()
-    .delete(req,res)
-);
+// Protected: Only HEAD_ADMIN can manage ontology definitions
+router.post('/', requireAuth, requireRole(UserRole.HEAD_ADMIN), OntologyController.create);
+router.post('/entity-types', requireAuth, requireRole(UserRole.HEAD_ADMIN), OntologyController.createEntityType);
+router.post('/properties', requireAuth, requireRole(UserRole.HEAD_ADMIN), OntologyController.createProperty);
+router.post('/relationships', requireAuth, requireRole(UserRole.HEAD_ADMIN), OntologyController.createRelationship);
 
 export default router;

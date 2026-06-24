@@ -34,7 +34,7 @@ export class DashboardService {
       await settingsRepo.get();
 
     const ontologies =
-      await ontologyRepo.findAll();
+      await ontologyRepo.getAll();
 
     return {
       users: users.length,

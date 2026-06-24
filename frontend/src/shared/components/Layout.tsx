@@ -32,7 +32,7 @@ export const Layout = ({ children, sidebarContent }: { children: React.ReactNode
       )}
       <aside className={`fixed top-0 left-0 h-full w-64 bg-brand-dark border-r border-white/10 z-50 transform transition-transform duration-300 ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}>
         <div className="p-4 flex justify-between items-center border-b border-white/10">
-          <span className="font-bold">Menu</span>
+          <span className="font-bold text-brand-gold">Administrator Dashboard</span>
           <button onClick={() => setIsSidebarOpen(false)}><X /></button>
         </div>
         {sidebarContent || (
@@ -44,7 +44,7 @@ export const Layout = ({ children, sidebarContent }: { children: React.ReactNode
       </aside>
 
       {/* Main Container */}
-      <main className="flex-1 p-8">
+      <main className="flex-1 p-4 md:p-8">
         {!isHome && <Breadcrumbs />}
         {children}
       </main>

@@ -1,19 +1,14 @@
 import { Router } from "express";
-import { OntologyController } from "../controllers/OntologyController";
+import { OntologyController } from "../modules/ontology/controller";
 
 const router = Router();
 
-const controller =
-  new OntologyController();
+const controller = OntologyController;
 
 router.get(
   "/",
-  controller.getAll
+  controller.list
 );
 
-router.get(
-  "/:entityType",
-  controller.getByType
-);
 
 export default router;
