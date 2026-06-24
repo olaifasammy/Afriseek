@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { EntityMediaService } from "../services/EntityMediaService";
+import { EntityMediaService } from "../../../services/EntityMediaService";
 
 export class StudioEntityMediaController {
 

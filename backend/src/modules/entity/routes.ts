@@ -2,6 +2,8 @@ import { Router } from "express";
 import { EntityController } from "./controller";
 import { requireAuth } from "../../middleware/requireAuth";
 import { requireRole } from "../../middleware/requireRole";
+import { validate } from "../../middleware/validate";
+import { CreateEntitySchema } from "../../validation/entity/entitySchemas";
 import { UserRole } from "../../types/role";
 
 const router = Router();
@@ -18,6 +20,7 @@ router.post(
     UserRole.ADMIN,
     UserRole.EDITOR
   ),
+  validate(CreateEntitySchema),
   controller.createEntity
 );
 

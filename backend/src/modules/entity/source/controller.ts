@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { EntitySourceService } from "../services/EntitySourceService";
+import { EntitySourceService } from "../../../services/EntitySourceService";
 
 export class StudioEntitySourceController {
 

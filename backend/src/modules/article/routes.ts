@@ -2,6 +2,8 @@ import { Router } from "express";
 import { ArticleController } from "./controller";
 import { requireAuth } from "../../middleware/requireAuth";
 import { requireRole } from "../../middleware/requireRole";
+import { validate } from "../../middleware/validate";
+import { CreateArticleSchema, UpdateArticleSchema } from "../../validation/article/articleSchemas";
 import { UserRole } from "../../types/role";
 
 const router = Router();
@@ -18,6 +20,7 @@ router.post(
     UserRole.ADMIN,
     UserRole.EDITOR
   ),
+  validate(CreateArticleSchema),
   controller.createArticle
 );
 
@@ -29,6 +32,7 @@ router.put(
     UserRole.ADMIN,
     UserRole.EDITOR
   ),
+  validate(UpdateArticleSchema),
   controller.updateArticle
 );
 

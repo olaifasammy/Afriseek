@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { StudioEntityDashboardController } from "../controllers/StudioEntityDashboardController";
+import { StudioEntityDashboardController } from "./controller";
 
 const router = Router();
 

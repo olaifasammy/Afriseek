@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { StudioEntityMediaController } from "../controllers/StudioEntityMediaController";
+import { StudioEntityMediaController } from "./controller";
 
 const router = Router();
 const controller = new StudioEntityMediaController();

@@ -1,0 +1,48 @@
+You are an expert Frontend Engineer. Your task is to generate the complete code for the AfriSeek Studio Main Admin Dashboard by referencing the layout, density, and styling of the mockup image at @frontend/public/images/Maindashboardview.png.
+
+CRITICAL PRINCIPLES:
+1. DO NOT SIMPLIFY. Do not combine sections, drop elements, skip columns, or use placeholder comments (like "// items go here"). Every card, item, progress bar, line graph node, and layout line must be explicitly coded.
+2. STYLING FRAMEWORK: Use Tailwind CSS utility classes exclusively. Implement accurate padding, margins, subtle transitions, absolute positioning, flexbox structures, and asymmetrical grid frameworks.
+3. ICONOGRAPHY & CHARTS: Use 'lucide-react' for all UI icons. Use 'recharts' to implement the data charts.
+
+--- DESIGN TOKENS ---
+Use these exact hex codes for matching the exact visual style in the mockup image:
+• Base App Canvas Background: bg-[#0B0F17]
+• Grid Cards & Panel Backgrounds: bg-[#121824]
+• Fine Borders / Dividers: border-slate-800/70
+• Left Navigation Sidebar Panel Background: bg-[#0D111C]
+• Text Contrast: Primary (text-slate-100), Secondary (text-slate-400), Muted Labels (text-slate-500)
+• Metric Highlights: 
+  - Entities (Purple: #A855F7)
+  - Relationships (Blue: #3B82F6)
+  - Articles (Green: #22C55E)
+  - Sources (Amber: #F59E0B)
+
+--- SYSTEM IMPLEMENTATION GUIDE ---
+Create the dashboard as a modular set of inline sub-components inside a single master file, or write them out as distinct files if necessary. The structure must be laid out as follows:
+
+1. MASTER LAYOUT MATRIX:
+• Main outer wrapper container: a full-width viewport flex container with bg-[#0B0F17] min-h-screen text-slate-100.
+• Left Sidebar Column: fixed width 'w-64 h-screen', styled with bg-[#0D111C]. It must list every hierarchical group ('MAIN', 'KNOWLEDGE', 'CONTENT', 'GOVERNANCE', 'ANALYTICS', 'OPERATIONS') with matching Lucide icons, explicit indent spaces for sub-nodes, active element highlights, and a footer 'Collapse' chevron controller.
+• Right Main Workspace Viewport: 'flex-1 pl-64 overflow-y-auto min-h-screen flex flex-col'.
+
+2. HEADER SYSTEM ROW:
+• Left flex group: Welcome title string "Welcome back, Samuel 👋" followed by small muted description text "Here's what's happening with your knowledge base today."
+• Right flex group: A stylized date filter dropdown capsule button displaying "May 20 - May 27, 2025" with a trailing dropdown chevron arrow. Include an inline user status cluster with user thumbnail image, notifications badge, search, and search shortcut ("Ctrl + K").
+
+3. SUB-GRID SYSTEM SPLIT (Main Body Area):
+Split the remaining page layout space into a 2-column flex or grid layout block:
+• LEFT SECTION BLOCK (Takes up ~75% width):
+  A. METRICS GRID: An explicit 4-column wide grid displaying all 8 structural status blocks from the mockup (Total Entities, Relationships, Articles, Sources, Users, Active Sessions, System Health, Pending Tasks). Each card must contain its colored background icon-badge square container, large prominent statistics string value, and a small bottom metadata string showing weekly trend changes (+ or - values) matching its respective highlight theme color.
+  B. ANALYTICS ROW: A 2-column wide layout grid block.
+     - Card 1 (Knowledge Graph Overview): Left component containing an interconnected interactive node-dot-line SVG visualization structure showing multicolored entity clusters.
+     - Card 2 (Knowledge Growth): Right component containing a multi-line charting graph using Recharts ('LineChart') mapping four colored trend lines (Purple, Blue, Green, Amber) across dates (May 1 to May 27).
+  C. RECENT ENTITIES TABLE: A clean semantic responsive table layout showing data fields (Entity, Type, Status, Quality, Updated By, Updated At). Ensure Status pills use low-opacity colored background blocks (e.g., bg-green-950/40 text-green-400 for Verified). Ensure Quality values contain custom inline visual loading bars tracking exact percentage progress.
+
+• RIGHT RAIL COLUMN BLOCK (Takes up ~25% width):
+  A. SYSTEM HEALTH PANEL: Top card hosting a centered large circular concentric tracking circle with an inner value string displaying "98%".
+  B. RECENT ACTIVITY LIST: Middle card compiling a sequential timeline vertical list of timeline item updates. Each item must show its colored status badge icon, bold custom name text description, subtext modifier, and an absolute right aligned temporal indicator label (e.g., '2m ago', '15m ago').
+  C. QUICK ACTIONS PANEL: Bottom card rendering a 2x2 grid containing square clickable button boxes ('Create Entity', 'Add Article', 'Upload Media', 'Import Data') complete with centermost prominent layout tracking icons.
+
+Please write out the full high-fidelity frontend component implementation code matching this complete layout description without cutting corners or dropping elements.
+

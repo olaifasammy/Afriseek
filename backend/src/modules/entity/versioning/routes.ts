@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { StudioEntityVersioningController } from "../controllers/StudioEntityVersioningController";
+import { StudioEntityVersioningController } from "./controller";
 
 const router = Router();
 

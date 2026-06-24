@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { EntityDuplicateDetectionService } from "../../services/entity/EntityDuplicateDetectionService";
+import { EntityDuplicateDetectionService } from "../../../services/entity/EntityDuplicateDetectionService";
 
 export class StudioEntityDuplicateController {
 

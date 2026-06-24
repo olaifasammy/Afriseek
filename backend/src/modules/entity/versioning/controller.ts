@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
 
 import { EntityVersioningService }
-from "../services/EntityVersioningService";
+from "../../../services/EntityVersioningService";
 
 export class StudioEntityVersioningController {
 

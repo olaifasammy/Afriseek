@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { EntityTraitService } from "../services/EntityTraitService";
+import { EntityTraitService } from "../../../services/EntityTraitService";
 
 export class StudioEntityTraitController {
 

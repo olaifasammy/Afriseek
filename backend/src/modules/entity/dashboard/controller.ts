@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { EntityDashboardService } from "../services/EntityDashboardService";
+import { EntityDashboardService } from "../../../services/EntityDashboardService";
 
 export class StudioEntityDashboardController {
 

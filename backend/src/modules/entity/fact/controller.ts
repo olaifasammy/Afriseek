@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { EntityFactService } from "../services/EntityFactService";
+import { EntityFactService } from "../../../services/EntityFactService";
 
 export class StudioEntityFactController {
 
