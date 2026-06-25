@@ -9,7 +9,7 @@ export const AuthController = {
   register: async (req: Request, res: Response) => {
     try {
       const { username, email, password } = req.body;
-      const { userRepository, passwordService } = getDependencies();
+      const { userRepository, passwordService, emailService } = getDependencies();
 
       if (!username || !email || !password) {
         return res.status(400).json({ success: false, message: "Username, email, and password are required." });
@@ -29,6 +29,7 @@ export const AuthController = {
         passwordHash,
         role: "user" as UserRole,
         active: true,
+        isEmailVerified: false,
         metadata: {
           createdAt: new Date().toISOString(),
           updatedAt: new Date().toISOString()
@@ -36,10 +37,13 @@ export const AuthController = {
       };
 
       await userRepository.create(newUser);
+      
+      // Send verification email
+      await emailService.sendVerificationEmail(newUser.id, newUser.email);
 
       return res.status(201).json({ 
         success: true, 
-        message: "User registered successfully.",
+        message: "User registered successfully. Please check your email to verify your account.",
         userId: newUser.id 
       });
 
@@ -68,6 +72,10 @@ export const AuthController = {
         return res.status(401).json({ success: false, message: "Invalid credentials." });
       }
 
+      if (!user.isEmailVerified) {
+        return res.status(403).json({ success: false, message: "Please verify your email address before logging in." });
+      }
+
       const { passwordHash, ...safeUser } = user;
       const jwtService = new JwtService();
       const token = jwtService.generateToken({
@@ -85,6 +93,28 @@ export const AuthController = {
     } catch (error) {
       logger.error({ error }, "❌ Login Error");
       return res.status(500).json({ success: false, message: "Internal server error during login." });
+    }
+  },
+
+  verifyEmail: async (req: Request, res: Response) => {
+    try {
+      const { token } = req.query;
+      if (!token || typeof token !== "string") {
+        return res.status(400).json({ success: false, message: "Invalid or missing token." });
+      }
+
+      const { emailService } = getDependencies();
+      const verified = await emailService.verifyEmail(token);
+
+      if (!verified) {
+        return res.status(400).json({ success: false, message: "Verification failed. The link may have expired or is invalid." });
+      }
+
+      return res.json({ success: true, message: "Email verified successfully. You can now log in." });
+
+    } catch (error) {
+      logger.error({ error }, "❌ Email Verification Error");
+      return res.status(500).json({ success: false, message: "Internal server error during email verification." });
     }
   }
 };

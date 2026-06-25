@@ -1,4 +1,4 @@
-import { EntityRepository } from "../repositories/EntityRepository";
+import { EntityRepository } from "../core/repositories/EntityRepository";
 import { AfriseekEntity } from "../types/entity";
 
 export class EntityService {

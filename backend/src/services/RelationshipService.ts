@@ -1,5 +1,5 @@
 import { Relationship } from "../types/relationship";
-import { RelationshipRepository } from "../repositories/RelationshipRepository";
+import { RelationshipRepository } from "../core/repositories/RelationshipRepository";
 
 export class RelationshipService {
   constructor(

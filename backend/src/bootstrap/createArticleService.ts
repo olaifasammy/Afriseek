@@ -1,11 +1,10 @@
 import { ArticleService }
 from "../services/ArticleService";
 
-import { DatabaseArticleRepository }
-from "../repositories/DatabaseArticleRepository";
+import { SupabaseArticleRepository } from "../infrastructure/repositories/supabase/SupabaseArticleRepository";
 
 const repository =
-  new DatabaseArticleRepository();
+  new SupabaseArticleRepository();
 
 const service =
   new ArticleService(

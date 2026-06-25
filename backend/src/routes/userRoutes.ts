@@ -3,6 +3,8 @@ import { UserController } from "../controllers/UserController";
 import { requireAuth } from "../middleware/requireAuth";
 import { requireRole } from "../middleware/requireRole";
 import { UserRole } from "../types/role";
+import { validate } from "../middleware/validate";
+import { UpdateUserSchema } from "../validation/user/userSchemas";
 
 const router = Router();
 const controller = new UserController();
@@ -33,6 +35,7 @@ router.patch(
   requireRole(
     UserRole.HEAD_ADMIN
   ),
+  validate(UpdateUserSchema),
   controller.updateRole
 );
 
@@ -42,6 +45,7 @@ router.patch(
   requireRole(
     UserRole.HEAD_ADMIN
   ),
+  validate(UpdateUserSchema),
   controller.updateActive
 );
 

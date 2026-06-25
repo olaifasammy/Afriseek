@@ -1,363 +1,143 @@
-# AFRISEEK API REFERENCE
+# AFRISEEK API REFERENCE - COMPLETE INVENTORY
 
-Generated: Sat Jun 20 21:23:29 EET 2026
-
-## Registered API Route Groups
-
-- `/api/entities`
-- `/api/graph`
-- `/api/relationships`
-- `/api/users`
-- `/api/auth`
-- `/api/audit`
-- `/api/dashboard`
-- `/api/timeline`
-- `/api/settings`
-- `/api/articles`
-- `/api/search`
-- `/api/context`
-- `/api/events`
-- `/api/ontology`
-- `/api/studio/relationships`
-- `/api/studio/validation-rules`
-- `/api/studio/ontology-definitions`
-- `/api/studio/ontology-audit`
-- `/api/studio/ontology-testing`
-- `/api/studio/required-relationships`
-- `/api/studio/inverse-relationships`
-- `/api/studio/ontology-versioning`
-- `/api/studio/graph-integrity`
-- `/api/studio/orphan-entities`
-- `/api/studio/broken-links`
-- `/api/studio/duplicate-nodes`
-- `/api/studio/graph-metrics`
-- `/api/studio/metadata-definitions`
-- `/api/studio/entity-dashboard`
-- `/api/studio/entity-verification`
-- `/api/studio/entity-articles`
-- `/api/studio/entity-media`
-- `/api/studio/entity-traits`
-- `/api/studio/entity-merge`
-- `/api/studio/entity-split`
-- `/api/studio/entity-sources`
-- `/api/studio/entity-facts`
-- `/api/studio/articles`
-- `/api/studio/article-publication`
-- `/api/studio/article-revisions`
-- `/api/studio/article-citations`
-- `/api/studio/entity-quality`
-- `/api/studio/entity-integrity`
-- `/api/studio/entity-search`
-- `/api/studio/entity-audit`
-- `/api/studio/users`
-- `/api/studio/roles`
-- `/api/studio/permissions`
-- `/api/studio/invitations`
-- `/api/studio/graph-explorer`
-- `/api/studio/graph-path`
-- `/api/studio/required-fields`
+This document provides a single source of truth for the Afriseek backend API. It is divided into two sections: 
+1. **Administrative Engine**: The security-hardened, audited core.
+2. **Comprehensive Inventory**: All 103 registered API endpoints.
 
 ---
 
-## Endpoint Inventory
-
-### studioArticleCitationRoutes.ts
-
-- **GET** /:id/citations
-
-### studioArticlePublicationRoutes.ts
-
-- **POST** /:id/publish
-- **POST** /:id/unpublish
-
-### studioArticleRevisionRoutes.ts
-
-- **GET** /:id/revisions
-
-### studioArticleRoutes.ts
-
-- **GET** /
-- **POST** /
-- **PUT** /:id
-- **DELETE** /:id
-
-### articleRoutes.ts
-
-- **GET** /
-- **GET** /:slug
-router.post(
-router.put(
-
-### studioEntityAuditRoutes.ts
-
-router.get(
-router.get(
-router.get(
-
-### auditRoutes.ts
-
-router.get(
-
-### authRoutes.ts
-
-- **POST** /register
-- **POST** /login
-
-### contextRoutes.ts
-
-router.get(
-router.get(
-
-### dashboardRoutes.ts
-
-router.get(
-
-### studioEntityBulkOperationRoutes.ts
-
-- **POST** /verify
-
-### studioEntityDuplicateRoutes.ts
-
-- **GET** /
-
-### studioEntityIntegrityRoutes.ts
-
-- **GET** /
-
-### studioEntityQualityRoutes.ts
-
-- **GET** /
-
-### studioEntitySearchRoutes.ts
-
-- **GET** /
-
-### studioEntityTimelineRoutes.ts
-
-- **GET** /:entityId
-
-### entityRoutes.ts
-
-- **GET** /
-- **GET** /:slug
-router.post(
-router.put(
-router.delete(
-
-### eventRoutes.ts
-
-- **GET** /
-- **GET** /:slug
-router.post(
-
-### graphRoutes.ts
-
-- **GET** /path
-- **GET** /recommend/:slug
-- **GET** /:slug
-
-### ontologyRoutes.ts
-
-router.get(
-router.get(
-
-### relationshipRoutes.ts
-
-router.get(
-
-### searchRoutes.ts
-
-router.get(
-
-### settingsRoutes.ts
-
-router.get(
-router.put(
-
-### studioBrokenLinkRoutes.ts
-
-- **GET** /
-
-### studioDuplicateNodeRoutes.ts
-
-- **GET** /
-
-### studioEntityArticleLinkRoutes.ts
-
-- **GET** /:entityId
-- **POST** /:entityId
-- **DELETE** /:entityId/:articleId
-
-### studioEntityDashboardRoutes.ts
-
-- **GET** /
-
-### studioEntityFactRoutes.ts
-
-router.get(
-router.post(
-router.patch(
-router.delete(
-
-### studioEntityHistoryRoutes.ts
-
-- **GET** /:entityId
-
-### studioEntityMediaRoutes.ts
-
-- **GET** /:entityId
-- **PATCH** /:entityId
-
-### studioEntityMergeRoutes.ts
-
-- **POST** /
-
-### studioEntitySourceRoutes.ts
-
-- **GET** /:entityId
-- **POST** /:entityId
-- **PATCH** /:entityId/:sourceId
-- **DELETE** /:entityId/:sourceId
-
-### studioEntitySplitRoutes.ts
-
-- **POST** /
-
-### studioEntityTraitRoutes.ts
-
-- **GET** /:entityId
-- **POST** /:entityId
-- **PATCH** /:entityId/:traitIndex
-- **DELETE** /:entityId/:traitIndex
-
-### studioEntityVerificationRoutes.ts
-
-- **GET** /:id
-- **PATCH** /:id
-
-### studioEntityVersioningRoutes.ts
-
-- **GET** /:entityId
-
-### studioGraphExplorerRoutes.ts
-
-- **GET** /
-- **GET** /node/:id
-- **GET** /neighbors/:id
-- **GET** /incoming/:id
-router.get(
-
-### studioGraphIntegrityRoutes.ts
-
-- **GET** /
-
-### studioGraphMetricsRoutes.ts
-
-- **GET** /
-
-### studioGraphPathRoutes.ts
-
-- **GET** /
-
-### studioInverseRelationshipRoutes.ts
-
-- **GET** /
-- **GET** /:entityType
-
-### studioInvitationRoutes.ts
-
-- **GET** /
-- **POST** /
-
-### studioMetadataDefinitionRoutes.ts
-
-router.get(
-router.get(
-router.post(
-router.put(
-router.delete(
-
-### studioOntologyAuditRoutes.ts
-
-- **GET** /
-
-### studioOntologyDefinitionRoutes.ts
-
-- **GET** /
-- **GET** /:entityType
-- **POST** /
-- **PUT** /
-- **DELETE** /:id
-
-### studioOntologyTestingRoutes.ts
-
-- **GET** /
-
-### studioOntologyVersioningRoutes.ts
-
-- **GET** /
-- **GET** /:entityType
-
-### studioOrphanEntityRoutes.ts
-
-- **GET** /
-
-### studioPermissionRoutes.ts
-
-- **GET** /
-- **POST** /:id
-
-### studioRelationshipRoutes.ts
-
-router.get(
-
-### studioRequiredFieldRoutes.ts
-
-- **GET** /
-- **GET** /:entityType
-
-### studioRequiredRelationshipRoutes.ts
-
-- **GET** /
-- **GET** /:entityType
-
-### studioRoleRoutes.ts
-
-- **GET** /
-
-### studioUserRoutes.ts
-
-- **GET** /
-- **GET** /:id
-- **POST** /
-- **PATCH** /:id
-- **DELETE** /:id
-- **POST** /:id/suspend
-- **POST** /:id/activate
-
-### studioValidationRuleRoutes.ts
-
-- **GET** /
-- **POST** /
-- **PUT** /:id
-- **DELETE** /:id
-
-### timelineRoutes.ts
-
-router.get(
-
-### userRoutes.ts
-
-router.get(
-router.get(
-router.patch(
-router.patch(
-router.delete(
+## 1. Administrative Engine (Hardened Core)
+These routes are protected by fine-grained permissions and integrated with activity auditing.
+
+| Domain | Method | Endpoint | Permission | Audit Action |
+| :--- | :--- | :--- | :--- | :--- |
+| **Governance** | GET | `/admin/roles` | `admin:roles:view` | `admin:roles:view` |
+| | POST | `/admin/users/:userId/roles` | `admin:roles:assign` | `assign_role` |
+| | DELETE| `/admin/users/:userId/roles/:role`| `admin:roles:revoke` | `revoke_role` |
+| | GET | `/admin/users/:userId/activity` | `admin:audit:view` | `admin:audit:view` |
+| **Content** | POST | `/admin/entities` | `admin:entity:create` | `create_entity` |
+| | GET | `/admin/entities/:id` | `admin:entity:view` | N/A |
+| | PUT | `/admin/entities/:id` | `admin:entity:update` | `update_entity` |
+| | DELETE| `/admin/entities/:id` | `admin:entity:delete` | `delete_entity` |
+| | POST | `/admin/entities/:entityId/articles`| `admin:article:create` | `create_article` |
+| | GET | `/admin/entities/:entityId/articles`| `admin:article:view` | N/A |
+| | PUT | `/admin/articles/:id` | `admin:article:update` | `update_article` |
+| | PATCH | `/admin/articles/:id/approve` | `admin:article:approve` | `approve_article` |
+| | DELETE| `/admin/articles/:id` | `admin:article:delete` | `delete_article` |
+| **Structure** | POST | `/admin/graphs` | `admin:graph:create` | `create_graph` |
+| | PUT | `/admin/graphs/:id` | `admin:graph:update` | `update_graph` |
+| | DELETE| `/admin/graphs/:id` | `admin:graph:delete` | `delete_graph` |
+| | POST | `/admin/relationships` | `admin:relationship:create`| `create_relationship`|
+| | DELETE| `/admin/relationships/:id` | `admin:relationship:delete`| `delete_relationship`|
+| **Engine** | POST | `/studio/ontology-definitions/` | `admin:ontology:create` | `create_ontology` |
+| | PATCH | `/studio/ontology-definitions/:id/approve` | `admin:ontology:approve`| `approve_ontology` |
+| | PATCH | `/studio/ontology-definitions/:id/status` | `admin:ontology:update` | `update_ontology_status` |
+| **Audit** | GET | `/audit/` | `admin:audit:view` | N/A |
 
 ---
 
-## Route Statistics
+## 2. Comprehensive Endpoint Inventory (103 Routes)
 
-- Registered Route Groups: 52
-- Route Files: 57
-- Endpoint Definitions: 123
+| Module File | Method | Route |
+| :--- | :--- | :--- |
+| `adminRoleRoutes.ts` | GET | `/roles` |
+| | POST | `/users/:userId/roles` |
+| | DELETE | `/users/:userId/roles/:role` |
+| | GET | `/users/:userId/activity` |
+| `audit/studioEntityAuditRoutes.ts` | GET | `/:entityId` (x3) |
+| `auditRoutes.ts` | GET | `/` |
+| `contextRoutes.ts` | GET | `/:slug` |
+| | GET | `/traversal` |
+| `dashboardRoutes.ts` | GET | `/` |
+| `entity/studioEntityBulkOperationRoutes.ts`| POST | `/verify` |
+| `entity/studioEntityDuplicateRoutes.ts` | GET | `/` |
+| `entity/studioEntityIntegrityRoutes.ts` | GET | `/` |
+| `entity/studioEntityQualityRoutes.ts` | GET | `/` |
+| `entity/studioEntitySearchRoutes.ts` | GET | `/` |
+| `entity/studioEntityTimelineRoutes.ts` | GET | `/:entityId` |
+| `eventRoutes.ts` | GET | `/` |
+| | GET | `/:slug` |
+| | POST | `/` |
+| `graphRoutes.ts` | GET | `/path` |
+| | GET | `/recommend/:slug` |
+| | GET | `/:slug` |
+| `ontologyRoutes.ts` | GET | `/` |
+| `relationshipRoutes.ts` | GET | `/:id` |
+| `searchRoutes.ts` | GET | `/` |
+| `settingsRoutes.ts` | GET | `/` |
+| | PUT | `/` |
+| `studioBrokenLinkRoutes.ts` | GET | `/` |
+| `studioDuplicateNodeRoutes.ts` | GET | `/` |
+| `studioEntityArticleLinkRoutes.ts` | GET | `/:entityId` |
+| | POST | `/:entityId` |
+| | DELETE | `/:entityId/:articleId` |
+| `adminEntityArticleRoutes.ts` | POST | `/entities` |
+| | GET | `/entities/:id` |
+| | PUT | `/entities/:id` |
+| | DELETE | `/entities/:id` |
+| | POST | `/entities/:entityId/articles` |
+| | GET | `/entities/:entityId/articles` |
+| | PUT | `/articles/:id` |
+| | PATCH | `/articles/:id/approve` |
+| | DELETE | `/articles/:id` |
+| `adminRelationshipRoutes.ts` | POST | `/relationships` |
+| | DELETE | `/relationships/:id` |
+| `adminGraphRoutes.ts` | POST | `/graphs` |
+| | PUT | `/graphs/:id` |
+| | DELETE | `/graphs/:id` |
+| `studioEntitySplitRoutes.ts` | POST | `/` |
+| `studioGraphExplorerRoutes.ts` | GET | `/` |
+| | GET | `/node/:id` |
+| | GET | `/neighbors/:id` |
+| | GET | `/incoming/:id` |
+| | GET | `/:id` |
+| `studioGraphIntegrityRoutes.ts` | GET | `/` |
+| `studioGraphMetricsRoutes.ts` | GET | `/` |
+| `studioGraphPathRoutes.ts` | GET | `/` |
+| `studioInverseRelationshipRoutes.ts` | GET | `/` |
+| | GET | `/:entityType` |
+| `studioInvitationRoutes.ts` | GET | `/` |
+| | POST | `/` |
+| `studioMetadataDefinitionRoutes.ts` | GET | `/:id` |
+| | GET | `/` |
+| | POST | `/` |
+| | PUT | `/:id` |
+| | DELETE | `/:id` |
+| `studioOntologyAuditRoutes.ts` | GET | `/` |
+| `studioOntologyDefinitionRoutes.ts` | GET | `/` |
+| | POST | `/` |
+| | POST | `/entity-types` |
+| | POST | `/properties` |
+| | POST | `/relationships` |
+| | PATCH | `/:id/approve` |
+| | PATCH | `/:id/status` |
+| `studioOntologyTestingRoutes.ts` | GET | `/` |
+| `studioOntologyVersioningRoutes.ts` | GET | `/` |
+| | GET | `/:entityType` |
+| `studioOrphanEntityRoutes.ts` | GET | `/` |
+| `studioPermissionRoutes.ts` | GET | `/` |
+| | POST | `/:id` |
+| `studioRelationshipRoutes.ts` | GET | `/` |
+| `studioRequiredFieldRoutes.ts` | GET | `/` |
+| | GET | `/:entityType` |
+| `studioRequiredRelationshipRoutes.ts` | GET | `/` |
+| | GET | `/:entityType` |
+| `studioRoleRoutes.ts` | GET | `/` |
+| `studioUserRoutes.ts` | GET | `/` |
+| | GET | `/:id` |
+| | POST | `/` |
+| | PATCH | `/:id` |
+| | DELETE | `/:id` |
+| | POST | `/:id/suspend` |
+| | POST | `/:id/activate` |
+| `studioValidationRuleRoutes.ts` | GET | `/` |
+| | POST | `/` |
+| | PUT | `/:id` |
+| | DELETE | `/:id` |
+| `timelineRoutes.ts` | GET | `/` |
+| `userRoutes.ts` | GET | `/profile` |
+| | GET | `/list` |
+| | PATCH | `/update` |
+| | PATCH | `/password` |
+| | DELETE | `/delete` |
+| `userRoutes.ts.bak` | GET | `/profile` |

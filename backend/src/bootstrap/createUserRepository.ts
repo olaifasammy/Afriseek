@@ -1,6 +1,6 @@
-import { UserRepository } from "../repositories/UserRepository";
+import { UserRepository } from "../core/repositories/UserRepository";
+import { SupabaseUserRepository } from "../infrastructure/repositories/supabase/UserRepository";
 import { SeedUserRepository } from "../repositories/SeedUserRepository";
-import { SupabaseUserRepository } from "../repositories/SupabaseUserRepository";
 
 export function createUserRepository(): UserRepository {
   if (process.env.USE_SUPABASE === "true") {

@@ -1,8 +1,5 @@
-import { ArticleRepository }
-from "./ArticleRepository";
-
-import { Article }
-from "../types/article";
+import { ArticleRepository } from "../../../core/repositories/ArticleRepository";
+import { Article } from "../../../types/article";
 
 export class InMemoryArticleRepository
 implements ArticleRepository {

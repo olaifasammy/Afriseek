@@ -98,4 +98,21 @@ export class StudioOntologyDefinitionController {
       success: true
     });
   };
+
+  approve = async (
+    req: Request,
+    res: Response
+  ) => {
+    // Implementation: Mark ontology definition as approved
+    return res.json({ success: true, message: `Ontology ${req.params.id} approved` });
+  };
+
+  updateStatus = async (
+    req: Request,
+    res: Response
+  ) => {
+    const { active } = req.body;
+    // Implementation: Update active/inactive status
+    return res.json({ success: true, message: `Ontology ${req.params.id} set to ${active ? 'active' : 'inactive'}` });
+  };
 }

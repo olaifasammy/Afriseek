@@ -1,5 +1,5 @@
 import { AuditLog } from "../types/audit";
-import { AuditRepository } from "../repositories/AuditRepository";
+import { AuditRepository } from "../core/repositories/AuditRepository";
 
 export class AuditService {
 

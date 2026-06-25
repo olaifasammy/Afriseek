@@ -1,4 +1,4 @@
-import { Relationship } from "../types/relationship";
+import { Relationship } from "../../types/relationship";
 
 export interface RelationshipRepository {
   getByEntity(entityId: string): Promise<Relationship[]>;

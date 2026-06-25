@@ -11,4 +11,3 @@
 - [ ] Email verification
 - [ ] Permission middleware
 - [ ] Audit expansion
-- [ ] Supabase production users

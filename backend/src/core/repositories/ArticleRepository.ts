@@ -1,5 +1,5 @@
 import { Article }
-from "../types/article";
+from "../../types/article";
 
 export interface ArticleRepository {
 

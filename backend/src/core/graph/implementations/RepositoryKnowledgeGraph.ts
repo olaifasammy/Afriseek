@@ -1,6 +1,6 @@
 import { KnowledgeGraph } from "../KnowledgeGraph";
 import { AfriseekEntity } from "../../../types/entity";
-import { EntityRepository } from "../../../repositories/EntityRepository";
+import { EntityRepository } from "../../repositories/EntityRepository";
 import { GraphIndex } from "../GraphIndex";
 import { GeoContextEngine } from "../../intelligence/GeoContextEngine";
 import { CulturalGraphBiasEngine } from "../../intelligence/CulturalGraphBiasEngine";

@@ -1,6 +1,6 @@
-import { getDatabase } from "../config/supabase";
-import { Settings } from "../types/settings";
-import { SettingsRepository } from "./SettingsRepository";
+import { getDatabase } from "../../../config/supabase";
+import { Settings } from "../../../types/settings";
+import { SettingsRepository } from "../../../core/repositories/SettingsRepository";
 
 type SettingsRow = {
   site_name: string;

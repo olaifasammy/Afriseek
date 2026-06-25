@@ -1,4 +1,4 @@
-import { AuditRepository } from "./AuditRepository";
+import { AuditRepository } from "../core/repositories/AuditRepository";
 import { getDatabase } from "../config/supabase";
 import { AuditLog } from "../types/audit";
 

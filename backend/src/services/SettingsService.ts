@@ -1,5 +1,5 @@
 import { Settings } from "../types/settings";
-import { SettingsRepository } from "../repositories/SettingsRepository";
+import { SettingsRepository } from "../core/repositories/SettingsRepository";
 
 export class SettingsService {
 

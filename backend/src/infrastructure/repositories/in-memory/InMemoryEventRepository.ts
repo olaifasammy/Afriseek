@@ -1,8 +1,8 @@
 import { Event }
-from "../types/event";
+from "../../../types/event";
 
 import { EventRepository }
-from "./EventRepository";
+from "../../../core/repositories/EventRepository";
 
 export class InMemoryEventRepository
 implements EventRepository {

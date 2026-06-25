@@ -1,4 +1,4 @@
-import { UserRepository } from "./UserRepository";
+import { UserRepository } from "../core/repositories/UserRepository";
 import { User } from "../types/user";
 import { UserRole } from "../types/role";
 
@@ -18,7 +18,7 @@ implements UserRepository {
 
       role: UserRole.HEAD_ADMIN,
 
-      
+      isEmailVerified: true,
       
       active: true,
 
@@ -45,6 +45,12 @@ implements UserRepository {
   async findByEmail(email: string) {
     return this.users.find(
       user => user.email === email
+    ) || null;
+  }
+
+  async findByVerificationToken(token: string) {
+    return this.users.find(
+      user => user.emailVerificationToken === token
     ) || null;
   }
 

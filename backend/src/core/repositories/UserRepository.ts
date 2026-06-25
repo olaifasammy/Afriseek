@@ -1,4 +1,4 @@
-import { User } from "../types/user";
+import { User } from "../../types/user";
 
 export interface UserRepository {
 
@@ -10,6 +10,10 @@ export interface UserRepository {
 
   findByEmail(
     email: string
+  ): Promise<User | null>;
+
+  findByVerificationToken(
+    token: string
   ): Promise<User | null>;
 
   create(

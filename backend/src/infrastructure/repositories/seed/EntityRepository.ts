@@ -1,7 +1,7 @@
-import { EntityRepository } from "./EntityRepository";
-import { AfriseekEntity } from "../types/entity";
-import { entities } from "../data/entities";
-import { GraphNormalizer } from "../core/graph/GraphNormalizer";
+import { EntityRepository } from "../../../core/repositories/EntityRepository";
+import { AfriseekEntity } from "../../../types/entity";
+import { entities } from "../../../data/entities";
+import { GraphNormalizer } from "../../../core/graph/GraphNormalizer";
 
 export class SeedEntityRepository
 implements EntityRepository {

@@ -1,7 +1,7 @@
-import { getDatabase } from "../config/supabase";
-import { EntityRepository } from "./EntityRepository";
-import { AfriseekEntity } from "../types/entity";
-import { Relationship } from "../types/relationship";
+import { getDatabase } from "../../../config/supabase";
+import { EntityRepository } from "../../../core/repositories/EntityRepository";
+import { AfriseekEntity } from "../../../types/entity";
+import { Relationship } from "../../../types/relationship";
 
 export class SupabaseEntityRepository implements EntityRepository {
   private getClient() { 

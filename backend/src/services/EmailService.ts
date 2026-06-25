@@ -1,0 +1,50 @@
+import { randomBytes } from "crypto";
+import { sendEmail } from "../config/email";
+import { UserRepository } from "../core/repositories/UserRepository";
+
+export class EmailService {
+  constructor(private userRepository: UserRepository) {}
+
+  async sendVerificationEmail(userId: string, email: string): Promise<void> {
+    const token = randomBytes(32).toString("hex");
+    const user = await this.userRepository.findById(userId);
+    if (!user) throw new Error("User not found");
+
+    user.emailVerificationToken = token;
+    user.emailVerificationSentAt = new Date().toISOString();
+    await this.userRepository.update(user);
+
+    const verificationLink = `${process.env.APP_URL}/verify-email?token=${token}`;
+
+    await sendEmail(
+      email,
+      "Verify your Afriseek account",
+      `Please verify your account by clicking this link: ${verificationLink}`,
+      `<p>Please verify your account by clicking this link: <a href="${verificationLink}">Verify Email</a></p>`
+    );
+  }
+
+  async verifyEmail(token: string): Promise<boolean> {
+    const user = await this.userRepository.findByVerificationToken(token);
+    if (!user) return false;
+
+    // Check token expiration (24 hours)
+    if (user.emailVerificationSentAt) {
+      const sentAt = new Date(user.emailVerificationSentAt).getTime();
+      const now = new Date().getTime();
+      const twentyFourHours = 24 * 60 * 60 * 1000;
+      if (now - sentAt > twentyFourHours) {
+        return false;
+      }
+    } else {
+      return false;
+    }
+
+    user.isEmailVerified = true;
+    user.emailVerificationToken = undefined;
+    user.emailVerificationSentAt = undefined;
+    await this.userRepository.update(user);
+
+    return true;
+  }
+}

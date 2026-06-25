@@ -1,166 +1,76 @@
-import { Request, Response } from "express";
+import { Request, Response, NextFunction } from "express";
+import { asyncHandler } from "../middleware/asyncHandler";
 import { getDependencies } from "../config/dependencies";
 import { UserService } from "../services/UserService";
 import { UserRole } from "../types/role";
 
 export class UserController {
 
-  getAllUsers = async (_req: Request, res: Response) => {
-    try {
+  getAllUsers = asyncHandler(async (_req: Request, res: Response, next: NextFunction) => {
+    const { userRepository } = getDependencies();
 
-      const { userRepository } = getDependencies();
+    const userService = new UserService(userRepository);
 
-      const userService =
-        new UserService(userRepository);
+    const users = await userService.getAll();
 
-      const users =
-        await userService.getAll();
-
-      const safeUsers =
-        users.map(
-          ({ passwordHash, ...safe }) => safe
-        );
-
-      return res.json({
-        success: true,
-        data: safeUsers
-      });
-
-    } catch (error) {
-
-      console.error(
-        "❌ Get All Users Error:",
-        error
-      );
-
-      return res.status(500).json({
-        success: false,
-        message: "Internal server error"
-      });
-    }
-  };
-
-  getUserById = async (
-    req: Request,
-    res: Response
-  ) => {
-
-    const { userRepository } =
-      getDependencies();
-
-    const userService =
-      new UserService(userRepository);
-
-    const user =
-      await userService.getById(
-        String(req.params.id)
-      );
-
-    if (!user) {
-      return res.status(404).json({
-        success: false,
-        message: "User not found"
-      });
-    }
-
-    const { passwordHash, ...safeUser } =
-      user;
+    const safeUsers = users.map(({ passwordHash, ...safe }) => safe);
 
     return res.json({
       success: true,
-      data: safeUser
+      data: safeUsers
     });
-  };
+  });
 
-  updateRole = async (
-    req: Request,
-    res: Response
-  ) => {
+  getUserById = asyncHandler(async (req: Request, res: Response, _next: NextFunction) => {
+    const { userRepository } = getDependencies();
+    const userService = new UserService(userRepository);
+    const user = await userService.getById(String(req.params.id));
 
+    if (!user) {
+      return res.status(404).json({ success: false, message: "User not found" });
+    }
+
+    const { passwordHash, ...safeUser } = user;
+    return res.json({ success: true, data: safeUser });
+  });
+
+  updateRole = asyncHandler(async (req: Request, res: Response, _next: NextFunction) => {
     const { role } = req.body;
+    const { userRepository } = getDependencies();
+    const userService = new UserService(userRepository);
 
-    const { userRepository } =
-      getDependencies();
-
-    const userService =
-      new UserService(userRepository);
-
-    const user =
-      await userService.getById(
-        String(req.params.id)
-      );
+    const user = await userService.getById(String(req.params.id));
 
     if (!user) {
-      return res.status(404).json({
-        success: false
-      });
+      return res.status(404).json({ success: false, message: "User not found" });
     }
 
-    user.role =
-      role as UserRole;
+    user.role = role as UserRole;
+    await userService.update(user);
+    return res.json({ success: true });
+  });
 
-    await userService.update(
-      user
-    );
-
-    return res.json({
-      success: true
-    });
-  };
-
-  updateActive = async (
-    req: Request,
-    res: Response
-  ) => {
-
+  updateActive = asyncHandler(async (req: Request, res: Response, _next: NextFunction) => {
     const { active } = req.body;
+    const { userRepository } = getDependencies();
+    const userService = new UserService(userRepository);
 
-    const { userRepository } =
-      getDependencies();
-
-    const userService =
-      new UserService(userRepository);
-
-    const user =
-      await userService.getById(
-        String(req.params.id)
-      );
+    const user = await userService.getById(String(req.params.id));
 
     if (!user) {
-      return res.status(404).json({
-        success: false
-      });
+      return res.status(404).json({ success: false, message: "User not found" });
     }
 
-    user.active =
-      Boolean(active);
+    user.active = Boolean(active);
+    await userService.update(user);
+    return res.json({ success: true });
+  });
 
-    await userService.update(
-      user
-    );
+  deleteUser = asyncHandler(async (req: Request, res: Response, _next: NextFunction) => {
+    const { userRepository } = getDependencies();
+    const userService = new UserService(userRepository);
 
-    return res.json({
-      success: true
-    });
-  };
-
-  deleteUser = async (
-    req: Request,
-    res: Response
-  ) => {
-
-    const { userRepository } =
-      getDependencies();
-
-    const userService =
-      new UserService(userRepository);
-
-    await userService.delete(
-      String(req.params.id)
-    );
-
-    return res.json({
-      success: true
-    });
-  };
+    await userService.delete(String(req.params.id));
+    return res.json({ success: true });
+  });
 }

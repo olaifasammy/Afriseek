@@ -1,5 +1,5 @@
-import { Settings } from "../types/settings";
-import { SettingsRepository } from "./SettingsRepository";
+import { Settings } from "../../../types/settings";
+import { SettingsRepository } from "../../../core/repositories/SettingsRepository";
 
 export class SeedSettingsRepository
 implements SettingsRepository {

@@ -1,8 +1,9 @@
 import { OntologyDefinitionRepository } from "../repositories/ontology/OntologyDefinitionRepository";
-import { SeedOntologyDefinitionRepository } from "../repositories/ontology/seed/SeedOntologyDefinitionRepository";
+import { SqlOntologyDefinitionRepository } from "../repositories/ontology/SqlOntologyDefinitionRepository";
+import { getDatabase } from "../config/supabase";
 
 export function createOntologyDefinitionRepository():
   OntologyDefinitionRepository {
 
-  return new SeedOntologyDefinitionRepository();
+  return new SqlOntologyDefinitionRepository(getDatabase());
 }

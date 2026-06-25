@@ -1,6 +1,6 @@
-import { SettingsRepository } from "../repositories/SettingsRepository";
-import { SeedSettingsRepository } from "../repositories/SeedSettingsRepository";
-import { SupabaseSettingsRepository } from "../repositories/SupabaseSettingsRepository";
+import { SettingsRepository } from "../core/repositories/SettingsRepository";
+import { SeedSettingsRepository } from "../infrastructure/repositories/seed/SeedSettingsRepository";
+import { SupabaseSettingsRepository } from "../infrastructure/repositories/supabase/SupabaseSettingsRepository";
 
 let repository: SettingsRepository | null = null;
 

@@ -1,4 +1,4 @@
-import { AfriseekEntity } from "../types/entity";
+import { AfriseekEntity } from "../../types/entity";
 
 export interface EntityRepository {
 

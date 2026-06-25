@@ -1,4 +1,4 @@
-import { Settings } from "../types/settings";
+import { Settings } from "../../types/settings";
 
 export interface SettingsRepository {
 

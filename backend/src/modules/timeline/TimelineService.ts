@@ -1,4 +1,4 @@
-import { EventRepository } from "../../repositories/EventRepository";
+import { EventRepository } from "../../core/repositories/EventRepository";
 import { TimelineResponse } from "../../types/timeline";
 
 export class TimelineService {

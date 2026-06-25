@@ -2,7 +2,7 @@ import { EventService }
 from "../services/EventService";
 
 import { InMemoryEventRepository }
-from "../repositories/InMemoryEventRepository";
+from "../infrastructure/repositories/in-memory/InMemoryEventRepository";
 
 const repository =
   new InMemoryEventRepository();

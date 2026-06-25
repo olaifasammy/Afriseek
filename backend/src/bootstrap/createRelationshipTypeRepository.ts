@@ -1,8 +1,9 @@
 import { RelationshipTypeRepository } from "../repositories/ontology/RelationshipTypeRepository";
-import { SeedRelationshipTypeRepository } from "../repositories/ontology/seed/SeedRelationshipTypeRepository";
+import { SqlRelationshipTypeRepository } from "../repositories/ontology/SqlRelationshipTypeRepository";
+import { getDatabase } from "../config/supabase";
 
 export function createRelationshipTypeRepository():
   RelationshipTypeRepository {
 
-  return new SeedRelationshipTypeRepository();
+  return new SqlRelationshipTypeRepository(getDatabase());
 }

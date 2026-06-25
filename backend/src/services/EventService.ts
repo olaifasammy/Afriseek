@@ -2,7 +2,7 @@ import { Event }
 from "../types/event";
 
 import { EventRepository }
-from "../repositories/EventRepository";
+from "../core/repositories/EventRepository";
 
 export class EventService {
 

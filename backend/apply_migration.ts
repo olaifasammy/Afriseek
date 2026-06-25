@@ -1,20 +1,34 @@
+import * as dotenv from "dotenv";
+import path from "path";
+dotenv.config({ path: path.join(__dirname, ".env") });
+
 import { getAdminDatabase } from "./src/config/supabaseAdmin";
 import fs from "fs";
-import path from "path";
 
 async function runMigration() {
-  const db = getAdminDatabase();
-  const sql = fs.readFileSync(path.join(__dirname, "migrations/03_ontology_tables.sql"), "utf8");
+  const args = process.argv.slice(2);
+  if (args.length === 0) {
+    console.error("Usage: ts-node apply_migration.ts <migration_file_path>");
+    process.exit(1);
+  }
 
-  const { error } = await db.rpc("exec_sql", { sql_query: sql });
+  const migrationFilePath = args[0];
+  if (!fs.existsSync(migrationFilePath)) {
+    console.error(`File not found: ${migrationFilePath}`);
+    process.exit(1);
+  }
+
+  const db = getAdminDatabase();
+  const sql = fs.readFileSync(migrationFilePath, "utf8");
+
+  // Assuming 'exec_sql' RPC is set up in Supabase
+  const { error } = await (db as any).rpc("exec_sql", { sql_query: sql });
 
   if (error) {
     console.error("Migration failed:", error);
-    // Fallback: If rpc fails, try raw query if admin client supports it
-    // Actually, supabase JS client usually does not allow raw SQL without RPC.
-    // I need to make sure 'exec_sql' exists or use a different method.
+    process.exit(1);
   } else {
-    console.log("Migration applied successfully");
+    console.log(`Migration ${migrationFilePath} applied successfully`);
   }
 }
 

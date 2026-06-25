@@ -1,5 +1,5 @@
 import { Event }
-from "../types/event";
+from "../../types/event";
 
 export interface EventRepository {
 

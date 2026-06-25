@@ -17,6 +17,10 @@ export interface User {
 
   active: boolean;
 
+  isEmailVerified: boolean;
+  emailVerificationToken?: string;
+  emailVerificationSentAt?: string;
+
   metadata: {
 
     createdAt: string;

@@ -1,7 +1,7 @@
-import { getDatabase } from "../config/supabase";
-import { UserRepository } from "./UserRepository";
-import { User } from "../types/user";
-import { UserRole } from "../types/role";
+import { getDatabase } from "../../../config/supabase";
+import { UserRepository } from "../../../core/repositories/UserRepository";
+import { User } from "../../../types/user";
+import { UserRole } from "../../../types/role";
 
 export class SupabaseUserRepository implements UserRepository {
   private getClient() {
@@ -39,6 +39,17 @@ export class SupabaseUserRepository implements UserRepository {
     return this.mapRowToUser(data);
   }
 
+  async findByVerificationToken(token: string): Promise<User | null> {
+    const { data, error } = await (this.getClient() as any)
+      .from("users")
+      .select("*")
+      .eq("email_verification_token", token)
+      .single();
+
+    if (error || !data) return null;
+    return this.mapRowToUser(data);
+  }
+
   async create(user: User): Promise<void> {
     const { error } = await (this.getClient() as any)
       .from("users")
@@ -49,6 +60,9 @@ export class SupabaseUserRepository implements UserRepository {
         password_hash: user.passwordHash,
         role: user.role,
         active: user.active,
+        is_email_verified: user.isEmailVerified,
+        email_verification_token: user.emailVerificationToken,
+        email_verification_sent_at: user.emailVerificationSentAt,
         created_at: user.metadata?.createdAt || new Date().toISOString(),
         updated_at: user.metadata?.updatedAt || new Date().toISOString()
       });
@@ -65,6 +79,9 @@ export class SupabaseUserRepository implements UserRepository {
         password_hash: user.passwordHash,
         role: user.role,
         active: user.active,
+        is_email_verified: user.isEmailVerified,
+        email_verification_token: user.emailVerificationToken,
+        email_verification_sent_at: user.emailVerificationSentAt,
         updated_at: new Date().toISOString()
       })
       .eq("id", user.id);
@@ -89,6 +106,9 @@ export class SupabaseUserRepository implements UserRepository {
       passwordHash: row.password_hash,
       role: row.role as UserRole,
       active: row.active,
+      isEmailVerified: row.is_email_verified,
+      emailVerificationToken: row.email_verification_token,
+      emailVerificationSentAt: row.email_verification_sent_at,
       metadata: {
         createdAt: row.created_at,
         updatedAt: row.updated_at

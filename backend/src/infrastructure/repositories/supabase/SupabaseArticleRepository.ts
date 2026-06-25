@@ -1,8 +1,8 @@
-import { getDatabase } from "../config/supabase";
-import { Article } from "../types/article";
-import { ArticleRepository } from "./ArticleRepository";
+import { getDatabase } from "../../../config/supabase";
+import { Article } from "../../../types/article";
+import { ArticleRepository } from "../../../core/repositories/ArticleRepository";
 
-export class DatabaseArticleRepository
+export class SupabaseArticleRepository
 implements ArticleRepository {
 
   async findAll(): Promise<Article[]> {

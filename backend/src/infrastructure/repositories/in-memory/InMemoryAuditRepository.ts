@@ -1,4 +1,4 @@
-import { AuditLog } from "../types/audit";
+import { AuditLog } from "../../../types/audit";
 
 export class InMemoryAuditRepository {
 
@@ -11,7 +11,7 @@ export class InMemoryAuditRepository {
     this.logs.push(log);
   }
 
-  async getAll() {
+  async getAll(): Promise<AuditLog[]> {
 
     return this.logs;
   }

@@ -2,7 +2,7 @@ import { Article }
 from "../types/article";
 
 import { ArticleRepository }
-from "../repositories/ArticleRepository";
+from "../core/repositories/ArticleRepository";
 
 export class ArticleService {
 
