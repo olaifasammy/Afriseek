@@ -1,27 +1,30 @@
 import { Request, Response } from 'express';
 import { asyncHandler } from '../middleware/asyncHandler';
+import { GraphService } from '../services/GraphService';
 
-/**
- * Administrative Controller for managing Graph structure (metadata, lifecycle).
- * Complements the existing read-only GraphController.
- */
+// Assuming a way to get the knowledgeGraph instance (e.g., from a dependency container)
+// For now, I will create a placeholder. In a production environment, this should be injected.
+const graphService = new GraphService();
+
 export const AdminGraphController = {
-  create: asyncHandler(async (req: Request, res: Response) => {
+  create: asyncHandler(async (_req: Request, res: Response) => {
     // Implementation: Create new graph container/metadata
     res.status(201).json({ message: 'Graph created' });
   }),
 
+  getMetadata: asyncHandler(async (_req: Request, res: Response) => {
+    const metadata = await graphService.getGraphMetadata();
+    res.json(metadata);
+  }),
+
   update: asyncHandler(async (req: Request, res: Response) => {
     const { id } = req.params;
-    // Implementation: Update graph metadata
-    res.json({ message: `Graph ${id} updated` });
+    const result = await graphService.updateGraphMetadata();
+    res.json({ id, ...result });
   }),
 
-  delete: asyncHandler(async (req: Request, res: Response) => {
-    const { id } = req.params;
-    // Implementation: Archive/Delete graph
-    res.status(204).send();
+  delete: asyncHandler(async (_req: Request, res: Response) => {
+    const result = await graphService.archiveGraph();
+    res.status(204).json(result);
   }),
 };
-
-export default AdminGraphController;

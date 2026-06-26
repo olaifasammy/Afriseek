@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import AdminGraphController from '../controllers/AdminGraphController';
+import { AdminGraphController } from '../controllers/AdminGraphController';
 import { requireAuth } from '../middleware/requireAuth';
 import { requirePermission } from '../middleware/requirePermission';
 import { auditAction } from '../middleware/auditAction';

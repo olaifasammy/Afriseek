@@ -7,15 +7,16 @@ export function authenticate(
   req: Request,
   res: Response,
   next: NextFunction
-) {
+): void {
   const authHeader =
     req.headers.authorization;
 
   if (!authHeader) {
-    return res.status(401).json({
+    res.status(401).json({
       success: false,
       message: "Missing authorization header"
     });
+    return;
   }
 
   const token =
@@ -28,10 +29,11 @@ export function authenticate(
     jwtService.verifyToken(token);
 
   if (!payload) {
-    return res.status(401).json({
+    res.status(401).json({
       success: false,
       message: "Invalid token"
     });
+    return;
   }
 
   (req as any).user = payload;

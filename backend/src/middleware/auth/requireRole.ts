@@ -8,20 +8,22 @@ export function requireRole(
     req: Request,
     res: Response,
     next: NextFunction
-  ) => {
+  ): void => {
     const user = (req as any).user;
 
     if (!user) {
-      return res.status(401).json({
+      res.status(401).json({
         success: false
       });
+      return;
     }
 
     if (!roles.includes(user.role)) {
-      return res.status(403).json({
+      res.status(403).json({
         success: false,
         message: "Forbidden"
       });
+      return;
     }
 
     next();

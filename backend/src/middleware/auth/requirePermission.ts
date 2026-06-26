@@ -11,13 +11,14 @@ export function requirePermission(
     req: Request,
     res: Response,
     next: NextFunction
-  ) => {
+  ): void => {
     const user = (req as any).user;
 
     if (!user) {
-      return res.status(401).json({
+      res.status(401).json({
         success: false
       });
+      return;
     }
 
     const allowed = authz.hasPermission(
@@ -26,10 +27,11 @@ export function requirePermission(
     );
 
     if (!allowed) {
-      return res.status(403).json({
+      res.status(403).json({
         success: false,
         message: "Permission denied"
       });
+      return;
     }
 
     next();

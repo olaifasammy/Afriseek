@@ -9,19 +9,21 @@ export function requireRole(
     req: AuthenticatedRequest,
     res: Response,
     next: NextFunction
-  ) => {
+  ): void => {
 
     if (!req.user) {
-      return res.status(401).json({
+      res.status(401).json({
         success: false
       });
+      return;
     }
 
     if (!roles.includes(req.user.role)) {
-      return res.status(403).json({
+      res.status(403).json({
         success: false,
         message: "Insufficient permissions"
       });
+      return;
     }
 
     next();

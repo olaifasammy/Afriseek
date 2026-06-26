@@ -9,9 +9,12 @@ import { getDatabase } from "./supabase";
 
 import { PasswordService } from "../modules/auth/PasswordService";
 import { EmailService } from "../services/EmailService";
+import { RoleService } from "../services/RoleService";
 
 import { EntityRepository } from "../core/repositories/EntityRepository";
 import { UserRepository } from "../core/repositories/UserRepository";
+import { RoleRepository } from "../core/repositories/RoleRepository";
+import { SupabaseRoleRepository } from "../infrastructure/repositories/supabase/SupabaseRoleRepository";
 
 import { RelationshipTypeRepository } from "../repositories/ontology/RelationshipTypeRepository";
 import { ValidationRuleRepository } from "../repositories/ontology/ValidationRuleRepository";
@@ -21,68 +24,51 @@ import { EntityTypeRepository } from "../repositories/ontology/EntityTypeReposit
 export interface AppDependencies {
   entityRepository: EntityRepository;
   userRepository: UserRepository;
+  roleRepository: RoleRepository;
   relationshipTypeRepository: RelationshipTypeRepository;
   validationRuleRepository: ValidationRuleRepository;
   ontologyDefinitionRepository: OntologyDefinitionRepository;
   auditStoreRepository: AuditStoreRepository;
   passwordService: PasswordService;
   emailService: EmailService;
+  roleService: RoleService;
 }
 
-// ... rest of the file (initialization logic needs update)
-// I will just update the interface for now to see if it fixes, then I will update the initialization logic in the next step.
+// ...
+let container: AppDependencies | null = null;
 
-
-let container:
-  AppDependencies | null = null;
-
-export function initializeDependencies():
-  AppDependencies {
-
+export function initializeDependencies(): AppDependencies {
   if (container) {
     return container;
   }
+// ...
 
-  const db = getDatabase();
-
-  const entityRepository =
-    createEntityRepository();
-
-  const userRepository =
-    createUserRepository();
-
-  const relationshipTypeRepository =
-    createRelationshipTypeRepository();
-
-  const validationRuleRepository =
-    createValidationRuleRepository();
-
-  const ontologyDefinitionRepository =
-    createOntologyDefinitionRepository();
-
+  const entityRepository = createEntityRepository();
+  const userRepository = createUserRepository();
+  const roleRepository = new SupabaseRoleRepository();
+  const relationshipTypeRepository = createRelationshipTypeRepository();
+  const validationRuleRepository = createValidationRuleRepository();
+  const ontologyDefinitionRepository = createOntologyDefinitionRepository();
   const entityTypeRepository = createEntityTypeRepository();
-
   const auditStoreRepository = new AuditStoreRepository();
-
-  const passwordService =
-    new PasswordService();
-
-  const emailService =
-    new EmailService(userRepository);
+  const passwordService = new PasswordService();
+  const emailService = new EmailService(userRepository);
+  const roleService = new RoleService(roleRepository);
 
   container = {
     entityRepository,
     userRepository,
+    roleRepository,
     relationshipTypeRepository,
     validationRuleRepository,
     ontologyDefinitionRepository,
     auditStoreRepository,
     passwordService,
-    emailService
+    emailService,
+    roleService
   };
 
   Object.freeze(container);
-
   return container!;
 }
 

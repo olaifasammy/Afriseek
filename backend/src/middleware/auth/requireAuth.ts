@@ -4,14 +4,15 @@ export function requireAuth(
   req: Request,
   res: Response,
   next: NextFunction
-) {
+): void {
   const user = (req as any).user;
 
   if (!user) {
-    return res.status(401).json({
+    res.status(401).json({
       success: false,
       message: "Authentication required"
     });
+    return;
   }
 
   next();
