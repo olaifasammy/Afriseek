@@ -8,6 +8,7 @@ import { validate } from '../middleware/validate';
 import { CreateOntologySchema } from '../validation/ontology/ontologySchemas';
 
 const router = express.Router();
+const controller = new StudioOntologyDefinitionController();
 
 // Publicly list ontologies
 router.get('/', OntologyController.list);
@@ -19,8 +20,8 @@ router.post('/properties', requireAuth, requirePermission('admin:ontology:update
 router.post('/relationships', requireAuth, requirePermission('admin:ontology:update'), auditAction('create_ontology_relationship', 'ontology'), OntologyController.createRelationship);
 
 // Administrative lifecycle routes
-router.patch('/:id/approve', requireAuth, requirePermission('admin:ontology:approve'), auditAction('approve_ontology', 'ontology'), StudioOntologyDefinitionController.prototype.approve);
-router.patch('/:id/status', requireAuth, requirePermission('admin:ontology:update'), auditAction('update_ontology_status', 'ontology'), StudioOntologyDefinitionController.prototype.updateStatus);
+router.patch('/:id/approve', requireAuth, requirePermission('admin:ontology:approve'), auditAction('approve_ontology', 'ontology'), controller.approve);
+router.patch('/:id/status', requireAuth, requirePermission('admin:ontology:update'), auditAction('update_ontology_status', 'ontology'), controller.updateStatus);
 
 
 export default router;
