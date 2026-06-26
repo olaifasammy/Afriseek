@@ -30,6 +30,10 @@ function scanDirectory(dir: string, basePrefix = '/api'): { path: string; filePa
       // Basic heuristic for path mapping:
       let routeName = entry.name.replace('Routes.ts', '').replace('.ts', '');
       
+      if (entry.name === 'routes.ts') {
+        routeName = '';
+      }
+      
       // Convert CamelCase to kebab-case
       routeName = routeName.replace(/([a-z0-9]|(?=[A-Z]))([A-Z])/g, '$1-$2').toLowerCase();
       
