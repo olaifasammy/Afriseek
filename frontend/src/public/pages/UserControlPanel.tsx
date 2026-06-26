@@ -35,7 +35,6 @@ export const UserControlPanel = () => {
               <Link 
                 to="/admin" 
                 className="text-brand-gold font-bold hover:underline"
-                onClick={() => console.log('Admin link clicked')}
               >
                 Go to Admin Dashboard →
               </Link>

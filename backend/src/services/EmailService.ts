@@ -1,6 +1,7 @@
 import { randomBytes } from "crypto";
 import { sendEmail } from "../config/email";
 import { UserRepository } from "../core/repositories/UserRepository";
+import { env } from "../config/env";
 
 export class EmailService {
   constructor(private userRepository: UserRepository) {}
@@ -14,11 +15,11 @@ export class EmailService {
     user.emailVerificationSentAt = new Date().toISOString();
     await this.userRepository.update(user);
 
-    const verificationLink = `${process.env.APP_URL}/verify-email?token=${token}`;
+    const verificationLink = `${env.APP_URL}/verify-email?token=${token}`;
 
     await sendEmail(
       email,
-      "Verify your Afriseek account",
+      "Verify your Connect Africa account",
       `Please verify your account by clicking this link: ${verificationLink}`,
       `<p>Please verify your account by clicking this link: <a href="${verificationLink}">Verify Email</a></p>`
     );

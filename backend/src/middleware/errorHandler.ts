@@ -1,5 +1,6 @@
 import { Request, Response, NextFunction } from "express";
 import { logger } from "../config/logger";
+import { env } from "../config/env";
 
 export function errorHandler(
   err: any,
@@ -14,6 +15,6 @@ export function errorHandler(
   res.status(status).json({
     success: false,
     message: err?.message || "Internal Server Error",
-    error: process.env.NODE_ENV === "production" ? undefined : err
+    error: env.NODE_ENV === "production" ? undefined : err
   });
 }

@@ -1,13 +1,6 @@
-const jwtSecret =
-  process.env.JWT_SECRET;
-
-if (!jwtSecret) {
-  throw new Error(
-    "JWT_SECRET missing"
-  );
-}
+import { env } from "./env";
 
 export const AUTH_CONFIG = {
-  jwtSecret,
+  jwtSecret: env.JWT_SECRET,
   accessTokenExpiresIn: "15m" as const
 };

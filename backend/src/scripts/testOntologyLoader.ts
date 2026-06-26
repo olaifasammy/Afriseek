@@ -1,18 +1,20 @@
 import { loadOntologyDefinitions }
 from "../ontology/registry/loadOntologyDefinitions";
+import { logger } from "../config/logger";
 
 const definitions =
   loadOntologyDefinitions();
 
-console.log(
-  "ONTOLOGIES=",
-  definitions.length
+logger.info(
+  { count: definitions.length },
+  "ONTOLOGIES="
 );
 
-console.log(
+logger.info(
   definitions
     .slice(0, 10)
     .map(
       item => item.entityType
-    )
+    ),
+  "ONTOLOGY_TYPES="
 );

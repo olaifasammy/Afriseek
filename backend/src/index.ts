@@ -12,6 +12,7 @@ import path from "path";
 
 import { pinoHttp } from 'pino-http';
 import { logger } from './config/logger';
+import { env } from './config/env';
 
 async function bootstrap() {
   const app = express();
@@ -21,7 +22,7 @@ async function bootstrap() {
   app.use(express.json());
   app.use(pinoHttp({ logger }));
 
-  const PORT = process.env.PORT || 3000;
+  const PORT = env.PORT;
 
   try {
     initializeDependencies();
@@ -35,12 +36,12 @@ async function bootstrap() {
       // Import the router dynamically
       const router = require(route.filePath).default;
       app.use(route.path, router);
-      console.log(`Registered route: ${route.path}`);
+      logger.info(`Registered route: ${route.path}`);
     }
 
-    console.log("⚡ Afriseek Engine ready");
+    logger.info("⚡ Connect Africa Engine ready");
   } catch (error) {
-    console.error("❌ Fatal bootstrap error:", error);
+    logger.error({ err: error }, "❌ Fatal bootstrap error:");
     process.exit(1);
   }
 
@@ -51,7 +52,7 @@ async function bootstrap() {
   app.use(errorHandler);
 
   app.listen(PORT, () => {
-    console.log(`🚀 Server running on http://localhost:${PORT}`);
+    logger.info(`🚀 Server running on http://localhost:${PORT}`);
   });
 }
 

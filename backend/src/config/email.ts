@@ -1,21 +1,19 @@
 import nodemailer from "nodemailer";
-import dotenv from "dotenv";
-
-dotenv.config();
+import { env } from "./env";
 
 const transporter = nodemailer.createTransport({
-  host: process.env.SMTP_HOST,
-  port: parseInt(process.env.SMTP_PORT || "587"),
-  secure: process.env.SMTP_SECURE === "true",
+  host: env.SMTP_HOST,
+  port: parseInt(env.SMTP_PORT),
+  secure: env.SMTP_SECURE === "true",
   auth: {
-    user: process.env.SMTP_USER,
-    pass: process.env.SMTP_PASS,
+    user: env.SMTP_USER,
+    pass: env.SMTP_PASS,
   },
 });
 
 export const sendEmail = async (to: string, subject: string, text: string, html: string) => {
   await transporter.sendMail({
-    from: process.env.SMTP_FROM,
+    from: env.SMTP_FROM,
     to,
     subject,
     text,
