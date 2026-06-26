@@ -4,9 +4,9 @@ import { env } from "../config/env";
 
 export function errorHandler(
   err: any,
-  req: Request,
+  _req: Request,
   res: Response,
-  next: NextFunction
+  _next: NextFunction
 ) {
   logger.error({ err }, "❌ [Unhandled Error]");
 

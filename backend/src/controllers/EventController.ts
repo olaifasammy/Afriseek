@@ -10,7 +10,7 @@ const service =
 export class EventController {
 
   getAll = async (
-    req: Request,
+    _req: Request,
     res: Response
   ) => {
 

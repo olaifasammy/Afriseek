@@ -59,7 +59,7 @@ export class EntityController {
   };
 
   getAllEntities = async (
-    req: Request,
+    _req: Request,
     res: Response
   ) => {
 

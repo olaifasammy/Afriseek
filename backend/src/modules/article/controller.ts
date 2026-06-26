@@ -1,4 +1,4 @@
-import crypto from "crypto";
+import * as crypto from "crypto";
 
 import { Request, Response }
 from "express";
@@ -60,6 +60,7 @@ export class ArticleController {
   ) => {
 
     await this.articles.create(
+      req.body.entityId,
       req.body
     );
 

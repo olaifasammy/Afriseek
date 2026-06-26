@@ -9,13 +9,13 @@ export const RelationshipInstanceController = {
   create: asyncHandler(async (req: Request, res: Response) => {
     const { sourceEntityId, targetEntityId, relationshipTypeId } = req.body;
     // Implementation: Validate with OntologyService, then create relationship
-    res.status(201).json({ message: 'Relationship instance created' });
+    res.status(201).json({ message: 'Relationship instance created', sourceEntityId, targetEntityId, relationshipTypeId });
   }),
 
   delete: asyncHandler(async (req: Request, res: Response) => {
-    const { relationshipId } = req.params;
+    const id = req.params.relationshipId as string;
     // Implementation: Remove relationship instance
-    res.status(204).send();
+    res.status(204).json({ message: `Relationship ${id} deleted` });
   }),
 };
 

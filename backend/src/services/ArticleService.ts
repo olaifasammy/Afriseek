@@ -1,45 +1,50 @@
-import { Article }
-from "../types/article";
-
-import { ArticleRepository }
-from "../core/repositories/ArticleRepository";
+import { ArticleRepository } from "../core/repositories/ArticleRepository";
+import { Article } from "../types/article";
 
 export class ArticleService {
-
-  constructor(
-    private repository:
-      ArticleRepository
-  ) {}
+  constructor(private articleRepository: ArticleRepository) {}
 
   async getAll() {
-
-    return this.repository.findAll();
+    return this.articleRepository.findAll();
   }
 
-  async getBySlug(
-    slug: string
-  ) {
-
-    return this.repository.findBySlug(
-      slug
-    );
+  async getBySlug(slug: string) {
+    return this.articleRepository.findBySlug(slug);
   }
 
-  async create(
-    article: Article
-  ) {
-
-    await this.repository.create(
-      article
-    );
+  async create(entityId: string, data: any) {
+    const article: Article = { 
+        id: `art_${Date.now()}`, 
+        entityIds: [entityId], 
+        published: false,
+        versions: [],
+        metadata: { createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() },
+        ...data 
+    };
+    await this.articleRepository.create(article);
+    return article;
   }
 
-  async update(
-    article: Article
-  ) {
+  async getByEntity(entityId: string) {
+    const all = await this.articleRepository.findAll();
+    return all.filter(a => a.entityIds.includes(entityId));
+  }
 
-    await this.repository.update(
-      article
-    );
+  async update(article: Article) {
+    await this.articleRepository.update(article);
+    return article;
+  }
+
+  async delete(id: string) {
+    await this.articleRepository.delete(id);
+    return { success: true };
+  }
+
+  async approve(id: string) {
+    const article = await this.articleRepository.findBySlug(id);
+    if (!article) throw new Error("Article not found");
+    article.published = true;
+    await this.articleRepository.update(article);
+    return article;
   }
 }

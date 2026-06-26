@@ -1,4 +1,4 @@
-import { Request, Response, NextFunction } from "express";
+import { Request, Response } from "express";
 import { asyncHandler } from "../middleware/asyncHandler";
 import { getDependencies } from "../config/dependencies";
 import { UserService } from "../services/UserService";
@@ -6,7 +6,7 @@ import { UserRole } from "../types/role";
 
 export class UserController {
 
-  getAllUsers = asyncHandler(async (_req: Request, res: Response, next: NextFunction) => {
+  getAllUsers = asyncHandler(async (_req: Request, res: Response) => {
     const { userRepository } = getDependencies();
 
     const userService = new UserService(userRepository);
@@ -21,7 +21,7 @@ export class UserController {
     });
   });
 
-  getUserById = asyncHandler(async (req: Request, res: Response, _next: NextFunction) => {
+  getUserById = asyncHandler(async (req: Request, res: Response) => {
     const { userRepository } = getDependencies();
     const userService = new UserService(userRepository);
     const user = await userService.getById(String(req.params.id));
@@ -34,7 +34,7 @@ export class UserController {
     return res.json({ success: true, data: safeUser });
   });
 
-  updateRole = asyncHandler(async (req: Request, res: Response, _next: NextFunction) => {
+  updateRole = asyncHandler(async (req: Request, res: Response) => {
     const { role } = req.body;
     const { userRepository } = getDependencies();
     const userService = new UserService(userRepository);
@@ -50,7 +50,7 @@ export class UserController {
     return res.json({ success: true });
   });
 
-  updateActive = asyncHandler(async (req: Request, res: Response, _next: NextFunction) => {
+  updateActive = asyncHandler(async (req: Request, res: Response) => {
     const { active } = req.body;
     const { userRepository } = getDependencies();
     const userService = new UserService(userRepository);
@@ -66,7 +66,7 @@ export class UserController {
     return res.json({ success: true });
   });
 
-  deleteUser = asyncHandler(async (req: Request, res: Response, _next: NextFunction) => {
+  deleteUser = asyncHandler(async (req: Request, res: Response) => {
     const { userRepository } = getDependencies();
     const userService = new UserService(userRepository);
 

@@ -1,6 +1,5 @@
 import { EntityTypeRepository } from "./EntityTypeRepository";
 import { EntityTypeRecord } from "../../types/studio/EntityTypeRecord";
-import { getDatabase } from "../../config/supabase";
 
 export class SqlEntityTypeRepository implements EntityTypeRepository {
   private db: any;

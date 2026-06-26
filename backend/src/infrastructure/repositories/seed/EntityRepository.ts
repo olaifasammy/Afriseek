@@ -42,13 +42,25 @@ implements EntityRepository {
 
   async create(
     entity: AfriseekEntity
-  ): Promise<void> {}
+  ): Promise<void> {
+    this.normalized.push(entity);
+  }
 
   async update(
     entity: AfriseekEntity
-  ): Promise<void> {}
+  ): Promise<void> {
+    const index = this.normalized.findIndex(e => e.id === entity.id);
+    if (index !== -1) {
+      this.normalized[index] = entity;
+    }
+  }
 
   async delete(
     id: string
-  ): Promise<void> {}
+  ): Promise<void> {
+    const index = this.normalized.findIndex(e => e.id === id);
+    if (index !== -1) {
+      this.normalized.splice(index, 1);
+    }
+  }
 }

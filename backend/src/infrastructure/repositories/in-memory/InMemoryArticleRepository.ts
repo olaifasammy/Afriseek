@@ -47,4 +47,8 @@ implements ArticleRepository {
         article;
     }
   }
+
+  async delete(id: string): Promise<void> {
+    this.articles = this.articles.filter(a => a.id !== id);
+  }
 }

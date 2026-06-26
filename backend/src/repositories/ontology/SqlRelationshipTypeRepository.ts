@@ -1,6 +1,5 @@
 import { RelationshipTypeRepository } from "./RelationshipTypeRepository";
 import { RelationshipTypeRecord } from "../../types/studio/RelationshipTypeRecord";
-import { getDatabase } from "../../config/supabase";
 
 export class SqlRelationshipTypeRepository implements RelationshipTypeRepository {
   private db: any;

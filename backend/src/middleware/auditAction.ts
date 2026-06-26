@@ -9,7 +9,7 @@ import { randomUUID } from "crypto";
 export function auditAction(action: string, entityType?: string) {
   return async (
     req: AuthenticatedRequest,
-    res: Response,
+    _res: Response,
     next: NextFunction
   ) => {
     const actorId = req.user?.userId;

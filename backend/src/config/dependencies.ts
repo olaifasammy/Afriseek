@@ -1,15 +1,16 @@
 import { createEntityRepository } from "../bootstrap/createEntityRepository";
 import { createUserRepository } from "../bootstrap/createUserRepository";
+import { createArticleService } from "../bootstrap/createArticleService";
 import { createRelationshipTypeRepository } from "../bootstrap/createRelationshipTypeRepository";
 import { createValidationRuleRepository } from "../bootstrap/createValidationRuleRepository";
 import { createOntologyDefinitionRepository } from "../bootstrap/createOntologyDefinitionRepository";
 import { createEntityTypeRepository } from "../bootstrap/createEntityTypeRepository";
 import { AuditStoreRepository } from "../repositories/AuditStoreRepository";
-import { getDatabase } from "./supabase";
 
 import { PasswordService } from "../modules/auth/PasswordService";
 import { EmailService } from "../services/EmailService";
 import { RoleService } from "../services/RoleService";
+import { ArticleService } from "../services/ArticleService";
 
 import { EntityRepository } from "../core/repositories/EntityRepository";
 import { UserRepository } from "../core/repositories/UserRepository";
@@ -25,6 +26,7 @@ export interface AppDependencies {
   entityRepository: EntityRepository;
   userRepository: UserRepository;
   roleRepository: RoleRepository;
+  entityTypeRepository: EntityTypeRepository;
   relationshipTypeRepository: RelationshipTypeRepository;
   validationRuleRepository: ValidationRuleRepository;
   ontologyDefinitionRepository: OntologyDefinitionRepository;
@@ -32,16 +34,15 @@ export interface AppDependencies {
   passwordService: PasswordService;
   emailService: EmailService;
   roleService: RoleService;
+  articleService: ArticleService;
 }
 
-// ...
 let container: AppDependencies | null = null;
 
 export function initializeDependencies(): AppDependencies {
   if (container) {
     return container;
   }
-// ...
 
   const entityRepository = createEntityRepository();
   const userRepository = createUserRepository();
@@ -54,27 +55,28 @@ export function initializeDependencies(): AppDependencies {
   const passwordService = new PasswordService();
   const emailService = new EmailService(userRepository);
   const roleService = new RoleService(roleRepository);
+  const articleService = createArticleService();
 
   container = {
     entityRepository,
     userRepository,
     roleRepository,
+    entityTypeRepository,
     relationshipTypeRepository,
     validationRuleRepository,
     ontologyDefinitionRepository,
     auditStoreRepository,
     passwordService,
     emailService,
-    roleService
+    roleService,
+    articleService
   };
 
   Object.freeze(container);
   return container!;
 }
 
-export function getDependencies():
-  AppDependencies {
-
+export function getDependencies(): AppDependencies {
   if (!container) {
     throw new Error(
       "AppDependencies container accessed before lifecycle initialization. Ensure initializeDependencies() is triggered in index.ts."

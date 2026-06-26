@@ -75,13 +75,24 @@ export class GeoContextEngine {
     }
 
     // direct relationship boosts locality heavily
+    // Use RelationshipType to identify geographic links
+    const geoRelationshipTypes = [
+      RelationshipType.LOCATED_IN,
+      RelationshipType.CONTAINS,
+      RelationshipType.PART_OF,
+      RelationshipType.NEIGHBOR_OF,
+      RelationshipType.BORDERS,
+      RelationshipType.NEAR
+    ];
+
     const directMatch = root.relationships.some(
-      r => r.targetId === candidate.id
+      r => r.targetId === candidate.id && geoRelationshipTypes.includes(r.type as RelationshipType)
     );
 
     if (directMatch) {
       score += 200;
     }
+  // ...
 
     // shared neighbors = contextual closeness
     const rootTargets = new Set(

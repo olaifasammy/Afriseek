@@ -1,6 +1,5 @@
 import { OntologyDefinitionRepository } from "./OntologyDefinitionRepository";
 import { OntologyDefinitionRecord } from "../../types/studio/OntologyDefinitionRecord";
-import { getDatabase } from "../../config/supabase";
 
 export class SqlOntologyDefinitionRepository implements OntologyDefinitionRepository {
   private db: any;

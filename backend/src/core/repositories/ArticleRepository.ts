@@ -20,4 +20,9 @@ export interface ArticleRepository {
     article: Article
   ):
     Promise<void>;
+
+  delete(
+    id: string
+  ):
+    Promise<void>;
 }
