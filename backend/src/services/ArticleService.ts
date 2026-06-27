@@ -1,6 +1,7 @@
 import { ArticleRepository } from "../core/repositories/ArticleRepository";
 import { Article, ArticleStatus } from "../types/article";
 import { AuditService } from "./AuditService";
+import { logger } from "../config/logger";
 
 export class ArticleService {
   constructor(
@@ -9,14 +10,17 @@ export class ArticleService {
   ) {}
 
   async getAll() {
+    logger.info("Fetching all articles");
     return this.articleRepository.findAll();
   }
 
   async getBySlug(slug: string) {
+    logger.info({ slug }, "Fetching article by slug");
     return this.articleRepository.findBySlug(slug);
   }
 
   async create(actorId: string, data: Omit<Article, 'id' | 'status' | 'versions' | 'metadata'>) {
+    logger.info({ actorId, title: data.title }, "Creating article");
     const article: Article = {
       id: `art_${Date.now()}`,
       slug: data.slug,
@@ -37,12 +41,17 @@ export class ArticleService {
       timestamp: new Date().toISOString(),
       metadata: { new_value: article }
     });
+    logger.info({ articleId: article.id }, "Article created successfully");
     return article;
   }
 
   async update(actorId: string, id: string, data: Partial<Article>) {
+    logger.info({ actorId, articleId: id }, "Updating article");
     const article = await this.articleRepository.findById(id);
-    if (!article) throw new Error("Article not found");
+    if (!article) {
+        logger.error({ articleId: id }, "Article not found for update");
+        throw new Error("Article not found");
+    }
 
     const oldArticle = { ...article };
     
@@ -68,10 +77,12 @@ export class ArticleService {
       timestamp: new Date().toISOString(),
       metadata: { old_value: oldArticle, new_value: article }
     });
+    logger.info({ articleId: id }, "Article updated successfully");
     return article;
   }
 
   async delete(actorId: string, id: string) {
+    logger.info({ actorId, articleId: id }, "Deleting article");
     await this.articleRepository.delete(id, actorId);
     await this.auditService.log({
       id: `audit_${Date.now()}`,
@@ -81,12 +92,17 @@ export class ArticleService {
       action: 'DELETE',
       timestamp: new Date().toISOString()
     });
+    logger.info({ articleId: id }, "Article deleted successfully");
     return { success: true };
   }
 
   async transitionStatus(actorId: string, id: string, status: ArticleStatus) {
+    logger.info({ actorId, articleId: id, status }, "Transitioning article status");
     const article = await this.articleRepository.findById(id);
-    if (!article) throw new Error("Article not found");
+    if (!article) {
+        logger.error({ articleId: id }, "Article not found for status transition");
+        throw new Error("Article not found");
+    }
     
     const oldStatus = article.status;
     article.status = status;
@@ -102,6 +118,7 @@ export class ArticleService {
       timestamp: new Date().toISOString(),
       metadata: { old_value: { status: oldStatus }, new_value: { status: status } }
     });
+    logger.info({ articleId: id, status }, "Article status updated successfully");
     return article;
   }
 }
