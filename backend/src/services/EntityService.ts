@@ -7,6 +7,7 @@ import { getDependencies } from "../config/dependencies";
 import { SearchIndexer } from "./SearchIndexer";
 import { AnalyticsService } from "./AnalyticsService";
 import { logger } from "../config/logger";
+import { NotFoundError, ValidationError } from "../types/api/error";
 
 export class EntityService {
   private validator = new EntityValidator();
@@ -55,7 +56,7 @@ export class EntityService {
     const duplicates = await this.duplicateDetector.findDuplicates(entity);
     if (duplicates.length > 0) {
         logger.warn({ entityId: entity.id }, "Duplicate entity detected");
-        throw new Error("Duplicate entity detected");
+        throw new ValidationError("Duplicate entity detected");
     }
     const created = await this.repository.create(
       entity
@@ -74,7 +75,7 @@ export class EntityService {
     const existing = await this.repository.findById(entity.id);
     if (!existing) {
         logger.error({ entityId: entity.id }, "Entity not found for update");
-        throw new Error("Entity not found");
+        throw new NotFoundError("Entity not found");
     }
     
     await this.versioningService.createVersion(entity.id, existing, existing.version);

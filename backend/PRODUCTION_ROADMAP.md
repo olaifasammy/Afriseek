@@ -29,7 +29,7 @@
 
 ## Phase 5: Reliability & Observability (Hardening)
 - [x] **Structured Logging:** Standardize `pino` logger usage across all services.
-- [ ] **Error Handling:** Standardize all API error responses via `errorHandler` middleware per `Api Implementation.md`.
+- [x] **Error Handling:** Standardize all API error responses via `errorHandler` middleware per `Api Implementation.md`.
 - [ ] **Automated Tests:** Add e2e/integration tests for every core service (`Auth`, `Entity`, `Relationship`, `Article`).
 - [ ] **Health Checks:** Implement `monitoring/health` endpoints for all services and dependencies.
 
