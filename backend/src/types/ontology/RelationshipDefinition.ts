@@ -1,3 +1,5 @@
+export type Cardinality = 'one-to-one' | 'one-to-many' | 'many-to-one' | 'many-to-many';
+
 export interface RelationshipDefinition {
   type: string;
 
@@ -7,7 +9,12 @@ export interface RelationshipDefinition {
 
   multiple?: boolean;
 
+  cardinality: Cardinality;
+
   inverseType?: string;
+
+  description?: string;
+}
 
   description?: string;
 }
