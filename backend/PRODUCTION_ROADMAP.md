@@ -17,7 +17,7 @@
 - [x] **Soft Delete Enforcement:** Audit all repositories to ensure strictly no hard deletes (use `deleted_at` only).
 
 ## Phase 3: Domain Services (Knowledge & Content)
-- [ ] **Entity Service:** Implement full validation, integrity checking, and duplicate detection logic.
+- [x] **Entity Service:** Implement full validation, integrity checking, and duplicate detection logic.
 - [ ] **Relationship Service:** Implement graph consistency checks and inverse relationship automation.
 - [ ] **Article/Media Services:** Implement editorial workflows (Draft -> Review -> Published).
 - [ ] **Sources/Citations:** Implement credibility scoring and source-to-fact mapping.

@@ -2,14 +2,18 @@ import { EntityRepository } from "../core/repositories/EntityRepository";
 import { AfriseekEntity } from "../types/entity";
 import { EntityValidator } from "../modules/entity/EntityValidator";
 import { VersioningService } from "./VersioningService";
+import { EntityDuplicateDetectionService } from "./entity/EntityDuplicateDetectionService";
 import { getDependencies } from "../config/dependencies";
 
 export class EntityService {
   private validator = new EntityValidator();
+  private duplicateDetector: EntityDuplicateDetectionService;
 
   constructor(
     private repository: EntityRepository
-  ) {}
+  ) {
+    this.duplicateDetector = new EntityDuplicateDetectionService(repository);
+  }
 
   private get versioningService(): VersioningService {
     return getDependencies().versioningService;
@@ -39,6 +43,10 @@ export class EntityService {
     entity: AfriseekEntity
   ) {
     this.validator.validate(entity);
+    const duplicates = await this.duplicateDetector.findDuplicates(entity);
+    if (duplicates.length > 0) {
+        throw new Error("Duplicate entity detected");
+    }
     return this.repository.create(
       entity
     );
