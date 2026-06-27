@@ -39,7 +39,7 @@
 - [x] **Session Management Service:** Implement active session tracking, termination, and device/IP monitoring.
 - [x] **Policy Engine:** Implement the context-aware authorization layer (e.g., Ownership policies).
 - [x] **AI Gateway & Prompt Manager:** Implement the central AI orchestration layer.
-- [ ] **Metrics Collector & Aggregation Engine:** Implement the engine for KPI/dashboard calculations.
+- [x] **Metrics Collector & Aggregation Engine:** Implement the engine for KPI/dashboard calculations.
 - [ ] **Alert Engine:** Implement system alert generation.
 - [ ] **Import/Export Validation Pipeline:** Implement pre-ingestion validation logic.
 - [ ] **Backup/Restore Service:** Implement automated backup/recovery logic.
