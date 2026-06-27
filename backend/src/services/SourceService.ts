@@ -1,6 +1,7 @@
 import { SourceRepository } from "../core/repositories/SourceRepository";
 import { Source, SourceStatus } from "../types/source";
 import { AuditService } from "./AuditService";
+import { logger } from "../config/logger";
 
 export class SourceService {
   constructor(
@@ -9,6 +10,7 @@ export class SourceService {
   ) {}
 
   async create(actorId: string, data: Omit<Source, 'id' | 'status' | 'credibilityScore' | 'createdAt' | 'updatedAt'>) {
+    logger.info({ actorId, title: data.metadata.title }, "Creating source");
     const source: Source = {
       id: `src_${Date.now()}`,
       type: data.type,
@@ -29,12 +31,17 @@ export class SourceService {
       timestamp: new Date().toISOString(),
       metadata: { new_value: source }
     });
+    logger.info({ sourceId: source.id }, "Source created successfully");
     return source;
   }
 
   async verify(actorId: string, id: string) {
+    logger.info({ actorId, sourceId: id }, "Verifying source");
     const source = await this.sourceRepository.findById(id);
-    if (!source) throw new Error("Source not found");
+    if (!source) {
+        logger.error({ sourceId: id }, "Source not found for verification");
+        throw new Error("Source not found");
+    }
 
     const oldStatus = source.status;
     source.status = SourceStatus.VERIFIED;
@@ -51,6 +58,7 @@ export class SourceService {
       timestamp: new Date().toISOString(),
       metadata: { old_value: { status: oldStatus }, new_value: { status: SourceStatus.VERIFIED } }
     });
+    logger.info({ sourceId: id }, "Source verified successfully");
     return source;
   }
 }
