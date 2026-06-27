@@ -36,7 +36,7 @@
 ## Phase 6: Infrastructure & Missing Components
 - [x] **ApiKeyService:** Implement machine-to-machine authentication management.
 - [x] **MFA Service:** Implement Authenticator App and Email OTP challenge/verification.
-- [ ] **Session Management Service:** Implement active session tracking, termination, and device/IP monitoring.
+- [x] **Session Management Service:** Implement active session tracking, termination, and device/IP monitoring.
 - [ ] **Policy Engine:** Implement the context-aware authorization layer (e.g., Ownership policies).
 - [ ] **AI Gateway & Prompt Manager:** Implement the central AI orchestration layer.
 - [ ] **Metrics Collector & Aggregation Engine:** Implement the engine for KPI/dashboard calculations.
