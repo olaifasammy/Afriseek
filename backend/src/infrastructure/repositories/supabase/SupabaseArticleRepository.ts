@@ -161,8 +161,11 @@ implements ArticleRepository {
   }
 
   async delete(id: string): Promise<void> {
-    await (getDatabase().from("article_entities") as any).delete().eq("article_id", id);
-    await (getDatabase().from("article_versions") as any).delete().eq("article_id", id);
-    await (getDatabase().from("articles") as any).delete().eq("id", id);
+    const { error } = await (getDatabase().from("articles") as any)
+      .update({
+        deleted_at: new Date().toISOString()
+      })
+      .eq("id", id);
+    if (error) throw error;
   }
 }

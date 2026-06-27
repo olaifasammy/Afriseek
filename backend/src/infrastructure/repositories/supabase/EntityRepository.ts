@@ -146,7 +146,9 @@ export class SupabaseEntityRepository implements EntityRepository {
   async delete(id: string): Promise<void> {
     const { error } = await this.getClient()
       .from("entities")
-      .delete()
+      .update({
+        deleted_at: new Date().toISOString()
+      })
       .eq("id", id);
 
     if (error) throw error;

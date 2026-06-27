@@ -14,7 +14,7 @@
     - [x] Enforce Cardinality Rules.
     - [x] Enforce Inverse Relationship Rules.
 - [x] **Versioning Engine:** Enforce automatic version creation for all `Entity`, `Article`, `Ontology`, and `Source` updates.
-- [ ] **Soft Delete Enforcement:** Audit all repositories to ensure strictly no hard deletes (use `deleted_at` only).
+- [x] **Soft Delete Enforcement:** Audit all repositories to ensure strictly no hard deletes (use `deleted_at` only).
 
 ## Phase 3: Domain Services (Knowledge & Content)
 - [ ] **Entity Service:** Implement full validation, integrity checking, and duplicate detection logic.

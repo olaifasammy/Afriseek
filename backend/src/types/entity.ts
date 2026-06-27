@@ -25,8 +25,10 @@ export interface EntityMetadata {
 
   updatedAt: string;
 
-  verified: boolean;
+  deletedAt?: string;
 
+  verified: boolean;
+...
   featured?: boolean;
 
   popularityScore?: number;
