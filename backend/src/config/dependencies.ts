@@ -63,7 +63,15 @@ export function initializeDependencies(): AppDependencies {
   const roleRepository = new SupabaseRoleRepository();
   const relationshipTypeRepository = createRelationshipTypeRepository();
   const validationRuleRepository = createValidationRuleRepository();
+import { ontologyRegistry } from "../modules/ontology/OntologyRegistry";
+
+// ... (inside initializeDependencies)
   const ontologyDefinitionRepository = createOntologyDefinitionRepository();
+  ontologyRegistry.setRepository(ontologyDefinitionRepository);
+  // Do NOT await initialize() here as dependencies are often initialized synchronously
+  ontologyRegistry.initialize(); 
+
+  // ...
   const entityTypeRepository = createEntityTypeRepository();
   const auditStoreRepository = new AuditStoreRepository();
   const passwordService = new PasswordService();

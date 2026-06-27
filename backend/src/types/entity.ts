@@ -51,6 +51,8 @@ export interface AfriseekEntity {
 
   id: string;
 
+  version: number;
+
   slug: string;
 
   name: string;

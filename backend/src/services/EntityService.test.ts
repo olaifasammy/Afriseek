@@ -2,6 +2,8 @@ import { describe, it, expect, jest } from '@jest/globals';
 import { EntityService } from './EntityService';
 import { EntityRepository } from '../core/repositories/EntityRepository';
 import { AfriseekEntity } from '../types/entity';
+import { SearchIndexer } from './SearchIndexer';
+import { AnalyticsService } from './AnalyticsService';
 
 describe('EntityService', () => {
   const mockRepository: EntityRepository = {
@@ -13,7 +15,19 @@ describe('EntityService', () => {
     delete: jest.fn() as any,
   };
 
-  const service = new EntityService(mockRepository);
+  const mockSearchIndexer: SearchIndexer = {
+    indexEntity: jest.fn() as any,
+    indexArticle: jest.fn() as any,
+    deleteEntity: jest.fn() as any,
+    deleteArticle: jest.fn() as any,
+    search: jest.fn() as any,
+  } as any;
+
+  const mockAnalyticsService: AnalyticsService = {
+    processEvent: jest.fn() as any,
+  } as any;
+
+  const service = new EntityService(mockRepository, mockSearchIndexer, mockAnalyticsService);
 
   it('should fetch all entities', async () => {
     const mockEntities: AfriseekEntity[] = [{ id: '1', slug: 'test', name: 'Test' } as any];

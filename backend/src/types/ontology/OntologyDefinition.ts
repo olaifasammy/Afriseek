@@ -15,6 +15,8 @@ export interface OntologyDefinition {
 
   metadata: MetadataDefinition[];
 
+  requiredFields: string[];
+
   relationships: RelationshipDefinition[];
 
   sections: SectionDefinition[];

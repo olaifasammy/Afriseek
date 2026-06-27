@@ -1,10 +1,25 @@
 import { OntologyDefinition } from "../../types/ontology/OntologyDefinition";
 import { OntologyInheritanceResolver } from "./inheritance/OntologyInheritanceResolver";
+import { OntologyDefinitionRepository } from "../../repositories/ontology/OntologyDefinitionRepository";
 
 export class OntologyRegistry {
 
   private readonly definitions =
     new Map<string, OntologyDefinition>();
+  private repository: OntologyDefinitionRepository | null = null;
+
+  setRepository(repository: OntologyDefinitionRepository): void {
+    this.repository = repository;
+  }
+
+  async initialize(): Promise<void> {
+    if (!this.repository) throw new Error("Repository not set");
+    const records = await this.repository.getAll();
+    for (const record of records) {
+        // Assuming record data structure needs to be mapped to OntologyDefinition
+        this.definitions.set(record.entityType, record.definition as any);
+    }
+  }
 
   register(
     definition: OntologyDefinition
