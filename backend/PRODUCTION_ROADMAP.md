@@ -19,8 +19,8 @@
 ## Phase 3: Domain Services (Knowledge & Content)
 - [x] **Entity Service:** Implement full validation, integrity checking, and duplicate detection logic.
 - [x] **Relationship Service:** Implement graph consistency checks and inverse relationship automation.
-- [ ] **Article/Media Services:** Implement editorial workflows (Draft -> Review -> Published).
-- [ ] **Sources/Citations:** Implement credibility scoring and source-to-fact mapping.
+- [x] **Article/Media Services:** Implement editorial workflows (Draft -> Review -> Published).
+- [x] **Sources/Citations:** Implement credibility scoring and source-to-fact mapping.
 
 ## Phase 4: Intelligence & Intelligence Infrastructure
 - [ ] **AI Gateway:** Implement the mandatory orchestration layer (per `AiDesignSpecs.md`).
