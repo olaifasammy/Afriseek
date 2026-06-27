@@ -15,13 +15,17 @@ import { ArticleService } from "../services/ArticleService";
 import { RelationshipService } from "../services/RelationshipService";
 import { RelationshipRepository } from "../core/repositories/RelationshipRepository";
 import { InMemoryRelationshipRepository } from "../infrastructure/repositories/in-memory/InMemoryRelationshipRepository";
+import { VersioningService } from "../services/VersioningService";
+import { VersionRepository } from "../core/repositories/VersionRepository";
+import { InMemoryVersionRepository } from "../infrastructure/repositories/in-memory/InMemoryVersionRepository";
 
 import { EntityRepository } from "../core/repositories/EntityRepository";
 ...
-  roleService: RoleService;
   articleService: ArticleService;
   relationshipService: RelationshipService;
   relationshipRepository: RelationshipRepository;
+  versioningService: VersioningService;
+  versionRepository: VersionRepository;
 }
 
 let container: AppDependencies | null = null;
@@ -46,6 +50,8 @@ export function initializeDependencies(): AppDependencies {
   const articleService = createArticleService();
   const relationshipRepository = new InMemoryRelationshipRepository();
   const relationshipService = new RelationshipService(relationshipRepository, entityRepository);
+  const versionRepository = new InMemoryVersionRepository();
+  const versioningService = new VersioningService(versionRepository);
 
   container = {
     entityRepository,
@@ -62,11 +68,14 @@ export function initializeDependencies(): AppDependencies {
     roleService,
     articleService,
     relationshipService,
-    relationshipRepository
+    relationshipRepository,
+    versioningService,
+    versionRepository
   };
 
   Object.freeze(container);
   return container!;
+}
 }
 
 export function getDependencies(): AppDependencies {
