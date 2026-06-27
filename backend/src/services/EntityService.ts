@@ -4,13 +4,15 @@ import { EntityValidator } from "../modules/entity/EntityValidator";
 import { VersioningService } from "./VersioningService";
 import { EntityDuplicateDetectionService } from "./entity/EntityDuplicateDetectionService";
 import { getDependencies } from "../config/dependencies";
+import { SearchIndexer } from "./SearchIndexer";
 
 export class EntityService {
   private validator = new EntityValidator();
   private duplicateDetector: EntityDuplicateDetectionService;
 
   constructor(
-    private repository: EntityRepository
+    private repository: EntityRepository,
+    private searchIndexer: SearchIndexer
   ) {
     this.duplicateDetector = new EntityDuplicateDetectionService(repository);
   }
@@ -47,9 +49,11 @@ export class EntityService {
     if (duplicates.length > 0) {
         throw new Error("Duplicate entity detected");
     }
-    return this.repository.create(
+    const created = await this.repository.create(
       entity
     );
+    await this.searchIndexer.indexEntity(entity);
+    return created;
   }
 
   async update(
@@ -68,16 +72,20 @@ export class EntityService {
         version: existing.version + 1
     };
 
-    return this.repository.update(
+    const updated = await this.repository.update(
       updatedEntity
     );
+    await this.searchIndexer.indexEntity(updatedEntity);
+    return updated;
   }
 
   async delete(
     id: string
   ) {
-    return this.repository.delete(
+    const result = await this.repository.delete(
       id
     );
+    await this.searchIndexer.deleteEntity(id);
+    return result;
   }
 }

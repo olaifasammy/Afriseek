@@ -24,7 +24,7 @@
 
 ## Phase 4: Intelligence & Intelligence Infrastructure
 - [x] **AI Gateway:** Implement the mandatory orchestration layer (per `AiDesignSpecs.md`).
-- [ ] **Search Indexing:** Sync the `SearchService` (OpenSearch) with transactional DB writes.
+- [x] **Search Indexing:** Sync the `SearchService` (OpenSearch) with transactional DB writes.
 - [ ] **Analytics Instrumentation:** Implement event-bus publishing for every key action to the `MetricsService`.
 
 ## Phase 5: Reliability & Observability (Hardening)
