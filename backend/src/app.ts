@@ -3,11 +3,13 @@ import cors from "cors";
 import helmet from "helmet";
 import { errorHandler } from "./middleware/errorHandler";
 import { discoverRoutes } from "./routes/loader";
+import { HealthService } from "./services/HealthService";
 import path from "path";
 import { pinoHttp } from 'pino-http';
 import { logger } from './config/logger';
 
 export const app = express();
+const healthService = new HealthService();
 
 app.use(helmet());
 app.use(cors());
@@ -25,8 +27,9 @@ export const initializeAppRoutes = async () => {
       logger.info(`Registered route: ${route.path}`);
     }
     
-    app.get("/health", (_req, res) => {
-        res.json({ status: "ok" });
+    app.get("/health", async (_req, res) => {
+        const health = await healthService.check();
+        res.status(health.status === "UP" ? 200 : 503).json(health);
     });
     
     app.use(errorHandler);
