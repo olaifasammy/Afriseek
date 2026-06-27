@@ -18,7 +18,7 @@
 
 ## Phase 3: Domain Services (Knowledge & Content)
 - [x] **Entity Service:** Implement full validation, integrity checking, and duplicate detection logic.
-- [ ] **Relationship Service:** Implement graph consistency checks and inverse relationship automation.
+- [x] **Relationship Service:** Implement graph consistency checks and inverse relationship automation.
 - [ ] **Article/Media Services:** Implement editorial workflows (Draft -> Review -> Published).
 - [ ] **Sources/Citations:** Implement credibility scoring and source-to-fact mapping.
 
