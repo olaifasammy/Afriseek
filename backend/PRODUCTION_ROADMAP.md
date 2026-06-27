@@ -23,7 +23,7 @@
 - [x] **Sources/Citations:** Implement credibility scoring and source-to-fact mapping.
 
 ## Phase 4: Intelligence & Intelligence Infrastructure
-- [ ] **AI Gateway:** Implement the mandatory orchestration layer (per `AiDesignSpecs.md`).
+- [x] **AI Gateway:** Implement the mandatory orchestration layer (per `AiDesignSpecs.md`).
 - [ ] **Search Indexing:** Sync the `SearchService` (OpenSearch) with transactional DB writes.
 - [ ] **Analytics Instrumentation:** Implement event-bus publishing for every key action to the `MetricsService`.
 
