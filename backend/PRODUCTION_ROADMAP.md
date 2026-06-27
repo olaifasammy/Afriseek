@@ -3,7 +3,7 @@
 ## Phase 1: Foundation (Security & Governance)
 - [x] **Auth Enforcement:** Implement JWT parsing middleware (populates `req.user`).
 - [x] **RBAC Enforcement:** Complete `AuthorizationService` and apply `requirePermission`/`requireRole` to all routes.
-- [ ] **Audit Integration:** Apply `auditAction` decorator/middleware to **every** write-path controller action.
+- [x] **Audit Integration:** Apply `auditAction` decorator/middleware to **every** write-path controller action.
 - [ ] **Token Revocation:** Implement token blacklisting.
 - [ ] **MFA:** Implement Authenticator App and Email OTP.
 
