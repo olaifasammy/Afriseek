@@ -34,7 +34,7 @@
 - [x] **Health Checks:** Implement `monitoring/health` endpoints for all services and dependencies.
 
 ## Phase 6: Infrastructure & Missing Components
-- [ ] **ApiKeyService:** Implement machine-to-machine authentication management.
+- [x] **ApiKeyService:** Implement machine-to-machine authentication management.
 - [ ] **MFA Service:** Implement Authenticator App and Email OTP challenge/verification.
 - [ ] **Session Management Service:** Implement active session tracking, termination, and device/IP monitoring.
 - [ ] **Policy Engine:** Implement the context-aware authorization layer (e.g., Ownership policies).
