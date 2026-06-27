@@ -4,7 +4,7 @@
 - [x] **Auth Enforcement:** Implement JWT parsing middleware (populates `req.user`).
 - [x] **RBAC Enforcement:** Complete `AuthorizationService` and apply `requirePermission`/`requireRole` to all routes.
 - [x] **Audit Integration:** Apply `auditAction` decorator/middleware to **every** write-path controller action.
-- [ ] **Token Revocation:** Implement token blacklisting.
+- [x] **Token Revocation:** Implement token blacklisting.
 - [ ] **MFA:** Implement Authenticator App and Email OTP.
 
 ## Phase 2: Core Knowledge (Ontology & Integrity)

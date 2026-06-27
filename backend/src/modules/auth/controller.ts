@@ -76,7 +76,11 @@ export const AuthController = {
         return res.status(403).json({ success: false, message: "Please verify your email address before logging in." });
       }
 
-      const { passwordHash, ...safeUser } = user;
+      if (user.secretKeyVerified) {
+        return res.json({ success: true, message: "MFA token required.", requireMfa: true });
+      }
+
+      const { passwordHash, secretKeyHash, ...safeUser } = user;
       const jwtService = new JwtService();
       const token = jwtService.generateToken({
         userId: user.id,
@@ -93,6 +97,96 @@ export const AuthController = {
     } catch (error) {
       logger.error({ error }, "❌ Login Error");
       return res.status(500).json({ success: false, message: "Internal server error during login." });
+    }
+  },
+
+  loginMfa: async (req: Request, res: Response) => {
+    try {
+      const { email, token } = req.body;
+      const { userRepository, mfaService } = getDependencies();
+
+      const user = await userRepository.findByEmail(email);
+      if (!user || !user.secretKeyHash) {
+        return res.status(401).json({ success: false, message: "Invalid credentials." });
+      }
+
+      const verified = mfaService.verifyToken(user.secretKeyHash, token);
+      if (!verified) {
+        return res.status(401).json({ success: false, message: "Invalid MFA token." });
+      }
+
+      const { passwordHash, secretKeyHash, ...safeUser } = user;
+      const jwtService = new JwtService();
+      const accessToken = jwtService.generateToken({
+        userId: user.id,
+        role: user.role
+      });
+
+      return res.json({ 
+        success: true, 
+        message: "Login successful.",
+        token: accessToken,
+        user: safeUser 
+      });
+    } catch (error) {
+      logger.error({ error }, "❌ MFA Login Error");
+      return res.status(500).json({ success: false, message: "Internal server error during MFA login." });
+    }
+  },
+
+  setupMfa: async (req: Request, res: Response) => {
+    try {
+      const { mfaService, userRepository } = getDependencies();
+      const user = (req as any).user;
+
+      const userData = await userRepository.findById(user.userId);
+      if (!userData) {
+        return res.status(404).json({ success: false, message: "User not found." });
+      }
+
+      const secret = mfaService.generateSecret();
+      const otpAuthUrl = mfaService.generateOtpUri(secret.base32, userData.email);
+
+      const updatedUser = {
+        ...userData,
+        secretKeyHash: secret.base32,
+        secretKeyVerified: false
+      };
+      await userRepository.update(updatedUser);
+
+      return res.json({ success: true, otpAuthUrl });
+    } catch (error) {
+      logger.error({ error }, "❌ MFA Setup Error");
+      return res.status(500).json({ success: false, message: "Internal server error during MFA setup." });
+    }
+  },
+
+  verifyMfa: async (req: Request, res: Response) => {
+    try {
+      const { mfaService, userRepository } = getDependencies();
+      const user = (req as any).user;
+      const { token } = req.body;
+
+      const userData = await userRepository.findById(user.userId);
+      if (!userData || !userData.secretKeyHash) {
+        return res.status(400).json({ success: false, message: "MFA not set up." });
+      }
+
+      const verified = mfaService.verifyToken(userData.secretKeyHash, token);
+      if (!verified) {
+        return res.status(401).json({ success: false, message: "Invalid MFA token." });
+      }
+
+      const updatedUser = {
+        ...userData,
+        secretKeyVerified: true
+      };
+      await userRepository.update(updatedUser);
+
+      return res.json({ success: true, message: "MFA verified successfully." });
+    } catch (error) {
+      logger.error({ error }, "❌ MFA Verification Error");
+      return res.status(500).json({ success: false, message: "Internal server error during MFA verification." });
     }
   },
 
@@ -115,6 +209,28 @@ export const AuthController = {
     } catch (error) {
       logger.error({ error }, "❌ Email Verification Error");
       return res.status(500).json({ success: false, message: "Internal server error during email verification." });
+    }
+  },
+
+  logout: async (req: Request, res: Response) => {
+    try {
+      const authHeader = req.headers.authorization;
+      if (!authHeader || !authHeader.startsWith("Bearer ")) {
+        return res.status(400).json({ success: false, message: "Token required." });
+      }
+
+      const token = authHeader.split(" ")[1];
+      const { revokedTokenRepository } = getDependencies();
+      
+      // For now we'll use a default expiration, but this should be extracted from the JWT.
+      const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000); 
+
+      await revokedTokenRepository.revoke(token, expiresAt);
+
+      return res.json({ success: true, message: "Logged out successfully." });
+    } catch (error) {
+      logger.error({ error }, "❌ Logout Error");
+      return res.status(500).json({ success: false, message: "Internal server error during logout." });
     }
   }
 };
