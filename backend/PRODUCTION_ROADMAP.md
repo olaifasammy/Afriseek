@@ -37,8 +37,8 @@
 - [x] **ApiKeyService:** Implement machine-to-machine authentication management.
 - [x] **MFA Service:** Implement Authenticator App and Email OTP challenge/verification.
 - [x] **Session Management Service:** Implement active session tracking, termination, and device/IP monitoring.
-- [ ] **Policy Engine:** Implement the context-aware authorization layer (e.g., Ownership policies).
-- [ ] **AI Gateway & Prompt Manager:** Implement the central AI orchestration layer.
+- [x] **Policy Engine:** Implement the context-aware authorization layer (e.g., Ownership policies).
+- [x] **AI Gateway & Prompt Manager:** Implement the central AI orchestration layer.
 - [ ] **Metrics Collector & Aggregation Engine:** Implement the engine for KPI/dashboard calculations.
 - [ ] **Alert Engine:** Implement system alert generation.
 - [ ] **Import/Export Validation Pipeline:** Implement pre-ingestion validation logic.

@@ -18,14 +18,37 @@ import { InMemoryRelationshipRepository } from "../infrastructure/repositories/i
 import { VersioningService } from "../services/VersioningService";
 import { VersionRepository } from "../core/repositories/VersionRepository";
 import { InMemoryVersionRepository } from "../infrastructure/repositories/in-memory/InMemoryVersionRepository";
+import { AuditService } from "../services/AuditService";
+import { PolicyEngineService } from "../services/PolicyEngineService";
 
 import { EntityRepository } from "../core/repositories/EntityRepository";
-...
+import { UserRepository } from "../core/repositories/UserRepository";
+import { RoleRepository } from "../core/repositories/RoleRepository";
+import { EntityTypeRepository } from "../core/repositories/EntityTypeRepository";
+import { RelationshipTypeRepository } from "../core/repositories/RelationshipTypeRepository";
+import { ValidationRuleRepository } from "../core/repositories/ValidationRuleRepository";
+import { OntologyDefinitionRepository } from "../core/repositories/OntologyDefinitionRepository";
+import { SupabaseRoleRepository } from "../infrastructure/repositories/supabase/SupabaseRoleRepository";
+
+export interface AppDependencies {
+  entityRepository: EntityRepository;
+  userRepository: UserRepository;
+  roleRepository: RoleRepository;
+  entityTypeRepository: EntityTypeRepository;
+  relationshipTypeRepository: RelationshipTypeRepository;
+  validationRuleRepository: ValidationRuleRepository;
+  ontologyDefinitionRepository: OntologyDefinitionRepository;
+  auditStoreRepository: AuditStoreRepository;
+  passwordService: PasswordService;
+  mfaService: MfaService;
+  emailService: EmailService;
+  roleService: RoleService;
   articleService: ArticleService;
   relationshipService: RelationshipService;
   relationshipRepository: RelationshipRepository;
   versioningService: VersioningService;
   versionRepository: VersionRepository;
+  policyEngineService: PolicyEngineService;
 }
 
 let container: AppDependencies | null = null;
@@ -44,7 +67,7 @@ export function initializeDependencies(): AppDependencies {
   const entityTypeRepository = createEntityTypeRepository();
   const auditStoreRepository = new AuditStoreRepository();
   const passwordService = new PasswordService();
-  const mfaService = new MfaService();
+  const mfaService = new MfaService(new EmailService(userRepository), new AuditService(auditStoreRepository));
   const emailService = new EmailService(userRepository);
   const roleService = new RoleService(roleRepository);
   const articleService = createArticleService();
@@ -52,6 +75,8 @@ export function initializeDependencies(): AppDependencies {
   const relationshipService = new RelationshipService(relationshipRepository, entityRepository);
   const versionRepository = new InMemoryVersionRepository();
   const versioningService = new VersioningService(versionRepository);
+  const auditService = new AuditService(auditStoreRepository);
+  const policyEngineService = new PolicyEngineService(auditService);
 
   container = {
     entityRepository,
@@ -70,12 +95,12 @@ export function initializeDependencies(): AppDependencies {
     relationshipService,
     relationshipRepository,
     versioningService,
-    versionRepository
+    versionRepository,
+    policyEngineService
   };
 
   Object.freeze(container);
   return container!;
-}
 }
 
 export function getDependencies(): AppDependencies {
