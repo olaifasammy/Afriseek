@@ -1,3 +1,11 @@
+export enum ArticleStatus {
+  DRAFT = 'DRAFT',
+  REVIEW = 'REVIEW',
+  APPROVED = 'APPROVED',
+  PUBLISHED = 'PUBLISHED',
+  ARCHIVED = 'ARCHIVED'
+}
+
 export interface ArticleVersion {
 
   version: number;
@@ -21,7 +29,7 @@ export interface Article {
 
   entityIds: string[];
 
-  published: boolean;
+  status: ArticleStatus;
 
   versions: ArticleVersion[];
 
@@ -30,5 +38,6 @@ export interface Article {
     createdAt: string;
 
     updatedAt: string;
+    deletedAt?: string;
   };
 }

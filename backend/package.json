@@ -21,6 +21,7 @@
     "nodemailer": "^9.0.1",
     "pino": "^10.3.1",
     "pino-http": "^11.0.0",
+    "speakeasy": "^2.0.0",
     "zod": "^4.4.3"
   },
   "devDependencies": {
@@ -33,6 +34,7 @@
     "@types/jsonwebtoken": "^9.0.10",
     "@types/node": "^24.6.0",
     "@types/nodemailer": "^8.0.1",
+    "@types/speakeasy": "^2.0.10",
     "jest": "^30.4.2",
     "ts-jest": "^29.4.11",
     "ts-node": "^10.9.2",
