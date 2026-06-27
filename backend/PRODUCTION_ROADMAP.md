@@ -1,7 +1,7 @@
 # Connect Africa Backend - Production Roadmap
 
 ## Phase 1: Foundation (Security & Governance)
-- [ ] **Auth Enforcement:** Implement JWT parsing middleware (populates `req.user`).
+- [x] **Auth Enforcement:** Implement JWT parsing middleware (populates `req.user`).
 - [ ] **RBAC Enforcement:** Complete `AuthorizationService` and apply `requirePermission`/`requireRole` to all routes.
 - [ ] **Audit Integration:** Apply `auditAction` decorator/middleware to **every** write-path controller action.
 - [ ] **Token Revocation:** Implement token blacklisting.
