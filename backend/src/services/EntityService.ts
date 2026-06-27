@@ -5,6 +5,7 @@ import { VersioningService } from "./VersioningService";
 import { EntityDuplicateDetectionService } from "./entity/EntityDuplicateDetectionService";
 import { getDependencies } from "../config/dependencies";
 import { SearchIndexer } from "./SearchIndexer";
+import { AnalyticsService } from "./AnalyticsService";
 
 export class EntityService {
   private validator = new EntityValidator();
@@ -12,7 +13,8 @@ export class EntityService {
 
   constructor(
     private repository: EntityRepository,
-    private searchIndexer: SearchIndexer
+    private searchIndexer: SearchIndexer,
+    private analyticsService: AnalyticsService
   ) {
     this.duplicateDetector = new EntityDuplicateDetectionService(repository);
   }
@@ -53,6 +55,7 @@ export class EntityService {
       entity
     );
     await this.searchIndexer.indexEntity(entity);
+    await this.analyticsService.processEvent('ENTITY_CREATED', { entityId: entity.id });
     return created;
   }
 
@@ -76,6 +79,7 @@ export class EntityService {
       updatedEntity
     );
     await this.searchIndexer.indexEntity(updatedEntity);
+    await this.analyticsService.processEvent('ENTITY_UPDATED', { entityId: entity.id });
     return updated;
   }
 
@@ -86,6 +90,7 @@ export class EntityService {
       id
     );
     await this.searchIndexer.deleteEntity(id);
+    await this.analyticsService.processEvent('ENTITY_DELETED', { entityId: id });
     return result;
   }
 }
