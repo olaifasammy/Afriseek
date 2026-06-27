@@ -1,7 +1,9 @@
 import { EntityRepository } from "../core/repositories/EntityRepository";
 import { AfriseekEntity } from "../types/entity";
+import { EntityValidator } from "../modules/entity/EntityValidator";
 
 export class EntityService {
+  private validator = new EntityValidator();
 
   constructor(
     private repository: EntityRepository
@@ -30,6 +32,7 @@ export class EntityService {
   async create(
     entity: AfriseekEntity
   ) {
+    this.validator.validate(entity);
     return this.repository.create(
       entity
     );
@@ -38,6 +41,7 @@ export class EntityService {
   async update(
     entity: AfriseekEntity
   ) {
+    this.validator.validate(entity);
     return this.repository.update(
       entity
     );

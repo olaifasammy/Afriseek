@@ -1,22 +1,31 @@
 import { Request, Response } from 'express';
 import { asyncHandler } from '../middleware/asyncHandler';
+import { RelationshipService } from '../services/RelationshipService';
+import { getDependencies } from '../config/dependencies';
 
-/**
- * Controller for managing Relationship Instances between Entities.
- * Validates against OntologyService to ensure structural integrity.
- */
-export const RelationshipInstanceController = {
-  create: asyncHandler(async (req: Request, res: Response) => {
+export class RelationshipInstanceController {
+  private service: RelationshipService;
+
+  constructor() {
+    this.service = getDependencies().relationshipService;
+  }
+
+  create = asyncHandler(async (req: Request, res: Response) => {
     const { sourceEntityId, targetEntityId, relationshipTypeId } = req.body;
-    // Implementation: Validate with OntologyService, then create relationship
+    await this.service.create(sourceEntityId, {
+      targetId: targetEntityId,
+      type: relationshipTypeId
+    });
     res.status(201).json({ message: 'Relationship instance created', sourceEntityId, targetEntityId, relationshipTypeId });
-  }),
+  });
 
-  delete: asyncHandler(async (req: Request, res: Response) => {
+  delete = asyncHandler(async (req: Request, res: Response) => {
+    const sourceEntityId = req.query.sourceEntityId as string;
     const id = req.params.relationshipId as string;
-    // Implementation: Remove relationship instance
+    if (!sourceEntityId) {
+        return res.status(400).json({ success: false, message: "sourceEntityId is required" });
+    }
+    await this.service.delete(sourceEntityId, id);
     res.status(204).json({ message: `Relationship ${id} deleted` });
-  }),
-};
-
-export default RelationshipInstanceController;
+  });
+}

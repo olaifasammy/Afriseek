@@ -8,33 +8,20 @@ import { createEntityTypeRepository } from "../bootstrap/createEntityTypeReposit
 import { AuditStoreRepository } from "../repositories/AuditStoreRepository";
 
 import { PasswordService } from "../modules/auth/PasswordService";
+import { MfaService } from "../modules/auth/MfaService";
 import { EmailService } from "../services/EmailService";
 import { RoleService } from "../services/RoleService";
 import { ArticleService } from "../services/ArticleService";
+import { RelationshipService } from "../services/RelationshipService";
+import { RelationshipRepository } from "../core/repositories/RelationshipRepository";
+import { InMemoryRelationshipRepository } from "../infrastructure/repositories/in-memory/InMemoryRelationshipRepository";
 
 import { EntityRepository } from "../core/repositories/EntityRepository";
-import { UserRepository } from "../core/repositories/UserRepository";
-import { RoleRepository } from "../core/repositories/RoleRepository";
-import { SupabaseRoleRepository } from "../infrastructure/repositories/supabase/SupabaseRoleRepository";
-
-import { RelationshipTypeRepository } from "../repositories/ontology/RelationshipTypeRepository";
-import { ValidationRuleRepository } from "../repositories/ontology/ValidationRuleRepository";
-import { OntologyDefinitionRepository } from "../repositories/ontology/OntologyDefinitionRepository";
-import { EntityTypeRepository } from "../repositories/ontology/EntityTypeRepository";
-
-export interface AppDependencies {
-  entityRepository: EntityRepository;
-  userRepository: UserRepository;
-  roleRepository: RoleRepository;
-  entityTypeRepository: EntityTypeRepository;
-  relationshipTypeRepository: RelationshipTypeRepository;
-  validationRuleRepository: ValidationRuleRepository;
-  ontologyDefinitionRepository: OntologyDefinitionRepository;
-  auditStoreRepository: AuditStoreRepository;
-  passwordService: PasswordService;
-  emailService: EmailService;
+...
   roleService: RoleService;
   articleService: ArticleService;
+  relationshipService: RelationshipService;
+  relationshipRepository: RelationshipRepository;
 }
 
 let container: AppDependencies | null = null;
@@ -53,9 +40,12 @@ export function initializeDependencies(): AppDependencies {
   const entityTypeRepository = createEntityTypeRepository();
   const auditStoreRepository = new AuditStoreRepository();
   const passwordService = new PasswordService();
+  const mfaService = new MfaService();
   const emailService = new EmailService(userRepository);
   const roleService = new RoleService(roleRepository);
   const articleService = createArticleService();
+  const relationshipRepository = new InMemoryRelationshipRepository();
+  const relationshipService = new RelationshipService(relationshipRepository, entityRepository);
 
   container = {
     entityRepository,
@@ -67,9 +57,12 @@ export function initializeDependencies(): AppDependencies {
     ontologyDefinitionRepository,
     auditStoreRepository,
     passwordService,
+    mfaService,
     emailService,
     roleService,
-    articleService
+    articleService,
+    relationshipService,
+    relationshipRepository
   };
 
   Object.freeze(container);

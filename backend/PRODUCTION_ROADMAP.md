@@ -8,7 +8,7 @@
 - [x] **MFA:** Implement Authenticator App and Email OTP.
 
 ## Phase 2: Core Knowledge (Ontology & Integrity)
-- [ ] **Validation Pipeline:** Integrate `ValidationRegistry` into `EntityService` and `RelationshipService` write-paths.
+- [x] **Validation Pipeline:** Integrate `ValidationRegistry` into `EntityService` and `RelationshipService` write-paths.
 - [ ] **Cardinality/Inverse Rules:**
     - [ ] Implement Relationship Validation Engine.
     - [ ] Enforce Cardinality Rules.
