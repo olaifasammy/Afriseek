@@ -6,6 +6,7 @@ import { createValidationRuleRepository } from "../bootstrap/createValidationRul
 import { createOntologyDefinitionRepository } from "../bootstrap/createOntologyDefinitionRepository";
 import { createEntityTypeRepository } from "../bootstrap/createEntityTypeRepository";
 import { AuditStoreRepository } from "../repositories/AuditStoreRepository";
+import { ontologyRegistry } from "../modules/ontology/OntologyRegistry";
 
 import { PasswordService } from "../modules/auth/PasswordService";
 import { MfaService } from "../modules/auth/MfaService";
@@ -14,21 +15,23 @@ import { RoleService } from "../services/RoleService";
 import { ArticleService } from "../services/ArticleService";
 import { RelationshipService } from "../services/RelationshipService";
 import { RelationshipRepository } from "../core/repositories/RelationshipRepository";
-import { InMemoryRelationshipRepository } from "../infrastructure/repositories/in-memory/InMemoryRelationshipRepository";
-import { VersioningService } from "../services/VersioningService";
+import { PostgreSQLRelationshipRepository } from "../infrastructure/repositories/postgres/PostgreSQLRelationshipRepository";
+import { PostgreSQLVersionRepository } from "../infrastructure/repositories/postgres/PostgreSQLVersionRepository";
 import { VersionRepository } from "../core/repositories/VersionRepository";
-import { InMemoryVersionRepository } from "../infrastructure/repositories/in-memory/InMemoryVersionRepository";
+import { VersioningService } from "../services/VersioningService";
 import { AuditService } from "../services/AuditService";
 import { PolicyEngineService } from "../services/PolicyEngineService";
+import { PostgreSQLRevokedTokenRepository } from "../infrastructure/repositories/postgres/PostgreSQLRevokedTokenRepository";
+import { RevokedTokenRepository } from "../core/auth/RevokedTokenRepository";
 
 import { EntityRepository } from "../core/repositories/EntityRepository";
 import { UserRepository } from "../core/repositories/UserRepository";
 import { RoleRepository } from "../core/repositories/RoleRepository";
-import { EntityTypeRepository } from "../core/repositories/EntityTypeRepository";
-import { RelationshipTypeRepository } from "../core/repositories/RelationshipTypeRepository";
-import { ValidationRuleRepository } from "../core/repositories/ValidationRuleRepository";
-import { OntologyDefinitionRepository } from "../core/repositories/OntologyDefinitionRepository";
-import { SupabaseRoleRepository } from "../infrastructure/repositories/supabase/SupabaseRoleRepository";
+import { EntityTypeRepository } from "../repositories/ontology/EntityTypeRepository";
+import { RelationshipTypeRepository } from "../repositories/ontology/RelationshipTypeRepository";
+import { ValidationRuleRepository } from "../repositories/ontology/ValidationRuleRepository";
+import { OntologyDefinitionRepository } from "../repositories/ontology/OntologyDefinitionRepository";
+import { PostgreSQLRoleRepository } from "../infrastructure/repositories/postgres/PostgreSQLRoleRepository";
 
 export interface AppDependencies {
   entityRepository: EntityRepository;
@@ -49,42 +52,40 @@ export interface AppDependencies {
   versioningService: VersioningService;
   versionRepository: VersionRepository;
   policyEngineService: PolicyEngineService;
+  revokedTokenRepository: RevokedTokenRepository;
 }
 
 let container: AppDependencies | null = null;
 
-export function initializeDependencies(): AppDependencies {
+export async function initializeDependencies(): Promise<AppDependencies> {
   if (container) {
     return container;
   }
 
   const entityRepository = createEntityRepository();
   const userRepository = createUserRepository();
-  const roleRepository = new SupabaseRoleRepository();
+  const roleRepository = new PostgreSQLRoleRepository();
   const relationshipTypeRepository = createRelationshipTypeRepository();
   const validationRuleRepository = createValidationRuleRepository();
-import { ontologyRegistry } from "../modules/ontology/OntologyRegistry";
-
-// ... (inside initializeDependencies)
   const ontologyDefinitionRepository = createOntologyDefinitionRepository();
   ontologyRegistry.setRepository(ontologyDefinitionRepository);
-  // Do NOT await initialize() here as dependencies are often initialized synchronously
-  ontologyRegistry.initialize(); 
+  await ontologyRegistry.initialize(); 
 
-  // ...
   const entityTypeRepository = createEntityTypeRepository();
+
   const auditStoreRepository = new AuditStoreRepository();
   const passwordService = new PasswordService();
   const mfaService = new MfaService(new EmailService(userRepository), new AuditService(auditStoreRepository));
   const emailService = new EmailService(userRepository);
   const roleService = new RoleService(roleRepository);
   const articleService = createArticleService();
-  const relationshipRepository = new InMemoryRelationshipRepository();
+  const relationshipRepository = new PostgreSQLRelationshipRepository();
   const relationshipService = new RelationshipService(relationshipRepository, entityRepository);
-  const versionRepository = new InMemoryVersionRepository();
+  const versionRepository = new PostgreSQLVersionRepository();
   const versioningService = new VersioningService(versionRepository);
   const auditService = new AuditService(auditStoreRepository);
   const policyEngineService = new PolicyEngineService(auditService);
+  const revokedTokenRepository = new PostgreSQLRevokedTokenRepository();
 
   container = {
     entityRepository,
@@ -104,7 +105,8 @@ import { ontologyRegistry } from "../modules/ontology/OntologyRegistry";
     relationshipRepository,
     versioningService,
     versionRepository,
-    policyEngineService
+    policyEngineService,
+    revokedTokenRepository
   };
 
   Object.freeze(container);

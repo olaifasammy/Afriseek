@@ -16,6 +16,7 @@ class MockArticleRepository implements ArticleRepository {
   }
   async delete(id: string, _actorId: string) { this.articles = this.articles.filter(a => a.id !== id); }
   async findByStatus(status: ArticleStatus) { return this.articles.filter(a => a.status === status); }
+  async findByEntityId(entityId: string) { return this.articles.filter(a => a.entityIds.includes(entityId)); }
 }
 
 class MockAuditService extends AuditService {

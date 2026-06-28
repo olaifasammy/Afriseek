@@ -1,6 +1,6 @@
 import { RelationshipRepository } from "../../core/repositories/RelationshipRepository";
 import { RelationshipDefinition } from "../../types/ontology/RelationshipDefinition";
-import { OntologyDefinition } from "../../types/ontology/OntologyDefinition";
+import { RelationshipStrength, RelationshipType } from "../../types/relationship";
 
 export class RelationshipValidationEngine {
   constructor(private relRepo: RelationshipRepository) {}
@@ -52,8 +52,9 @@ export class RelationshipValidationEngine {
     }
 
     await this.relRepo.create(targetId, {
-      type: relationshipDefinition.inverseType,
-      targetId: sourceId
+      type: relationshipDefinition.inverseType as RelationshipType,
+      targetId: sourceId,
+      strength: RelationshipStrength.MODERATE
     });
   }
 }

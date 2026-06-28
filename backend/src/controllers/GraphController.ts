@@ -8,14 +8,19 @@ export class GraphController {
   // FIX: Injected NarrativeEngine to bridge intelligence with API output
   constructor(
     private graphEngine: GraphEngine,
-    private entityService: EntityService,
-    private narrativeEngine: NarrativeEngine
+    private entityService?: EntityService,
+    private narrativeEngine?: NarrativeEngine
   ) {}
+  
+  setDependencies(entityService: EntityService, narrativeEngine: NarrativeEngine) {
+    this.entityService = entityService;
+    this.narrativeEngine = narrativeEngine;
+  }
 
   getGraph = async (req: Request, res: Response) => {
     try {
       const slug = String(req.params.slug);
-      const entity = await this.entityService.getBySlug(slug);
+      const entity = await (this.entityService as EntityService).getBySlug(slug);
 
       if (!entity) return res.status(404).json({ success: false, message: "Entity not found" });
 
@@ -23,7 +28,7 @@ export class GraphController {
       
       // Generate Narrative using the orphaned engine
       const mappedRelated = related.map(item => item.entity);
-      const narrative = this.narrativeEngine.generate(entity, mappedRelated);
+      const narrative = (this.narrativeEngine as NarrativeEngine).generate(entity, mappedRelated);
 
       const response: GraphResponse = {
         entity: { id: entity.id, name: entity.name, type: entity.entityType },
@@ -47,8 +52,8 @@ export class GraphController {
     try {
       const from = String(req.query.from ?? "");
       const to = String(req.query.to ?? "");
-      const start = await this.entityService.getBySlug(from);
-      const end = await this.entityService.getBySlug(to);
+      const start = await (this.entityService as EntityService).getBySlug(from);
+      const end = await (this.entityService as EntityService).getBySlug(to);
 
       if (!start || !end) return res.status(404).json({ success: false, message: "Entity not found" });
 
@@ -63,7 +68,7 @@ export class GraphController {
   getRecommendations = async (req: Request, res: Response) => {
     try {
       const slug = String(req.params.slug);
-      const entity = await this.entityService.getBySlug(slug);
+      const entity = await (this.entityService as EntityService).getBySlug(slug);
 
       if (!entity) return res.status(404).json({ success: false, message: "Entity not found" });
 

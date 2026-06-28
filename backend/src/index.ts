@@ -5,7 +5,6 @@ import express from "express";
 import cors from "cors";
 import helmet from "helmet";
 import { initializeDependencies } from "./config/dependencies";
-import { ontologyService } from "./modules/ontology/OntologyService";
 import { errorHandler } from "./middleware/errorHandler";
 import { discoverRoutes } from "./routes/loader";
 import path from "path";
@@ -25,8 +24,8 @@ async function bootstrap() {
   const PORT = env.PORT;
 
   try {
-    initializeDependencies();
-    await ontologyService.load();
+    await initializeDependencies();
+    // await ontologyService.load();
     
     // Dynamically register routes
     const srcDir = path.join(__dirname);

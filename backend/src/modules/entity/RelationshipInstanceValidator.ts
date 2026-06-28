@@ -1,4 +1,3 @@
-import { Relationship } from "../../types/relationship";
 import { EntityRepository } from "../../core/repositories/EntityRepository";
 import { RelationshipRepository } from "../../core/repositories/RelationshipRepository";
 import { ontologyRegistry } from "../ontology/OntologyRegistry";
@@ -9,7 +8,7 @@ export class RelationshipInstanceValidator {
 
   constructor(
     private entityRepo: EntityRepository,
-    private relRepo: RelationshipRepository
+    relRepo: RelationshipRepository
   ) {
     this.engine = new RelationshipValidationEngine(relRepo);
   }

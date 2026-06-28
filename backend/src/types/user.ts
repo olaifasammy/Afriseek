@@ -21,6 +21,9 @@ export interface User {
   emailVerificationToken?: string;
   emailVerificationSentAt?: string;
 
+  secretKeyVerified?: boolean;
+  secretKeyHash?: string;
+
   metadata: {
 
     createdAt: string;

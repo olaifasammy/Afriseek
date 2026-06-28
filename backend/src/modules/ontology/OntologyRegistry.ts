@@ -16,8 +16,8 @@ export class OntologyRegistry {
     if (!this.repository) throw new Error("Repository not set");
     const records = await this.repository.getAll();
     for (const record of records) {
-        // Assuming record data structure needs to be mapped to OntologyDefinition
-        this.definitions.set(record.entityType, record.definition as any);
+        // Assuming record itself is the definition, or need to map it
+        this.definitions.set(record.entityType, record as any);
     }
   }
 

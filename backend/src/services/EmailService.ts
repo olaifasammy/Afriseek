@@ -17,12 +17,16 @@ export class EmailService {
 
     const verificationLink = `${env.APP_URL}/verify-email?token=${token}`;
 
-    await sendEmail(
+    await this.sendEmail(
       email,
       "Verify your Connect Africa account",
       `Please verify your account by clicking this link: ${verificationLink}`,
       `<p>Please verify your account by clicking this link: <a href="${verificationLink}">Verify Email</a></p>`
     );
+  }
+
+  async sendEmail(to: string, subject: string, text: string, html: string): Promise<void> {
+    await sendEmail(to, subject, text, html);
   }
 
   async verifyEmail(token: string): Promise<boolean> {

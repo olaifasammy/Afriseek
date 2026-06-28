@@ -136,7 +136,14 @@ export class ArticleController {
       new Date()
         .toISOString();
 
+    const actorId = String(
+      req.headers["x-user-id"]
+      || "unknown"
+    );
+
     await this.articles.update(
+      actorId,
+      article.id,
       article
     );
 

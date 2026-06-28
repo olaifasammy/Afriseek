@@ -16,4 +16,21 @@ export class EntityDuplicateDetectionService {
             )))
     );
   }
+
+  async scan(): Promise<AfriseekEntity[][]> {
+    const allEntities = await this.repository.findAll();
+    const duplicates: AfriseekEntity[][] = [];
+    const processed = new Set<string>();
+
+    for (const entity of allEntities) {
+      if (processed.has(entity.id)) continue;
+      const found = await this.findDuplicates(entity);
+      if (found.length > 0) {
+        duplicates.push([entity, ...found]);
+        found.forEach((dup) => processed.add(dup.id));
+        processed.add(entity.id);
+      }
+    }
+    return duplicates;
+  }
 }

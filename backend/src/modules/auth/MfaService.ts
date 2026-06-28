@@ -22,12 +22,21 @@ export class MfaService {
     });
   }
 
+  generateOtpUri(secret: string, email: string): string {
+    return speakeasy.otpauthURL({
+      secret: secret,
+      label: email,
+      issuer: "ConnectAfrica",
+      encoding: "base32"
+    });
+  }
+
   // Email OTP methods
   async generateAndSendEmailOtp(actorId: string, email: string): Promise<string> {
     const otp = Math.floor(100000 + Math.random() * 900000).toString();
     
     // In production, store this OTP in the database with an expiration
-    await this.emailService.sendEmail(email, "Your Connect Africa OTP", `Your OTP is ${otp}`);
+    await this.emailService.sendEmail(email, "Your Connect Africa OTP", `Your OTP is ${otp}`, `<p>Your OTP is ${otp}</p>`);
     
     await this.auditService.log({
         id: `audit_${Date.now()}`,
