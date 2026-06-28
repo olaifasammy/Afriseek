@@ -5,6 +5,13 @@ import { logger } from "../config/logger";
 export class AlertEngineService {
   constructor(private auditService: AuditService) {}
 
+  async getAlerts(): Promise<Alert[]> {
+    const logs = await this.auditService.getAll();
+    return logs
+      .filter(log => log.entityType === 'ALERT' && log.metadata && log.metadata.alert)
+      .map(log => log.metadata!.alert as Alert);
+  }
+
   async checkThreshold(metricName: string, value: number, threshold: number, severity: AlertSeverity = AlertSeverity.WARNING) {
     if (value >= threshold) {
       const alert: Alert = {

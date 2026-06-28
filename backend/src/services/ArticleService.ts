@@ -19,6 +19,11 @@ export class ArticleService {
     return this.articleRepository.findBySlug(slug);
   }
 
+  async getByEntity(entityId: string) {
+    logger.info({ entityId }, "Fetching articles by entity");
+    return this.articleRepository.findByEntityId(entityId);
+  }
+
   async create(actorId: string, data: Omit<Article, 'id' | 'status' | 'versions' | 'metadata'>) {
     logger.info({ actorId, title: data.title }, "Creating article");
     const article: Article = {
@@ -120,5 +125,9 @@ export class ArticleService {
     });
     logger.info({ articleId: id, status }, "Article status updated successfully");
     return article;
+  }
+
+  async approve(actorId: string, id: string) {
+    return this.transitionStatus(actorId, id, ArticleStatus.APPROVED);
   }
 }

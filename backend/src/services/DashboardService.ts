@@ -2,6 +2,10 @@ import { getDependencies } from "../config/dependencies";
 import { createAuditService } from "../bootstrap/createAuditService";
 import { createSettingsRepository } from "../bootstrap/createSettingsRepository";
 import { createOntologyDefinitionRepository } from "../bootstrap/createOntologyDefinitionRepository";
+import { HealthService } from "./HealthService";
+import { AlertEngineService } from "./AlertEngineService";
+import { AuditService } from "./AuditService";
+import { Alert } from "../types/alert";
 
 export class DashboardService {
 
@@ -21,6 +25,9 @@ export class DashboardService {
     const ontologyRepo =
       createOntologyDefinitionRepository();
 
+    const healthService = new HealthService();
+    const alertService = new AlertEngineService(audit as AuditService);
+
     const users =
       await userRepository.findAll();
 
@@ -36,6 +43,9 @@ export class DashboardService {
     const ontologies =
       await ontologyRepo.getAll();
 
+    const health = await healthService.check();
+    const alerts: Alert[] = await alertService.getAlerts();
+
     return {
       users: users.length,
       entities: entities.length,
@@ -43,6 +53,8 @@ export class DashboardService {
       events: 0,
       auditEvents: audits.length,
       ontologies: ontologies.length,
+      health,
+      alerts,
       settings: {
         aiEnabled:
           settings.aiEnabled,

@@ -1,7 +1,9 @@
 import { ArticleService } from "../services/ArticleService";
-import { SupabaseArticleRepository } from "../infrastructure/repositories/supabase/SupabaseArticleRepository";
+import { PostgreSQLArticleRepository } from "../infrastructure/repositories/postgres/PostgreSQLArticleRepository";
+import { createAuditService } from "./createAuditService";
 
 export function createArticleService() {
-  const repository = new SupabaseArticleRepository();
-  return new ArticleService(repository);
+  const repository = new PostgreSQLArticleRepository();
+  const auditService = createAuditService();
+  return new ArticleService(repository, auditService);
 }

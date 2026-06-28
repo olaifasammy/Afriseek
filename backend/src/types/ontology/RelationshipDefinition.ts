@@ -15,6 +15,3 @@ export interface RelationshipDefinition {
 
   description?: string;
 }
-
-  description?: string;
-}

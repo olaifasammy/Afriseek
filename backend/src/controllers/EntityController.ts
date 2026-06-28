@@ -1,11 +1,8 @@
 import { Request, Response } from 'express';
 import { asyncHandler } from '../middleware/asyncHandler';
-import { getDependencies } from '../config/dependencies';
+import { createEntityService } from '../bootstrap/createEntityService';
 
-const { entityRepository } = getDependencies();
-import { EntityService } from '../services/EntityService';
-
-const entityService = new EntityService(entityRepository);
+const entityService = createEntityService();
 
 /**
  * Controller for managing Entity lifecycle.

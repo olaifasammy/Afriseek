@@ -1,19 +1,7 @@
-import { EventService }
-from "../services/EventService";
+import { EventService } from "../services/EventService";
+import { PostgreSQLEventRepository } from "../infrastructure/repositories/postgres/PostgreSQLEventRepository";
 
-import { InMemoryEventRepository }
-from "../infrastructure/repositories/in-memory/InMemoryEventRepository";
-
-const repository =
-  new InMemoryEventRepository();
-
-const service =
-  new EventService(
-    repository
-  );
-
-export function
-createEventService() {
-
-  return service;
+export function createEventService() {
+  const repository = new PostgreSQLEventRepository();
+  return new EventService(repository);
 }

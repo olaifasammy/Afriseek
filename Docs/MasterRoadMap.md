@@ -1,4 +1,4 @@
-Connect Africa Backend Master Roadmap
+# Connect Africa Backend Master Roadmap
 
 Purpose
 
@@ -30,6 +30,8 @@ SEARCH_SPECIFICATION.md
 API_SPECIFICATION.md
 PUBLIC_PLATFORM_SPECIFICATION.md
 
+Full-Management-Specs.md (Master Inventory)
+
 ---
 
 System Vision
@@ -48,6 +50,7 @@ The backend shall provide:
 - Analytics
 - AI Services
 - Developer APIs
+- Full Administrative Governance
 
 The backend is the source of truth.
 
@@ -353,12 +356,14 @@ Tasks
 - Graph Search
 - Full Text Search
 - Semantic Search
+- Search Administration (Ranking, Weights, Analytics)
 
 Deliverables
 
 Search Service
 Indexing Service
 Ranking Engine
+Search Administration Engine
 
 ---
 
@@ -375,12 +380,14 @@ Tasks
 - Monitoring
 - Usage Analytics
 - Knowledge Analytics
+- Custom Reporting
 
 Deliverables
 
 Analytics Service
 Monitoring Service
 Reporting Service
+Dashboard Engine
 
 ---
 
@@ -398,6 +405,7 @@ Tasks
 - Jobs
 - Queues
 - Maintenance
+- System Health Monitoring
 
 Deliverables
 
@@ -405,6 +413,7 @@ Import Service
 Export Service
 Backup Service
 Job Service
+System Monitoring Service
 
 ---
 
@@ -421,6 +430,7 @@ Tasks
 - Source Suggestions
 - Relationship Suggestions
 - Knowledge Discovery
+- AI Gateway (Model Routing, Prompt Versioning)
 
 Deliverables
 
@@ -451,6 +461,28 @@ Public API
 REST API
 Graph API
 Developer API
+
+---
+
+Phase 14 — Administrative & Enterprise Governance (NEW)
+
+Reference:
+
+Full-Management-Specs.md
+
+Tasks
+
+- Infrastructure Management (DB/Search/Cache Health)
+- Enterprise Compliance (Data Retention, Privacy)
+- Organization/Workspace Management
+- Advanced Admin Dashboard Integration
+- Full Operational Audit & Governance
+
+Deliverables
+
+Infrastructure Management Service
+Compliance Service
+Organization Service
 
 ---
 
@@ -507,6 +539,7 @@ Versioning
 Analytics
 Search Indexing
 Notifications
+Administrative Management (CRUD/Operations)
 
 ---
 
@@ -542,6 +575,8 @@ Development Order
 
 15. Public APIs
 
+16. Administrative Governance (Infrastructure/Compliance/Enterprise)
+
 ---
 
 Definition Of Done
@@ -556,6 +591,7 @@ A module is considered complete only when:
 - Documentation Updated
 - Search Indexed
 - Analytics Instrumented
+- Administrative Management Interfaces Implemented
 
 ---
 

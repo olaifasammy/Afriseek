@@ -6,7 +6,8 @@ const EnvSchema = z.object({
   SUPABASE_URL: z.string().url(),
   SUPABASE_ANON_KEY: z.string().min(10),
   SUPABASE_SERVICE_ROLE_KEY: z.string().min(10),
-  USE_SUPABASE: z.string().optional(),
+  DATABASE_URL: z.string().url(),
+  USE_SUPABASE: z.string().default("false"),
   PORT: z.string().default("3000"),
   NODE_ENV: z.string().default("development"),
   LOG_LEVEL: z.string().default("info"),
@@ -17,6 +18,8 @@ const EnvSchema = z.object({
   SMTP_PASS: z.string().optional(),
   SMTP_FROM: z.string().optional(),
   APP_URL: z.string().url().optional(),
+  REDIS_HOST: z.string().default("localhost"),
+  REDIS_PORT: z.string().default("6379"),
 });
 
 export const env = EnvSchema.parse(process.env);

@@ -1,23 +1,6 @@
-import { ContextExplorerService }
-from "../services/ContextExplorerService";
+import { ContextExplorerService } from "../services/ContextExplorerService";
+import { createEntityService } from "./createEntityService";
 
-import { EntityService }
-from "../services/EntityService";
-
-import { createEntityRepository }
-from "./createEntityRepository";
-
-const service =
-  new ContextExplorerService(
-
-    new EntityService(
-      createEntityRepository()
-    )
-
-  );
-
-export function
-createContextExplorerService() {
-
-  return service;
+export function createContextExplorerService() {
+  return new ContextExplorerService(createEntityService());
 }

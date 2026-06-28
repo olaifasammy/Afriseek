@@ -1,5 +1,4 @@
 import { ontologyRegistry } from "./OntologyRegistry";
-import { loadOntologyDefinitions } from "../../ontology/registry/loadOntologyDefinitions";
 
 export class OntologyService {
   private loaded = false;
@@ -8,16 +7,8 @@ export class OntologyService {
     if (this.loaded) {
       return;
     }
-
-    const definitions =
-      loadOntologyDefinitions();
-
-    for (const definition of definitions) {
-      ontologyRegistry.register(
-        definition
-      );
-    }
-
+    // Hardcoded definitions loading is disabled. 
+    // OntologyRegistry is expected to be initialized from the database in dependencies.ts.
     this.loaded = true;
   }
 

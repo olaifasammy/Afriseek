@@ -1,23 +1,6 @@
-import { IntelligentContextService }
-from "../services/IntelligentContextService";
+import { IntelligentContextService } from "../services/IntelligentContextService";
+import { createEntityService } from "./createEntityService";
 
-import { EntityService }
-from "../services/EntityService";
-
-import { createEntityRepository }
-from "./createEntityRepository";
-
-const service =
-  new IntelligentContextService(
-
-    new EntityService(
-      createEntityRepository()
-    )
-
-  );
-
-export function
-createIntelligentContextService() {
-
-  return service;
+export function createIntelligentContextService() {
+  return new IntelligentContextService(createEntityService());
 }

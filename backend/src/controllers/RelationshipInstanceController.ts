@@ -11,10 +11,13 @@ export class RelationshipInstanceController {
   }
 
   create = asyncHandler(async (req: Request, res: Response) => {
-    const { sourceEntityId, targetEntityId, relationshipTypeId } = req.body;
+    const { sourceEntityId, targetEntityId, relationshipTypeId, strength, weight, description } = req.body;
     await this.service.create(sourceEntityId, {
+      type: relationshipTypeId,
       targetId: targetEntityId,
-      type: relationshipTypeId
+      strength: strength,
+      weight: weight,
+      description: description
     });
     res.status(201).json({ message: 'Relationship instance created', sourceEntityId, targetEntityId, relationshipTypeId });
   });
@@ -23,7 +26,8 @@ export class RelationshipInstanceController {
     const sourceEntityId = req.query.sourceEntityId as string;
     const id = req.params.relationshipId as string;
     if (!sourceEntityId) {
-        return res.status(400).json({ success: false, message: "sourceEntityId is required" });
+        res.status(400).json({ success: false, message: "sourceEntityId is required" });
+        return;
     }
     await this.service.delete(sourceEntityId, id);
     res.status(204).json({ message: `Relationship ${id} deleted` });

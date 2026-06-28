@@ -10,7 +10,7 @@ export class JobWorker {
     }, {
       connection: {
         host: env.REDIS_HOST,
-        port: env.REDIS_PORT
+        port: parseInt(env.REDIS_PORT, 10)
       }
     });
   }

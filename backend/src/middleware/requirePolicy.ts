@@ -8,7 +8,8 @@ export function requirePolicy(action: string, getResource: (req: Request) => Pro
     const user = (req as any).user;
     
     if (!user) {
-        return res.status(401).json({ message: "Unauthorized" });
+        res.status(401).json({ message: "Unauthorized" });
+        return;
     }
 
     try {

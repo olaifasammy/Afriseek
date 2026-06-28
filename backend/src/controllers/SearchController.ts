@@ -7,21 +7,33 @@ from "../services/SearchService";
 import { EntityService }
 from "../services/EntityService";
 
-import { createEntityRepository }
-from "../bootstrap/createEntityRepository";
+import { getDependencies }
+from "../config/dependencies";
 
 import { createArticleService }
 from "../bootstrap/createArticleService";
 
-const searchService =
-  new SearchService(
-    new EntityService(
-      createEntityRepository()
-    ),
-    createArticleService()
-  );
+import { createSearchIndexer }
+from "../bootstrap/createSearchIndexer";
+
+import { createAnalyticsService }
+from "../bootstrap/createAnalyticsService";
 
 export class SearchController {
+  private searchService: SearchService;
+
+  constructor() {
+    const { entityRepository } = getDependencies();
+    
+    // Proper instantiation using factory functions as per architecture
+    const searchIndexer = createSearchIndexer();
+    const analyticsService = createAnalyticsService();
+    
+    this.searchService = new SearchService(
+      new EntityService(entityRepository, searchIndexer, analyticsService),
+      createArticleService()
+    );
+  }
 
   search = async (
     req: Request,
@@ -36,7 +48,7 @@ export class SearchController {
         );
 
       const results =
-        await searchService.search(
+        await this.searchService.search(
           query
         );
 

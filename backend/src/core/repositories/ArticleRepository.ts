@@ -8,4 +8,5 @@ export interface ArticleRepository {
   update(article: Article): Promise<void>;
   delete(id: string, actorId: string): Promise<void>;
   findByStatus(status: ArticleStatus): Promise<Article[]>;
+  findByEntityId(entityId: string): Promise<Article[]>;
 }

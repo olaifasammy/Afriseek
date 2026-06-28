@@ -1,5 +1,5 @@
 import { Article } from "../types/article";
-import { Entity } from "../types/entity";
+import { AfriseekEntity as Entity } from "../types/entity";
 
 export class SearchIndexer {
   // In a production environment, this would interface with OpenSearch/Elasticsearch
