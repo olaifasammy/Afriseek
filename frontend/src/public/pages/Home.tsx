@@ -10,8 +10,8 @@ export const Home = () => {
     const fetchData = async () => {
       try {
         const [entities, articles] = await Promise.all([
-          apiClient('/entities'),
-          apiClient('/articles')
+          apiClient('/entity'),
+          apiClient('/article')
         ]);
         setData({ entities: entities.data.slice(0, 3), articles: articles.data.slice(0, 3) });
       } catch (e) {
