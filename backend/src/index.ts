@@ -32,10 +32,13 @@ async function bootstrap() {
     const discoveredRoutes = discoverRoutes(srcDir);
     
     for (const route of discoveredRoutes) {
-      // Import the router dynamically
-      const router = require(route.filePath).default;
-      app.use(route.path, router);
-      logger.info(`Registered route: ${route.path}`);
+      try {
+        // Import the router dynamically
+        const router = require(route.filePath).default;
+        app.use(route.path, router);
+      } catch (error) {
+        logger.error({ err: error }, `❌ Failed to register route: ${route.path}`);
+      }
     }
 
     logger.info("⚡ Connect Africa Engine ready");

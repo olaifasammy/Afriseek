@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { StudioEntityDuplicateController } from "../../../src/modules/entity/duplicate/controller";
+import { StudioEntityDuplicateController } from "../../modules/entity/duplicate/controller";
 
 const router = Router();
 

@@ -7,30 +7,39 @@ export function discoverRoutes(baseDir: string, basePrefix = '/api') {
   // Scans both 'routes' and 'modules' if they exist within the base directory
   const directoriesToScan = ['routes', 'modules'];
   
+  const isProduction = baseDir.includes('dist');
+  const extension = isProduction ? 'js' : 'ts';
+  
   for (const dirName of directoriesToScan) {
     const dirPath = path.join(baseDir, dirName);
     if (fs.existsSync(dirPath)) {
-        routes.push(...scanDirectory(dirPath, basePrefix));
+        const prefix = dirName === 'modules' ? '/api' : basePrefix;
+        routes.push(...scanDirectory(dirPath, prefix, extension));
     }
   }
   return routes;
 }
 
-function scanDirectory(dir: string, basePrefix = '/api'): { path: string; filePath: string }[] {
+function scanDirectory(dir: string, basePrefix = '/api', extension = 'ts'): { path: string; filePath: string }[] {
   const routes: { path: string; filePath: string }[] = [];
   const entries = fs.readdirSync(dir, { withFileTypes: true });
+
+  const regex = new RegExp(`(Routes|routes)\\.${extension}$`);
 
   for (const entry of entries) {
     const fullPath = path.join(dir, entry.name);
     
     if (entry.isDirectory()) {
       const subPrefix = entry.name === 'entity' ? 'studio' : entry.name;
-      routes.push(...scanDirectory(fullPath, `${basePrefix}/${subPrefix}`));
-    } else if (entry.name.endsWith('Routes.ts') || (entry.name === 'routes.ts')) {
+      routes.push(...scanDirectory(fullPath, `${basePrefix}/${subPrefix}`, extension));
+    } else if (entry.name.match(regex)) {
       // Basic heuristic for path mapping:
-      let routeName = entry.name.replace('Routes.ts', '').replace('.ts', '');
+      let routeName = entry.name
+          .replace(new RegExp(`Routes\\.${extension}$`), '')
+          .replace(new RegExp(`routes\\.${extension}$`), '')
+          .replace(new RegExp(`\\.${extension}$`), '');
       
-      if (entry.name === 'routes.ts') {
+      if (entry.name === `routes.${extension}`) {
         routeName = '';
       }
       
