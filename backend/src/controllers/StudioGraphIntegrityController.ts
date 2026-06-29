@@ -17,4 +17,16 @@ export class StudioGraphIntegrityController {
         await this.service.run()
     });
   };
+
+  getOrphans = async (
+    _req: Request,
+    res: Response
+  ) => {
+
+    return res.json({
+      success: true,
+      data:
+        await this.service.getOrphans()
+    });
+  };
 }

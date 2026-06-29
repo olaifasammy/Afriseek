@@ -16,6 +16,10 @@ export interface UserRepository {
     token: string
   ): Promise<User | null>;
 
+  findByResetToken(
+    token: string
+  ): Promise<User | null>;
+
   create(
     user: User
   ): Promise<void>;

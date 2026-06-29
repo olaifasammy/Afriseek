@@ -29,6 +29,17 @@ export class EmailService {
     await sendEmail(to, subject, text, html);
   }
 
+  async sendPasswordResetEmail(email: string, token: string): Promise<void> {
+    const resetLink = `${env.APP_URL}/reset-password?token=${token}`;
+
+    await this.sendEmail(
+      email,
+      "Reset your Connect Africa password",
+      `Reset your password by clicking this link: ${resetLink}`,
+      `<p>Reset your password by clicking this link: <a href="${resetLink}">Reset Password</a></p>`
+    );
+  }
+
   async verifyEmail(token: string): Promise<boolean> {
     const user = await this.userRepository.findByVerificationToken(token);
     if (!user) return false;

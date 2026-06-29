@@ -232,5 +232,63 @@ export const AuthController = {
       logger.error({ error }, "❌ Logout Error");
       return res.status(500).json({ success: false, message: "Internal server error during logout." });
     }
+  },
+
+  requestPasswordReset: async (req: Request, res: Response) => {
+    try {
+      const { email } = req.body;
+      const { userRepository, passwordService, emailService } = getDependencies();
+
+      const user = await userRepository.findByEmail(email);
+      if (!user) {
+        // Return 200 to prevent user enumeration
+        return res.json({ success: true, message: "If an account exists, a reset link has been sent." });
+      }
+
+      const resetToken = passwordService.generateResetToken();
+      const resetTokenHash = passwordService.hashResetToken(resetToken);
+      const resetTokenExpires = new Date(Date.now() + 3600000); // 1 hour
+
+      await userRepository.update({
+        ...user,
+        resetToken: resetTokenHash,
+        resetTokenExpires: resetTokenExpires.toISOString()
+      });
+
+      await emailService.sendPasswordResetEmail(user.email, resetToken);
+
+      return res.json({ success: true, message: "If an account exists, a reset link has been sent." });
+    } catch (error) {
+      logger.error({ error }, "❌ Password Reset Request Error");
+      return res.status(500).json({ success: false, message: "Internal server error." });
+    }
+  },
+
+  resetPassword: async (req: Request, res: Response) => {
+    try {
+      const { token, password } = req.body;
+      const { userRepository, passwordService } = getDependencies();
+
+      const resetTokenHash = passwordService.hashResetToken(token);
+      const user = await userRepository.findByResetToken(resetTokenHash);
+
+      if (!user || !user.resetTokenExpires || new Date(user.resetTokenExpires) < new Date()) {
+        return res.status(400).json({ success: false, message: "Invalid or expired token." });
+      }
+
+      const passwordHash = await passwordService.hash(password);
+
+      await userRepository.update({
+        ...user,
+        passwordHash,
+        resetToken: undefined,
+        resetTokenExpires: undefined
+      });
+
+      return res.json({ success: true, message: "Password reset successfully." });
+    } catch (error) {
+      logger.error({ error }, "❌ Password Reset Error");
+      return res.status(500).json({ success: false, message: "Internal server error." });
+    }
   }
 };

@@ -1,4 +1,4 @@
-import { Relationship } from "../types/relationship";
+import { Relationship, RelationshipStrength } from "../types/relationship";
 import { RelationshipRepository } from "../core/repositories/RelationshipRepository";
 import { RelationshipInstanceValidator } from "../modules/entity/RelationshipInstanceValidator";
 import { EntityRepository } from "../core/repositories/EntityRepository";
@@ -50,5 +50,21 @@ export class RelationshipService {
         }
       }
     }
+  }
+
+  async updateMetadata(
+    entityId: string,
+    targetId: string,
+    metadata: { strength?: RelationshipStrength, weight?: number, verified?: boolean, description?: string }
+  ) {
+    const relationship = await this.repository.getBySourceAndTarget(entityId, targetId);
+    if (!relationship) throw new Error("Relationship not found");
+
+    const updatedRelationship = {
+        ...relationship,
+        ...metadata
+    };
+
+    return this.repository.update(entityId, targetId, updatedRelationship);
   }
 }

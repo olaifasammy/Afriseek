@@ -5,5 +5,6 @@ export interface RelationshipRepository {
   getByEntityAndType(entityId: string, type: string): Promise<Relationship[]>;
   getBySourceAndTarget(sourceId: string, targetId: string): Promise<Relationship | null>;
   create(entityId: string, relationship: Relationship): Promise<void>;
+  update(entityId: string, targetId: string, relationship: Relationship): Promise<void>;
   delete(entityId: string, targetId: string): Promise<void>;
 }

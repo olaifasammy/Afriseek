@@ -42,4 +42,25 @@ router.delete(
   controller.deleteEntity
 );
 
+router.patch(
+  "/:id/verify",
+  requireAuth,
+  requireRole(UserRole.HEAD_ADMIN, UserRole.ADMIN, UserRole.EDITOR),
+  controller.verifyEntity
+);
+
+router.patch(
+  "/:id/archive",
+  requireAuth,
+  requireRole(UserRole.HEAD_ADMIN, UserRole.ADMIN),
+  controller.archiveEntity
+);
+
+router.patch(
+  "/:id/restore",
+  requireAuth,
+  requireRole(UserRole.HEAD_ADMIN, UserRole.ADMIN),
+  controller.restoreEntity
+);
+
 export default router;

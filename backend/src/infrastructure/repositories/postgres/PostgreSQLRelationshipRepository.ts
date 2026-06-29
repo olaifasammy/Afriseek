@@ -56,6 +56,14 @@ export class PostgreSQLRelationshipRepository implements RelationshipRepository 
     `, [entityId, relationship.targetId, relationship.type, relationship.strength, relationship.weight || 1, relationship.description]);
   }
 
+  async update(entityId: string, targetId: string, relationship: Relationship): Promise<void> {
+    await query(`
+      UPDATE entity_relationships 
+      SET relationship_type = $1, strength = $2, weight = $3, description = $4
+      WHERE source_id = $5 AND target_id = $6
+    `, [relationship.type, relationship.strength, relationship.weight || 1, relationship.description, entityId, targetId]);
+  }
+
   async delete(entityId: string, targetId: string): Promise<void> {
     await query("DELETE FROM entity_relationships WHERE source_id = $1 AND target_id = $2", [entityId, targetId]);
   }

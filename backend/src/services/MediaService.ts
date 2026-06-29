@@ -108,4 +108,28 @@ export class MediaService {
     logger.info({ mediaId: id }, "Media verified successfully");
     return media;
   }
+
+  async process(actorId: string, id: string, options: { resize?: boolean, compress?: boolean }) {
+    logger.info({ actorId, mediaId: id, options }, "Processing media");
+    const media = await this.mediaRepository.findById(id);
+    if (!media) {
+        throw new Error("Media not found");
+    }
+
+    // Simulate processing
+    logger.info({ mediaId: id }, "Simulating media processing (compression/resize)");
+    media.updatedAt = new Date().toISOString();
+    
+    await this.mediaRepository.update(media);
+    await this.auditService.log({
+      id: `audit_${Date.now()}`,
+      actorId,
+      entityType: 'MEDIA',
+      entityId: media.id,
+      action: 'PROCESS',
+      timestamp: new Date().toISOString(),
+      metadata: { options }
+    });
+    return media;
+  }
 }

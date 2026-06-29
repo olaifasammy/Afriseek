@@ -13,7 +13,11 @@ describe("AiGatewayService", () => {
   let aiGateway: AiGatewayService;
 
   beforeEach(() => {
-    aiGateway = new AiGatewayService(new MockNarrativeEngine() as any, new MockDiscoveryEngine() as any);
+    aiGateway = new AiGatewayService(
+      new MockNarrativeEngine() as any, 
+      new MockDiscoveryEngine() as any,
+      { log: async () => {} } as any
+    );
   });
 
   it("should route NARRATIVE task", async () => {

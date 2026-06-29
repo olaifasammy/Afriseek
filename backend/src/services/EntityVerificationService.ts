@@ -52,4 +52,30 @@ export class EntityVerificationService {
 
     return true;
   }
+
+  async archive(entityId: string): Promise<boolean> {
+    const repository = getDependencies().entityRepository;
+    const entity = await repository.findById(entityId);
+    if (!entity) return false;
+
+    entity.metadata = {
+      ...entity.metadata,
+      deletedAt: new Date().toISOString()
+    };
+    await repository.update(entity);
+    return true;
+  }
+
+  async restore(entityId: string): Promise<boolean> {
+    const repository = getDependencies().entityRepository;
+    const entity = await repository.findById(entityId);
+    if (!entity) return false;
+
+    entity.metadata = {
+      ...entity.metadata,
+      deletedAt: undefined
+    };
+    await repository.update(entity);
+    return true;
+  }
 }

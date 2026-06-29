@@ -1,6 +1,8 @@
 import { createEntityRepository } from "../bootstrap/createEntityRepository";
 import { createUserRepository } from "../bootstrap/createUserRepository";
 import { createArticleService } from "../bootstrap/createArticleService";
+import { createAiGatewayService } from "../bootstrap/createAiGatewayService";
+import { createNotificationService } from "../bootstrap/createNotificationService";
 import { createRelationshipTypeRepository } from "../bootstrap/createRelationshipTypeRepository";
 import { createValidationRuleRepository } from "../bootstrap/createValidationRuleRepository";
 import { createOntologyDefinitionRepository } from "../bootstrap/createOntologyDefinitionRepository";
@@ -13,6 +15,8 @@ import { MfaService } from "../modules/auth/MfaService";
 import { EmailService } from "../services/EmailService";
 import { RoleService } from "../services/RoleService";
 import { ArticleService } from "../services/ArticleService";
+import { AiGatewayService } from "../services/AiGatewayService";
+import { NotificationService } from "../services/NotificationService";
 import { RelationshipService } from "../services/RelationshipService";
 import { RelationshipRepository } from "../core/repositories/RelationshipRepository";
 import { PostgreSQLRelationshipRepository } from "../infrastructure/repositories/postgres/PostgreSQLRelationshipRepository";
@@ -47,6 +51,8 @@ export interface AppDependencies {
   emailService: EmailService;
   roleService: RoleService;
   articleService: ArticleService;
+  aiGatewayService: AiGatewayService;
+  notificationService: NotificationService;
   relationshipService: RelationshipService;
   relationshipRepository: RelationshipRepository;
   versioningService: VersioningService;
@@ -79,6 +85,8 @@ export async function initializeDependencies(): Promise<AppDependencies> {
   const emailService = new EmailService(userRepository);
   const roleService = new RoleService(roleRepository);
   const articleService = createArticleService();
+  const aiGatewayService = createAiGatewayService();
+  const notificationService = createNotificationService();
   const relationshipRepository = new PostgreSQLRelationshipRepository();
   const relationshipService = new RelationshipService(relationshipRepository, entityRepository);
   const versionRepository = new PostgreSQLVersionRepository();
@@ -101,6 +109,8 @@ export async function initializeDependencies(): Promise<AppDependencies> {
     emailService,
     roleService,
     articleService,
+    aiGatewayService,
+    notificationService,
     relationshipService,
     relationshipRepository,
     versioningService,

@@ -37,4 +37,9 @@ export class GraphIntegrityService {
       passed: brokenRelationships === 0
     };
   }
+
+  async getOrphans() {
+    const entities = await getDependencies().entityRepository.findAll();
+    return entities.filter(entity => !entity.relationships?.length || entity.relationships.length === 0);
+  }
 }

@@ -15,8 +15,8 @@ export class PostgreSQLOntologyDefinitionRepository implements OntologyDefinitio
         o.description,
         true AS "active",
         1 AS "version",
-        et.created_at AS "createdAt",
-        et.created_at AS "updatedAt"
+        o.created_at AS "createdAt",
+        o.created_at AS "updatedAt"
       FROM entity_types et
       JOIN ontologies o ON et.ontology_id = o.id
     `);
@@ -35,8 +35,8 @@ export class PostgreSQLOntologyDefinitionRepository implements OntologyDefinitio
         o.description,
         true AS "active",
         1 AS "version",
-        et.created_at AS "createdAt",
-        et.created_at AS "updatedAt"
+        o.created_at AS "createdAt",
+        o.created_at AS "updatedAt"
       FROM entity_types et
       JOIN ontologies o ON et.ontology_id = o.id
       WHERE et.name = $1

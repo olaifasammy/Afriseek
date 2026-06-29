@@ -54,6 +54,12 @@ implements UserRepository {
     ) || null;
   }
 
+  async findByResetToken(token: string) {
+    return this.users.find(
+      user => user.resetToken === token
+    ) || null;
+  }
+
   async create(user: User) {
     this.users.push(user);
   }

@@ -1,4 +1,5 @@
 import bcrypt from "bcryptjs";
+import crypto from "crypto";
 
 export class PasswordService {
   private readonly rounds = 12;
@@ -20,5 +21,13 @@ export class PasswordService {
       password,
       hash
     );
+  }
+
+  generateResetToken(): string {
+    return crypto.randomBytes(32).toString("hex");
+  }
+
+  hashResetToken(token: string): string {
+    return crypto.createHash("sha256").update(token).digest("hex");
   }
 }

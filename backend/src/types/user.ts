@@ -21,6 +21,9 @@ export interface User {
   emailVerificationToken?: string;
   emailVerificationSentAt?: string;
 
+  resetToken?: string;
+  resetTokenExpires?: string;
+
   secretKeyVerified?: boolean;
   secretKeyHash?: string;
 

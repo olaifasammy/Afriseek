@@ -12,6 +12,8 @@ export interface OntologyDefinitionRecord {
   description?: string;
 
   active: boolean;
+  
+  status?: 'PENDING' | 'APPROVED';
 
   version: number;
 

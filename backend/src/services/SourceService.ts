@@ -61,4 +61,28 @@ export class SourceService {
     logger.info({ sourceId: id }, "Source verified successfully");
     return source;
   }
+
+  async updateCredibility(actorId: string, id: string, score: number) {
+    logger.info({ actorId, sourceId: id, score }, "Updating source credibility");
+    const source = await this.sourceRepository.findById(id);
+    if (!source) {
+      throw new Error("Source not found");
+    }
+
+    const oldScore = source.credibilityScore;
+    source.credibilityScore = score;
+    source.updatedAt = new Date().toISOString();
+
+    await this.sourceRepository.update(source);
+    await this.auditService.log({
+      id: `audit_${Date.now()}`,
+      actorId,
+      entityType: 'SOURCE',
+      entityId: source.id,
+      action: 'UPDATE_CREDIBILITY',
+      timestamp: new Date().toISOString(),
+      metadata: { old_value: oldScore, new_value: score }
+    });
+    return source;
+  }
 }

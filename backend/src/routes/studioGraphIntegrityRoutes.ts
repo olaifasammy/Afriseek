@@ -14,4 +14,15 @@ router.get("/", async (req, res) => {
   );
 });
 
+router.get("/orphans", async (req, res) => {
+
+  const controller =
+    new StudioGraphIntegrityController();
+
+  return controller.getOrphans(
+    req,
+    res
+  );
+});
+
 export default router;

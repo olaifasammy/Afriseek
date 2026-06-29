@@ -4,6 +4,7 @@ import { Request, Response } from "express";
 import { getDependencies } from "../../config/dependencies";
 import { createAuditService } from "../../bootstrap/createAuditService";
 import { EntityOntologyValidator } from "../ontology/EntityOntologyValidator";
+import { EntityVerificationService } from "../../services/EntityVerificationService";
 
 export class EntityController {
 
@@ -12,6 +13,71 @@ export class EntityController {
 
   private ontologyValidator =
     new EntityOntologyValidator();
+
+  private verificationService = new EntityVerificationService();
+
+  verifyEntity = async (req: Request, res: Response) => {
+    try {
+      const id = String(req.params.id);
+      const { verified } = req.body;
+      
+      await this.verificationService.updateStatus(id, verified);
+
+      await this.audit.log({
+        id: crypto.randomUUID(),
+        actorId: String(req.headers["x-user-id"] || "unknown"),
+        action: "verify_entity",
+        entityType: "entity",
+        entityId: id,
+        timestamp: new Date().toISOString(),
+        metadata: { verified }
+      });
+
+      return res.json({ success: true });
+    } catch (error) {
+      return res.status(500).json({ success: false, message: "Failed to verify entity" });
+    }
+  };
+
+  archiveEntity = async (req: Request, res: Response) => {
+    try {
+      const id = String(req.params.id);
+      await this.verificationService.archive(id);
+
+      await this.audit.log({
+        id: crypto.randomUUID(),
+        actorId: String(req.headers["x-user-id"] || "unknown"),
+        action: "archive_entity",
+        entityType: "entity",
+        entityId: id,
+        timestamp: new Date().toISOString()
+      });
+
+      return res.json({ success: true });
+    } catch (error) {
+      return res.status(500).json({ success: false, message: "Failed to archive entity" });
+    }
+  };
+
+  restoreEntity = async (req: Request, res: Response) => {
+    try {
+      const id = String(req.params.id);
+      await this.verificationService.restore(id);
+
+      await this.audit.log({
+        id: crypto.randomUUID(),
+        actorId: String(req.headers["x-user-id"] || "unknown"),
+        action: "restore_entity",
+        entityType: "entity",
+        entityId: id,
+        timestamp: new Date().toISOString()
+      });
+
+      return res.json({ success: true });
+    } catch (error) {
+      return res.status(500).json({ success: false, message: "Failed to restore entity" });
+    }
+  };
 
   getEntityBySlug = async (
     req: Request,
