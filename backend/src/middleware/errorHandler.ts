@@ -1,6 +1,5 @@
 import { Request, Response, NextFunction } from "express";
 import { logger } from "../config/logger";
-import { env } from "../config/env";
 
 export function errorHandler(
   err: any,
@@ -11,10 +10,13 @@ export function errorHandler(
   logger.error({ err }, "❌ [Unhandled Error]");
 
   const status = err?.status || err?.statusCode || 500;
+  const code = err?.code || 'INTERNAL_SERVER_ERROR';
 
   res.status(status).json({
     success: false,
-    message: err?.message || "Internal Server Error",
-    error: env.NODE_ENV === "production" ? undefined : err
+    error: {
+      code,
+      message: err?.message || "Internal Server Error"
+    }
   });
 }

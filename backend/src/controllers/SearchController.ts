@@ -42,14 +42,13 @@ export class SearchController {
 
     try {
 
-      const query =
-        String(
-          req.query.q || ""
-        );
+      const queryDto = {
+        query: String(req.query.q || ""),
+      };
 
       const results =
         await this.searchService.search(
-          query
+          queryDto
         );
 
       return res.json({

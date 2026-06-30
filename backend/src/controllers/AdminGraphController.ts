@@ -19,7 +19,7 @@ export const AdminGraphController = {
 
   update: asyncHandler(async (req: Request, res: Response) => {
     const { id } = req.params;
-    const result = await graphService.updateGraphMetadata();
+    const result = await graphService.updateGraphMetadata(req.body);
     res.json({ id, ...result });
   }),
 

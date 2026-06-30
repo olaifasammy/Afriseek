@@ -19,7 +19,7 @@ app.use(pinoHttp({ logger }));
 // Function to initialize routes, called in index.ts
 export const initializeAppRoutes = async () => {
     const srcDir = path.join(__dirname);
-    const discoveredRoutes = discoverRoutes(srcDir);
+    const discoveredRoutes = discoverRoutes(srcDir, '/api/v1');
     
     for (const route of discoveredRoutes) {
       const router = require(route.filePath).default;

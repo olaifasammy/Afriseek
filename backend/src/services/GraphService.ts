@@ -1,3 +1,5 @@
+import { graphEventEmitter } from "../infrastructure/events/GraphEventEmitter";
+
 export class GraphService {
   constructor() {}
 
@@ -9,11 +11,13 @@ export class GraphService {
     };
   }
 
-  async updateGraphMetadata() {
+  async updateGraphMetadata(data: { name?: string; status?: string }) {
+    graphEventEmitter.emitMetadataUpdated(data);
     return { success: true };
   }
 
   async archiveGraph() {
+    graphEventEmitter.emitArchived();
     return { success: true };
   }
 }

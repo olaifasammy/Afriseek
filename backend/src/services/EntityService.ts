@@ -8,6 +8,7 @@ import { SearchIndexer } from "./SearchIndexer";
 import { AnalyticsService } from "./AnalyticsService";
 import { logger } from "../config/logger";
 import { NotFoundError, ValidationError } from "../types/api/error";
+import { entityEventEmitter } from "../infrastructure/events/EntityEventEmitter";
 
 export class EntityService {
   private validator = new EntityValidator();
@@ -63,6 +64,7 @@ export class EntityService {
     );
     await this.searchIndexer.indexEntity(entity);
     await this.analyticsService.processEvent('ENTITY_CREATED', { entityId: entity.id });
+    entityEventEmitter.emitCreated(entity);
     logger.info({ entityId: entity.id }, "Entity created successfully");
     return created;
   }
@@ -90,6 +92,7 @@ export class EntityService {
     );
     await this.searchIndexer.indexEntity(updatedEntity);
     await this.analyticsService.processEvent('ENTITY_UPDATED', { entityId: entity.id });
+    entityEventEmitter.emitUpdated(updatedEntity);
     logger.info({ entityId: entity.id }, "Entity updated successfully");
     return updated;
   }
@@ -103,6 +106,7 @@ export class EntityService {
     );
     await this.searchIndexer.deleteEntity(id);
     await this.analyticsService.processEvent('ENTITY_DELETED', { entityId: id });
+    entityEventEmitter.emitDeleted(id);
     logger.info({ entityId: id }, "Entity deleted successfully");
     return result;
   }

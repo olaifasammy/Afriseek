@@ -2,6 +2,7 @@ import { ArticleRepository } from "../core/repositories/ArticleRepository";
 import { Article, ArticleStatus } from "../types/article";
 import { AuditService } from "./AuditService";
 import { logger } from "../config/logger";
+import { articleEventEmitter } from "../infrastructure/events/ArticleEventEmitter";
 
 export class ArticleService {
   constructor(
@@ -46,6 +47,7 @@ export class ArticleService {
       timestamp: new Date().toISOString(),
       metadata: { new_value: article }
     });
+    articleEventEmitter.emitCreated(article);
     logger.info({ articleId: article.id }, "Article created successfully");
     return article;
   }
@@ -82,6 +84,7 @@ export class ArticleService {
       timestamp: new Date().toISOString(),
       metadata: { old_value: oldArticle, new_value: article }
     });
+    articleEventEmitter.emitUpdated(article);
     logger.info({ articleId: id }, "Article updated successfully");
     return article;
   }
@@ -123,6 +126,13 @@ export class ArticleService {
       timestamp: new Date().toISOString(),
       metadata: { old_value: { status: oldStatus }, new_value: { status: status } }
     });
+    
+    if (status === ArticleStatus.PUBLISHED) {
+        articleEventEmitter.emitPublished(id);
+    } else if (status === ArticleStatus.ARCHIVED) {
+        articleEventEmitter.emitArchived(id);
+    }
+    
     logger.info({ articleId: id, status }, "Article status updated successfully");
     return article;
   }

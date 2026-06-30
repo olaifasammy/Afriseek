@@ -1,0 +1,20 @@
+CREATE TABLE IF NOT EXISTS media (
+    id TEXT PRIMARY KEY,
+    title TEXT NOT NULL,
+    media_type TEXT NOT NULL,
+    file_name TEXT NOT NULL,
+    mime_type TEXT NOT NULL,
+    owner_id TEXT NOT NULL,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    description TEXT,
+    caption TEXT,
+    tags JSONB DEFAULT '[]',
+    keywords JSONB DEFAULT '[]',
+    author TEXT,
+    copyright_holder TEXT,
+    license TEXT,
+    language TEXT,
+    geo_location TEXT,
+    date_created TIMESTAMP WITH TIME ZONE,
+    date_captured TIMESTAMP WITH TIME ZONE
+);

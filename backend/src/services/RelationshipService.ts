@@ -3,6 +3,7 @@ import { RelationshipRepository } from "../core/repositories/RelationshipReposit
 import { RelationshipInstanceValidator } from "../modules/entity/RelationshipInstanceValidator";
 import { EntityRepository } from "../core/repositories/EntityRepository";
 import { ontologyRegistry } from "../modules/ontology/OntologyRegistry";
+import { relationshipEventEmitter } from "../infrastructure/events/RelationshipEventEmitter";
 
 export class RelationshipService {
   private validator: RelationshipInstanceValidator;
@@ -23,10 +24,12 @@ export class RelationshipService {
     relationship: Relationship
   ) {
     await this.validator.validate(entityId, relationship.targetId, relationship.type);
-    return this.repository.create(
+    const result = await this.repository.create(
       entityId,
       relationship
     );
+    relationshipEventEmitter.emitCreated({ entityId, relationship });
+    return result;
   }
 
   async delete(
@@ -49,6 +52,7 @@ export class RelationshipService {
             await this.repository.delete(targetId, entityId);
         }
       }
+      relationshipEventEmitter.emitDeleted(`${entityId}:${targetId}`);
     }
   }
 
@@ -65,6 +69,8 @@ export class RelationshipService {
         ...metadata
     };
 
-    return this.repository.update(entityId, targetId, updatedRelationship);
+    const result = await this.repository.update(entityId, targetId, updatedRelationship);
+    relationshipEventEmitter.emitUpdated({ entityId, targetId, relationship: updatedRelationship });
+    return result;
   }
 }

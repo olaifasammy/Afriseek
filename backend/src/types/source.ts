@@ -24,9 +24,16 @@ export interface SourceMetadata {
   publisher: string;
   publicationDate: string;
   language: string;
-  url?: string;
+  urlIdentifier?: string;
   isbn?: string;
+  issn?: string;
   doi?: string;
+  edition?: string;
+  volume?: string;
+  issue?: string;
+  pages?: string;
+  archiveLocation?: string;
+  notes?: string;
 }
 
 export interface Source {

@@ -37,4 +37,14 @@ describe('EntityService', () => {
     expect(result).toEqual(mockEntities);
     expect(mockRepository.findAll).toHaveBeenCalledTimes(1);
   });
+
+  it('should create an entity', async () => {
+    const mockEntity: AfriseekEntity = { id: '2', name: 'Test2', entityType: 'person' } as any;
+    (mockRepository.create as jest.Mock<() => Promise<void>>).mockResolvedValue(undefined);
+
+    const result = await service.create(mockEntity);
+    expect(result).toBeUndefined();
+    expect(mockRepository.create).toHaveBeenCalledWith(mockEntity);
+    expect(mockAnalyticsService.processEvent).toHaveBeenCalledWith('ENTITY_CREATED', { entityId: mockEntity.id });
+  });
 });

@@ -9,7 +9,15 @@ export class MediaService {
     private auditService: AuditService
   ) {}
 
-  async upload(actorId: string, data: Omit<Media, 'id' | 'status' | 'createdAt' | 'updatedAt'>) {
+  async findAll(): Promise<Media[]> {
+    return await this.mediaRepository.findAll();
+  }
+
+  async findById(id: string): Promise<Media | null> {
+    return await this.mediaRepository.findById(id);
+  }
+
+  async upload(actorId: string, data: Omit<Media, 'id' | 'status' | 'createdAt' | 'updatedAt' | 'ownerId'>) {
     logger.info({ actorId, fileName: data.fileName }, "Uploading media");
     // Basic validation
     if (!data.metadata.title || !data.metadata.license) {
@@ -23,6 +31,7 @@ export class MediaService {
       fileName: data.fileName,
       mimeType: data.mimeType,
       fileSize: data.fileSize,
+      ownerId: actorId,
       status: MediaStatus.DRAFT,
       metadata: data.metadata,
       createdAt: new Date().toISOString(),
@@ -70,7 +79,7 @@ export class MediaService {
 
   async delete(actorId: string, id: string) {
     logger.info({ actorId, mediaId: id }, "Deleting media");
-    await this.mediaRepository.delete(id, actorId);
+    await this.mediaRepository.delete(id);
     await this.auditService.log({
       id: `audit_${Date.now()}`,
       actorId,

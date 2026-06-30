@@ -8,18 +8,25 @@ export enum MediaStatus {
 export interface MediaMetadata {
   title: string;
   description?: string;
+  caption?: string;
+  tags?: string[];
+  keywords?: string[];
   author?: string;
   copyrightHolder?: string;
-  license: string; // Should reference a license type
+  license: string;
+  language?: string;
+  geoLocation?: string;
   dateCreated?: string;
+  dateCaptured?: string;
 }
 
 export interface Media {
   id: string;
-  type: string; // Image, Video, etc.
+  type: string;
   fileName: string;
   mimeType: string;
   fileSize: number;
+  ownerId: string;
   status: MediaStatus;
   metadata: MediaMetadata;
   createdAt: string;

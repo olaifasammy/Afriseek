@@ -1,5 +1,6 @@
 import { OntologyDefinitionRepository } from "../repositories/ontology/OntologyDefinitionRepository";
 import { OntologyDefinitionRecord } from "../types/studio/OntologyDefinitionRecord";
+import { ontologyEventEmitter } from "../infrastructure/events/OntologyEventEmitter";
 
 export class OntologyDefinitionService {
 
@@ -26,6 +27,7 @@ export class OntologyDefinitionService {
     await this.repository.create(
       record
     );
+    ontologyEventEmitter.emitCreated(record);
   }
 
   async update(
@@ -34,6 +36,7 @@ export class OntologyDefinitionService {
     await this.repository.update(
       record
     );
+    ontologyEventEmitter.emitUpdated(record);
   }
 
   async delete(

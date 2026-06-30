@@ -12,7 +12,7 @@ class MockMediaRepository implements MediaRepository {
     const index = this.mediaList.findIndex(m => m.id === media.id);
     this.mediaList[index] = media;
   }
-  async delete(id: string, _actorId: string) { this.mediaList = this.mediaList.filter(m => m.id !== id); }
+  async delete(id: string) { this.mediaList = this.mediaList.filter(m => m.id !== id); }
   async findByStatus(status: MediaStatus) { return this.mediaList.filter(m => m.status === status); }
 }
 

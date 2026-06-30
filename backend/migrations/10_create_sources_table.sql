@@ -1,0 +1,23 @@
+CREATE TABLE IF NOT EXISTS sources (
+    id TEXT PRIMARY KEY,
+    title TEXT NOT NULL,
+    source_type TEXT NOT NULL,
+    author TEXT,
+    publisher TEXT,
+    publication_date TIMESTAMP WITH TIME ZONE,
+    language TEXT,
+    url_identifier TEXT,
+    isbn TEXT,
+    issn TEXT,
+    doi TEXT,
+    edition TEXT,
+    volume TEXT,
+    issue TEXT,
+    pages TEXT,
+    archive_location TEXT,
+    notes TEXT,
+    credibility_score INTEGER DEFAULT 0,
+    verification_status TEXT DEFAULT 'UNVERIFIED',
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);

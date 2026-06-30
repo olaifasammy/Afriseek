@@ -9,18 +9,26 @@ export class SourceService {
     private auditService: AuditService
   ) {}
 
-  async create(actorId: string, data: Omit<Source, 'id' | 'status' | 'credibilityScore' | 'createdAt' | 'updatedAt'>) {
+  async findAll(): Promise<Source[]> {
+    return await this.sourceRepository.findAll();
+  }
+
+  async findById(id: string): Promise<Source | null> {
+    return await this.sourceRepository.findById(id);
+  }
+
+  async create(actorId: string, data: Omit<Source, 'id' | 'createdAt' | 'updatedAt' | 'status' | 'credibilityScore'>) {
     logger.info({ actorId, title: data.metadata.title }, "Creating source");
     const source: Source = {
       id: `src_${Date.now()}`,
       type: data.type,
       metadata: data.metadata,
-      credibilityScore: 50, // Default base score
       status: SourceStatus.DRAFT,
+      credibilityScore: 0,
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
     };
-
+    
     await this.sourceRepository.create(source);
     await this.auditService.log({
       id: `audit_${Date.now()}`,
@@ -31,58 +39,41 @@ export class SourceService {
       timestamp: new Date().toISOString(),
       metadata: { new_value: source }
     });
-    logger.info({ sourceId: source.id }, "Source created successfully");
     return source;
   }
 
-  async verify(actorId: string, id: string) {
-    logger.info({ actorId, sourceId: id }, "Verifying source");
+  async update(actorId: string, id: string, data: Partial<Source>) {
+    logger.info({ actorId, sourceId: id }, "Updating source");
     const source = await this.sourceRepository.findById(id);
-    if (!source) {
-        logger.error({ sourceId: id }, "Source not found for verification");
-        throw new Error("Source not found");
-    }
+    if (!source) throw new Error("Source not found");
 
-    const oldStatus = source.status;
-    source.status = SourceStatus.VERIFIED;
-    source.credibilityScore = 80; // Boost score on verification
-    source.updatedAt = new Date().toISOString();
-
+    const oldSource = { ...source };
+    Object.assign(source, data, { updatedAt: new Date().toISOString() });
+    
     await this.sourceRepository.update(source);
     await this.auditService.log({
       id: `audit_${Date.now()}`,
       actorId,
       entityType: 'SOURCE',
       entityId: source.id,
-      action: 'VERIFY',
+      action: 'UPDATE',
       timestamp: new Date().toISOString(),
-      metadata: { old_value: { status: oldStatus }, new_value: { status: SourceStatus.VERIFIED } }
+      metadata: { old_value: oldSource, new_value: source }
     });
-    logger.info({ sourceId: id }, "Source verified successfully");
     return source;
   }
 
-  async updateCredibility(actorId: string, id: string, score: number) {
-    logger.info({ actorId, sourceId: id, score }, "Updating source credibility");
-    const source = await this.sourceRepository.findById(id);
-    if (!source) {
-      throw new Error("Source not found");
-    }
-
-    const oldScore = source.credibilityScore;
-    source.credibilityScore = score;
-    source.updatedAt = new Date().toISOString();
-
-    await this.sourceRepository.update(source);
+  async delete(actorId: string, id: string) {
+    logger.info({ actorId, sourceId: id }, "Deleting source");
+    await this.sourceRepository.delete(id, actorId);
     await this.auditService.log({
       id: `audit_${Date.now()}`,
       actorId,
       entityType: 'SOURCE',
-      entityId: source.id,
-      action: 'UPDATE_CREDIBILITY',
-      timestamp: new Date().toISOString(),
-      metadata: { old_value: oldScore, new_value: score }
+      entityId: id,
+      action: 'DELETE',
+      timestamp: new Date().toISOString()
     });
-    return source;
+    return { success: true };
   }
 }

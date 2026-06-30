@@ -43,18 +43,4 @@ describe("SourceService", () => {
     expect(mockAudit.logs.length).toBe(1);
     expect(mockAudit.logs[0].action).toBe("CREATE");
   });
-
-  it("should verify source and boost credibility", async () => {
-    const source = await sourceService.create("user1", {
-      type: SourceType.BOOK,
-      metadata: { title: "Test Book", author: "Author", publisher: "Publisher", publicationDate: "2026", language: "en" }
-    });
-
-    await sourceService.verify("user1", source.id);
-    
-    const fetched = await mockRepo.findById(source.id);
-    expect(fetched?.status).toBe(SourceStatus.VERIFIED);
-    expect(fetched?.credibilityScore).toBe(80);
-    expect(mockAudit.logs.some(l => l.action === "VERIFY")).toBe(true);
-  });
 });
